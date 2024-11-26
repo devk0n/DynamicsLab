@@ -494,3 +494,35 @@ events:
       Running the CXX compiler's linker: "/bin/ld" "-v"
       GNU ld (GNU Binutils) 2.43.0
 ...
+
+---
+events:
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:108 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:58 (cmake_check_source_compiles)"
+      - "/usr/share/cmake/Modules/FindThreads.cmake:97 (CHECK_C_SOURCE_COMPILES)"
+      - "/usr/share/cmake/Modules/FindThreads.cmake:163 (_threads_check_libc)"
+      - "/usr/share/cmake/Modules/CMakeFindDependencyMacro.cmake:76 (find_package)"
+      - "/usr/lib/cmake/glfw3/glfw3Config.cmake:2 (find_dependency)"
+      - "CMakeLists.txt:14 (find_package)"
+    checks:
+      - "Performing Test CMAKE_HAVE_LIBC_PTHREAD"
+    directories:
+      source: "/home/devkon/CLionProjects/DynamicsLab/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-8LseKC"
+      binary: "/home/devkon/CLionProjects/DynamicsLab/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-8LseKC"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_HAVE_LIBC_PTHREAD"
+      cached: true
+      stdout: |
+        Change Dir: '/home/devkon/CLionProjects/DynamicsLab/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-8LseKC'
+        
+        Run Build Command(s): /opt/clion/bin/ninja/linux/x64/ninja -v cmTC_99e51
+        [1/2] /bin/cc -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_99e51.dir/src.c.o -c /home/devkon/CLionProjects/DynamicsLab/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-8LseKC/src.c
+        [2/2] : && /bin/cc  -rdynamic CMakeFiles/cmTC_99e51.dir/src.c.o -o cmTC_99e51   && :
+        
+      exitCode: 0
+...
