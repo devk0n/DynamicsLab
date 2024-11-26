@@ -1,0 +1,3 @@
+/home/devkon/CLionProjects/DynamicsLab/cmake-build-debug/CMakeFiles/DynamicsLab.dir
+/home/devkon/CLionProjects/DynamicsLab/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/devkon/CLionProjects/DynamicsLab/cmake-build-debug/CMakeFiles/rebuild_cache.dir
