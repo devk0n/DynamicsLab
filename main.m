@@ -1,5 +1,17 @@
 clear; close all; clc; format shortG;
 
+% 11.42
+% Table 7.1
+
+% Constaints
+L1 = 1.0;
+L2 = 1.0;
+
+s0A = [0; 0; 0];
+s1Am = [-L1; 0; 0];
+s1Bm = [L2; 0; 0];
+
+
 % Constants
 g = 9.81;               % Gravity
 dt = 0.01;              % Time step
@@ -11,6 +23,12 @@ q1 = [1; 0; 0; 1; 0; 0; 0]; % Initial position and orientation
 q1d = [0; 0; 0; 0; 0; 0; 0]; % Initial velocity
 r1 = q1(1:3);
 p1 = q1(4:7);
+
+
+% J = [-eye(3), -2 * (gMatrix(p1) * skewN(s1Am) + s1Am * p1')]
+% Jacobian = [-eye(3), - 2 * gMatrix(p1) * skewN(s1Am)]
+
+% Gamma = -(-2 * gMatrix(p1d) * lMatrix(p1d)' * s1Am)
 
 % Parameters
 N1 = diag([10, 10, 10]);
@@ -37,9 +55,14 @@ for step = 1:length(time)
     J1s = 4 * L1' * J1m * L1;
     Ms = blkdiag(N1, J1s);
     
+    % Jacobian & Gamma
+    B = [-eye(3), - 2 * gMatrix(p1) * skewN(s1Am)];
+
+    gamma = -(-2 * gMatrix(p1d) * lMatrix(p1d)' * s1Am);
+
     % Constraint Matrix
     P = [zeros(1, 3), p1'];
-    A = [Ms, P'; P, zeros(1, 1)];
+    A = [Ms, P', B'; P, zeros(1,4); B, zeros(3, 4)];
     
     % Time Derivative of L1
     L1d = [-p1d(2),  p1d(1),  p1d(4), -p1d(3);
@@ -52,13 +75,13 @@ for step = 1:length(time)
     
     % Additional Constraint
     c = p1d' * p1d;
-    B = [bs; c];
+    B = [bs; c; 0; 0; 0];
     
     % External Forces and Torques
-    f1 = [0; 0; -N1(1, 1) * g];
+    f1 = [0; 0; 10];
     n1s = [zeros(4, 1)];
     gs = [f1; n1s];
-    c = [gs; 0];
+    c = [gs; 0; gamma];
     
     % Solve for accelerations and constraint force
     x = A \ (c - B);
@@ -93,3 +116,25 @@ xlabel('Time (s)');
 ylabel('Orientation Components');
 legend('p1', 'p2', 'p3', 'p4');
 title('Orientation over Time');
+
+function G = gMatrix(p)
+    G = [-p(2),  p(1), -p(4),  p(3);
+         -p(3),  p(4),  p(1), -p(2);
+         -p(4), -p(3),  p(2),  p(1)];
+end
+
+function L = lMatrix(p)
+    L = [-p(2),  p(1),  p(4), -p(3);
+         -p(3), -p(4),  p(1),  p(2);
+         -p(4),  p(3), -p(2),  p(1)];
+end
+
+function Sn = skewN(a)
+    Sn = [0, -a'; a, -skew(a)];
+end
+
+function S = skew(v)
+    S = [    0, -v(3),  v(2); 
+          v(3),     0, -v(1); 
+         -v(2),  v(1),     0];
+end
