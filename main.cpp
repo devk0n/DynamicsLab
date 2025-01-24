@@ -4,6 +4,12 @@
 #include <imgui_impl_opengl3.h>
 #include <iostream>
 
+namespace Config {
+    constexpr int width = 1280;
+    constexpr int height = 960;
+    const char *const windowName = "DynamicsLab";
+}
+
 void mainLoop(GLFWwindow* window) {
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
@@ -30,7 +36,7 @@ int main() {
         return -1;
     }
 
-    GLFWwindow* window = glfwCreateWindow(800, 600, "ImGui + GLFW", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(Config::width, Config::height, Config::windowName, nullptr, nullptr);
     if (!window) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.3)
 project(DynamicsLab)
 
 # Set C++ standard
@@ -29,9 +29,7 @@ FetchContent_Declare(
     GIT_TAG v1.91.7
 )
 
-
 find_package(OpenGL REQUIRED)
-
 
 FetchContent_GetProperties(imgui)
 if (NOT imgui_POPULATED)
@@ -64,5 +62,5 @@ set(SOURCES
 # Add executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-# Link ImGui and GLFW to your project
+# Link ImGui, GLFW, and OpenGL to your project
 target_link_libraries(${PROJECT_NAME} PRIVATE imgui glfw OpenGL::GL)
