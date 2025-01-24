@@ -5,6 +5,9 @@ project(DynamicsLab)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(EIGEN3_INCLUDE_DIR "C:/Users/devkon/Development/Tools/eigen-3.4.0")
+include_directories(${EIGEN3_INCLUDE_DIR})
+
 # Include FetchContent module
 include(FetchContent)
 
