@@ -1,0 +1,29 @@
+# Normalize text files to LF line endings (Linux/macOS)
+* text=auto eol=lf
+
+# Treat source code files as text
+*.cpp text
+*.h text
+*.hpp text
+*.c text
+*.inl text
+
+# Ignore binary files (prevent Git from diffing)
+*.png binary
+*.jpg binary
+*.gif binary
+*.exe binary
+*.dll binary
+*.so binary
+*.dylib binary
+*.a binary
+*.o binary
+*.lib binary
+
+# Ignore build artifacts in archives (git archive command)
+CMakeCache.txt export-ignore
+CMakeFiles/ export-ignore
+cmake_install.cmake export-ignore
+*.log export-ignore
+.idea/ export-ignore
+build/ export-ignore
