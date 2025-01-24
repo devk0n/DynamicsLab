@@ -1,14 +1,5 @@
 # Ignore build directories
-cmake-build-*/
+cmake-build-debug/
 
 # Ignore IDE configuration
 .idea/
-
-# Ignore temporary files
-*.log
-*.tmp
-
-# Ignore compiled binaries
-*.o
-*.out
-*.exe

@@ -1,11 +1,8 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 project(DynamicsLab)
 
 # Set C++ standard
-set(CMAKE_CXX_STANDARD 26)
-
-# Find Vulkan
-find_package(Vulkan REQUIRED)
+set(CMAKE_CXX_STANDARD 17)
 
 # Source files
 set(SOURCES
@@ -14,6 +11,3 @@ set(SOURCES
 
 # Add executable
 add_executable(${PROJECT_NAME} ${SOURCES})
-
-# Link Vulkan library
-target_link_libraries(${PROJECT_NAME} Vulkan::Vulkan)
