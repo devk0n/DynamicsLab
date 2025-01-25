@@ -1,14 +1,27 @@
 #include <iostream>
 #include <vector>
 #include <imgui.h>
+#include <thread>
 
 #include "graphics/graphics_manager.h"
+#include "dynamics/simulation.h"
 
 int main() {
 
     try {
         GraphicsManager graphicsManager;
+        Simulation simulation(&graphicsManager);
+
+        // Start the simulation thread
+        std::thread simThread(&Simulation::run, &simulation);
+
+        // Run graphics in the main thread
         graphicsManager.run();
+
+        // Stop the simulation once graphics exit
+        simulation.stop();
+        simThread.join();  // Wait for the simulation thread to finish
+
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return EXIT_FAILURE;

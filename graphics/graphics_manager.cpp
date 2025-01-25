@@ -45,12 +45,11 @@ void GraphicsManager::mainLoop() {
 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        renderGUI(); // Render all ImGui windows
+        renderGUI();
 
         glfwSwapBuffers(window.get());
     }
 }
-
 
 void GraphicsManager::renderGUI() {
     // Start a new ImGui frame
@@ -59,7 +58,7 @@ void GraphicsManager::renderGUI() {
     ImGui::NewFrame();
 
     showSimulationWindow();
-    showControlWindow();
+    // showControlWindow();
     showDebugWindow();
 
     // Render ImGui frame
@@ -70,7 +69,7 @@ void GraphicsManager::renderGUI() {
 // Function to show the simulation monitoring window
 void GraphicsManager::showSimulationWindow() {
     ImGui::Begin("Simulation Monitoring");
-    ImGui::Text("Time: %.2f", 1);
+    ImGui::Text("Time: %.2f", 0.0);
     ImGui::Text("Position X: %.3f", 1);
     ImGui::Text("Position Y: %.3f", 1);
     ImGui::Text("Position Z: %.3f", 1);
@@ -78,12 +77,11 @@ void GraphicsManager::showSimulationWindow() {
 }
 
 // Function to show the control panel
-
 void GraphicsManager::showControlWindow() {
     ImGui::Begin("Control Panel");
-    static float inputVal = 0.0f;
-    ImGui::SliderFloat("Input Value", &inputVal, 0.0f, 100.0f);
-    //ImGui::Checkbox("Enable Feature", &enableFeature);
+    // static double inputVal = 0.00025f;
+    // ImGui::InputDouble("Time Step", &inputVal, 0.00025, 0.01, "%.5f", 2);
+    // ImGui::Checkbox("Pause", &taskActive);
     ImGui::End();
 }
 
@@ -92,10 +90,18 @@ void GraphicsManager::showDebugWindow() {
     ImGui::Begin("Debug Info");
     ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
     ImGui::Text("Window Size: %d x %d", WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    // Retrieve information about another window
+    ImVec2 windowPos = ImGui::GetWindowPos();
+    ImVec2 windowSize = ImGui::GetWindowSize();
+
+    ImGui::Text("Window Position: (%.1f, %.1f)", windowPos.x, windowPos.y);
+    ImGui::Text("Window Size: (%.1f x %.1f)", windowSize.x, windowSize.y);
+
+    ImGui::Text("Time: %.1f", time);
+
     ImGui::End();
 }
-
-
 
 void GraphicsManager::cleanUp() {
     ImGui_ImplOpenGL3_Shutdown();
@@ -112,3 +118,4 @@ void GraphicsManager::initializeImGui() {
     ImGui_ImplGlfw_InitForOpenGL(window.get(), true);
     ImGui_ImplOpenGL3_Init("#version 330");
 }
+

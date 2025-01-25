@@ -81,8 +81,8 @@ endif()
 # Source files
 set(SOURCES
         main.cpp
-        dynamics/Simulation.cpp
         graphics/graphics_manager.cpp
+        dynamics/simulation.cpp
 )
 
 # Add executable
