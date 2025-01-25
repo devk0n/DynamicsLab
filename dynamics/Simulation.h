@@ -1,20 +1,17 @@
-#pragma once
+#ifndef SIMULATION_H
+#define SIMULATION_H
+
 #include <Eigen/Dense>
 #include <vector>
 
-class Simulation {
-public:
-    Simulation();
-    void run();
-private:
-    void initialize();
-    void step(double timeStep);
-    void integrate(double timeStep);
+using namespace Eigen;
 
-    Eigen::VectorXd q1, q1d;
-    double m1, l1, h1, w1;
-    Eigen::Matrix3d N1;
-    Eigen::Matrix3d J1m;
-    std::vector<Eigen::Vector3d> positions;
-    std::vector<Eigen::Vector4d> orientations;
+struct SimulationResult {
+    std::vector<Vector3d> positions;
+    std::vector<Vector4d> orientations;
+    std::uint16_t calculationTime;
 };
+
+void stepSimulation(double timeStep, VectorXd &q1, VectorXd &q1d);
+
+#endif // SIMULATION_H

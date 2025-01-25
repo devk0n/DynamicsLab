@@ -5,6 +5,7 @@ project(DynamicsLab)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Eigen include directory (adjust this to your local path)
 set(EIGEN3_INCLUDE_DIR "C:/Users/devkon/Development/Tools/eigen-3.4.0")
 include_directories(${EIGEN3_INCLUDE_DIR})
 
@@ -57,13 +58,35 @@ if (NOT imgui_POPULATED)
     target_link_libraries(imgui glfw OpenGL::GL)
 endif()
 
+# Fetch ImPlot
+FetchContent_Declare(
+    implot
+    GIT_REPOSITORY https://github.com/epezent/implot.git
+    GIT_TAG v0.16
+)
+
+FetchContent_GetProperties(implot)
+if (NOT implot_POPULATED)
+    FetchContent_MakeAvailable(implot)
+
+    add_library(implot STATIC
+        ${implot_SOURCE_DIR}/implot.cpp
+        ${implot_SOURCE_DIR}/implot_items.cpp
+    )
+
+    target_include_directories(implot PUBLIC ${implot_SOURCE_DIR})
+    target_link_libraries(implot imgui)
+endif()
+
 # Source files
 set(SOURCES
-    main.cpp
+        main.cpp
+        dynamics/Simulation.cpp
+        graphics/graphics_manager.cpp
 )
 
 # Add executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-# Link ImGui, GLFW, and OpenGL to your project
-target_link_libraries(${PROJECT_NAME} PRIVATE imgui glfw OpenGL::GL)
+# Link libraries to the project
+target_link_libraries(${PROJECT_NAME} PRIVATE imgui implot glfw OpenGL::GL)
