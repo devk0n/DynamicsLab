@@ -4,7 +4,6 @@
 
 #include "graphics/graphics_manager.h"
 
-
 int main() {
 
     try {
@@ -17,26 +16,6 @@ int main() {
 
     return EXIT_SUCCESS;
 }
-
-
-/**
- *
-    glfwMakeContextCurrent(window);
-    ImGui::CreateContext();
-    ImPlot::CreateContext();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
-
-    mainLoop(window);
-
-    // Cleanup
-    ImPlot::DestroyContext();
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-    glfwDestroyWindow(window);
-    glfwTerminate();
- */
 
 /**
 *

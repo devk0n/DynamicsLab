@@ -1,6 +1,6 @@
 #include "matrix_utilities.h"
 
-namespace MatrixUtils {
+namespace MatrixUtilities {
     Eigen::Matrix<double, 3, 4> gMatrix(const Eigen::Vector4d &p) {
         Eigen::Matrix<double, 3, 4> G;
         G << -p(1), p(0), -p(3), p(2),

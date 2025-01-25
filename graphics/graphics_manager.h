@@ -1,6 +1,8 @@
 #ifndef DYNAMICSLAB_GRAPHICS_MANAGER_H
 #define DYNAMICSLAB_GRAPHICS_MANAGER_H
 
+#include <memory>
+
 #include "GLFW/glfw3.h"
 
 class GraphicsManager {
@@ -11,7 +13,8 @@ public:
     void run();
 
 private:
-    GLFWwindow* window{};
+    std::unique_ptr<GLFWwindow, void(*)(GLFWwindow*)> window;
+
 
     int WINDOW_WIDTH{};
     int WINDOW_HEIGHT{};
@@ -21,6 +24,16 @@ private:
     void createWindow();
     void mainLoop();
     void cleanUp();
+
+    void renderGUI();
+
+    void showSimulationWindow();
+
+    void showControlWindow();
+
+    void showDebugWindow();
+
+    void initializeImGui();
 };
 
 
