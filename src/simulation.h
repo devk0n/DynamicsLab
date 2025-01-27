@@ -1,7 +1,7 @@
 #ifndef DYNAMICSLAB_SIMULATION_H
 #define DYNAMICSLAB_SIMULATION_H
 
-#include "../graphics/graphics_manager.h"
+#include "graphics_manager.h"
 
 class Simulation {
 public:
