@@ -27,4 +27,3 @@ cmake_install.cmake export-ignore
 *.log export-ignore
 .idea/ export-ignore
 build/ export-ignore
-include/ export-ignore
