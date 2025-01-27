@@ -28,5 +28,5 @@ cmake_install.cmake export-ignore
 .idea/ export-ignore
 build/ export-ignore
 src/glad.c linguist-detectable=false
-include/glad/* linguist-detectable=false
-include/KHR/* linguist-detectable=false
+include/glad/glad.h linguist-detectable=false
+include/KHR/khrplatform.h linguist-detectable=false
