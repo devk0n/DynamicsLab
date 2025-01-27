@@ -28,6 +28,8 @@ Application::Application(int width, int height, const char* title)
 }
 
 Application::~Application() {
+    m_ImGuiLayer.reset();
+    m_Renderer.reset();
     glfwTerminate();
 }
 
@@ -43,7 +45,7 @@ void Application::run() {
 }
 
 void Application::processInput() {
-    if (glfwGetKey(m_Window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    if (m_Window && glfwGetKey(m_Window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(m_Window.get(), true);
     }
 }

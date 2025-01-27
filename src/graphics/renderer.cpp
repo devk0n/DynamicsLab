@@ -11,6 +11,7 @@ Renderer::Renderer(GLFWwindow* window)
     }
     glfwMakeContextCurrent(m_Window);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "GLAD initialization failed: Unable to load OpenGL functions." << std::endl;
         throw std::runtime_error("Failed to initialize GLAD");
     }
     initOpenGL();
@@ -22,6 +23,10 @@ Renderer::~Renderer() {
 }
 
 void Renderer::initOpenGL() {
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR) {
+        throw std::runtime_error("OpenGL initialization error");
+    }
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
