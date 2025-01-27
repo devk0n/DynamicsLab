@@ -20,7 +20,7 @@
 *.o binary
 *.lib binary
 
-# Ignore build artifacts in archives (git archive command)
+# Ignore build artifacts
 CMakeCache.txt export-ignore
 CMakeFiles/ export-ignore
 cmake_install.cmake export-ignore
