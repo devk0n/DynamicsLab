@@ -28,4 +28,4 @@ cmake_install.cmake export-ignore
 .idea/ export-ignore
 build/ export-ignore
 src/glad.c linguist-vendored
-include/ linguist-vendored
+include/* linguist-vendored
