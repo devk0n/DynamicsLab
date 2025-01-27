@@ -1,6 +1,7 @@
 
 #include "GLFW/glfw3.h"
 #include <stdexcept>
+#include <iostream>
 
 #include "application.h"
 #include "renderer.h"
@@ -28,9 +29,20 @@ Application::Application(int width, int height, const char* title)
 }
 
 Application::~Application() {
-    m_ImGuiLayer.reset();
-    m_Renderer.reset();
-    glfwTerminate();
+    try {
+        m_ImGuiLayer.reset();
+        m_Renderer.reset();
+
+        if (m_Window) {
+            m_Window.reset();
+        }
+
+        glfwTerminate();
+    } catch (const std::exception& e) {
+        std::cerr << "Exception during Application destruction: " << e.what() << std::endl;
+    } catch (...) {
+        std::cerr << "Unknown error during Application destruction" << std::endl;
+    }
 }
 
 void Application::run() {
