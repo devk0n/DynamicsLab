@@ -27,5 +27,5 @@ cmake_install.cmake export-ignore
 *.log export-ignore
 .idea/ export-ignore
 build/ export-ignore
-src/glad.c linguist-vendored
-include/* linguist-vendored
+src/glad.c linguist-detectable=false
+include/* linguist-detectable=false
