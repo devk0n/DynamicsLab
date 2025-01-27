@@ -5,8 +5,8 @@
 #ifndef DYNAMICSLAB_RENDERER_H
 #define DYNAMICSLAB_RENDERER_H
 
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
+#include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
 
 
 class Renderer {

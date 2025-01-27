@@ -24,7 +24,7 @@ set(GLFW_BUILD_TESTS OFF)
 FetchContent_MakeAvailable(glfw)
 
 # GLAD
-add_library(glad STATIC src/glad.c)
+add_library(glad STATIC src/graphics/glad.c)
 target_include_directories(glad PUBLIC include)
 
 # GLEW
@@ -82,10 +82,10 @@ find_package(OpenGL REQUIRED)
 
 # Source files
 set(SOURCES
-        src/main.cpp
-        src/application.cpp
-        src/renderer.cpp
-        src/imgui_layer.cpp
+        src/core/main.cpp
+        src/core/application.cpp
+        src/graphics/renderer.cpp
+        src/ui/imgui_layer.cpp
 )
 
 # Add executable
