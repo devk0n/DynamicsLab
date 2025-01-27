@@ -79,10 +79,12 @@ void ImGuiLayer::showRenderingOptions() {
 void ImGuiLayer::showDebugWindow() {
     ImGui::Begin("Debug Info");
 
+    // Basic statistics
     static int frameCount = 0;
     frameCount++;
     ImGui::Text("Frame Count: %d", frameCount);
     ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+    ImGui::Text("Frame Time: %.3f ms", 1000.0f / ImGui::GetIO().Framerate);
 
     ImGui::End();
 }
