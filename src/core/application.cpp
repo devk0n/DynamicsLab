@@ -48,7 +48,7 @@ Application::~Application() {
 void Application::run() {
     while (!glfwWindowShouldClose(m_Window.get())) {
         processInput();
-        update(0.016f);
+        update(0.00025f);
         render();
 
         glfwSwapBuffers(m_Window.get());
@@ -62,8 +62,17 @@ void Application::processInput() {
     }
 }
 
-void Application::update(float deltaTime) {
-    // Update simulation or other logic
+void Application::update(float stepTime) {
+    static float position = 0.0f;
+    static float velocity = 0.0f;
+    static const float acceleration = -9.8f;
+
+    velocity += acceleration * stepTime;
+    position += velocity * stepTime;
+
+    if (m_ImGuiLayer) {
+        m_ImGuiLayer->updateSimulationData(position, velocity);
+    }
 }
 
 void Application::render() {

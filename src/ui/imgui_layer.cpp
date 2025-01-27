@@ -27,9 +27,16 @@ void ImGuiLayer::renderUI() {
     showSimulationControls();
     showRenderingOptions();
     showDebugWindow();
+    showSimulationData();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void ImGuiLayer::updateSimulationData(float position, float velocity) {
+    m_PositionHistory[m_CurrentIndex] = position;
+    m_VelocityHistory[m_CurrentIndex] = velocity;
+    m_CurrentIndex = (m_CurrentIndex + 1) % historySize;
 }
 
 // Individual UI components
@@ -88,4 +95,24 @@ void ImGuiLayer::showDebugWindow() {
 
     ImGui::End();
 }
+
+void ImGuiLayer::showSimulationData() {
+    ImGui::Begin("Simulation Data");
+
+    // Show current values
+    float currentPos = m_PositionHistory[(m_CurrentIndex - 1 + historySize) % historySize];
+    float currentVel = m_VelocityHistory[(m_CurrentIndex - 1 + historySize) % historySize];
+
+    ImGui::Text("Position: %.2f m", currentPos);
+    ImGui::Text("Velocity: %.2f m/s", currentVel);
+
+    // Plot position and velocity
+    ImGui::PlotLines("Position (m)", m_PositionHistory.data(), historySize, m_CurrentIndex, nullptr, -100.0f, 100.0f, ImVec2(0, 100));
+    ImGui::PlotLines("Velocity (m/s)", m_VelocityHistory.data(), historySize, m_CurrentIndex, nullptr, -100.0f, 100.0f, ImVec2(0, 100));
+
+    ImGui::End();
+}
+
+
+
 
