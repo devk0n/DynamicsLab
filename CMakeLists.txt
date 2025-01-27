@@ -26,12 +26,25 @@ set(GLFW_BUILD_TESTS OFF)
 
 FetchContent_MakeAvailable(glfw)
 
+set(GLEW_INCLUDE_DIR "C:/Users/devkon/Development/Tools/glew-2.2.0/include")
+include_directories(${GLEW_INCLUDE_DIR})
+
 # Fetch ImGui
 FetchContent_Declare(
     imgui
     GIT_REPOSITORY https://github.com/ocornut/imgui.git
     GIT_TAG v1.91.7
 )
+
+include(FetchContent)
+
+FetchContent_Declare(
+	glm
+	GIT_REPOSITORY	https://github.com/g-truc/glm.git
+	GIT_TAG 	bf71a834948186f4097caa076cd2663c69a10e1e #refs/tags/1.0.1
+)
+
+FetchContent_MakeAvailable(glm)
 
 find_package(OpenGL REQUIRED)
 
@@ -89,4 +102,4 @@ set(SOURCES
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # Link libraries to the project
-target_link_libraries(${PROJECT_NAME} PRIVATE imgui implot glfw OpenGL::GL)
+target_link_libraries(${PROJECT_NAME} PRIVATE imgui implot glfw glm::glm OpenGL::GL)

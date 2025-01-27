@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
-#include <imgui.h>
 #include <thread>
+#include <imgui.h>
 
 #include "graphics/graphics_manager.h"
 #include "dynamics/simulation.h"

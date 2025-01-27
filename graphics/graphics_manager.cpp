@@ -2,6 +2,7 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+#include <thread>
 
 #include "graphics_manager.h"
 
@@ -40,14 +41,23 @@ void GraphicsManager::run() {
 }
 
 void GraphicsManager::mainLoop() {
+    constexpr double targetFrameTime = 1.0 / 60.0; // Target 60 FPS
     while (!glfwWindowShouldClose(window.get())) {
-        glfwPollEvents();
+        auto startTime = std::chrono::high_resolution_clock::now();
 
-        glClear(GL_COLOR_BUFFER_BIT);
+        glfwPollEvents(); // Process events
 
-        renderGUI();
+        glClear(GL_COLOR_BUFFER_BIT); // Clear buffers
+        renderGUI(); // Render GUI
+        glfwSwapBuffers(window.get()); // Swap buffers
 
-        glfwSwapBuffers(window.get());
+        auto endTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> frameDuration = endTime - startTime;
+
+        double waitTime = targetFrameTime - frameDuration.count();
+        if (waitTime > 0.0) {
+            std::this_thread::sleep_for(std::chrono::duration<double>(waitTime));
+        }
     }
 }
 
@@ -98,7 +108,7 @@ void GraphicsManager::showDebugWindow() {
     ImGui::Text("Window Position: (%.1f, %.1f)", windowPos.x, windowPos.y);
     ImGui::Text("Window Size: (%.1f x %.1f)", windowSize.x, windowSize.y);
 
-    ImGui::Text("Time: %.1f", time);
+    ImGui::Text("Time: %.4f", time);
 
     ImGui::End();
 }

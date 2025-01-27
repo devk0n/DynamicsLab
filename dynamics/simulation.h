@@ -16,7 +16,7 @@ private:
 
     bool taskActive = true;
     double time = 0.0;
-    double timeStep = 0.0025;
+    double timeStep = 0.0001;
 
     void updateDebug();
 };
