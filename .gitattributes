@@ -27,6 +27,9 @@ cmake_install.cmake export-ignore
 *.log export-ignore
 .idea/ export-ignore
 build/ export-ignore
-/src/glad.c linguist-generated=true
-/include/glad/glad.h linguist-generated=true
-/include/KHR/khrplatform.h linguist-generated=true
+/src/glad.c linguist-documentation
+/include/glad/glad.h linguist-documentation
+/include/KHR/khrplatform.h linguist-documentation
+src/glad.c linguist-documentation
+include/glad/glad.h linguist-documentation
+include/KHR/khrplatform.h linguist-documentation
