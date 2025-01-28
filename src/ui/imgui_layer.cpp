@@ -43,6 +43,11 @@ void ImGuiLayer::updateSimulationData(double position, double velocity) {
     m_CurrentIndex = (m_CurrentIndex + 1) % historySize;
 }
 
+void ImGuiLayer::updateCameraData(const glm::dvec3& position, const glm::dvec3& orientation) {
+    m_CameraPosition = position;
+    m_CameraOrientation = orientation;
+}
+
 
 // Individual UI components
 void ImGuiLayer::showMainMenu() {
@@ -102,8 +107,15 @@ void ImGuiLayer::showDebugWindow() {
     ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
     ImGui::Text("Frame Time: %.3f ms", 1000.0f / ImGui::GetIO().Framerate);
 
+    // Camera information
+    ImGui::Separator();
+    ImGui::Text("Camera Info:");
+    ImGui::Text("Position: (%.2f, %.2f, %.2f)", m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z);
+    ImGui::Text("Orientation: (%.2f, %.2f, %.2f)", m_CameraOrientation.x, m_CameraOrientation.y, m_CameraOrientation.z);
+
     ImGui::End();
 }
+
 
 
 void ImGuiLayer::showSimulationData() {

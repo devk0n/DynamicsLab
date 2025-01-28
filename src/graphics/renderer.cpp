@@ -7,6 +7,8 @@
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <fstream>
+#include <sstream>
 
 #include "renderer.h"
 
@@ -24,36 +26,29 @@ Renderer::Renderer(GLFWwindow* window)
 
     initOpenGL();
 
-    const char* vertexShaderSource = R"(
-        #version 460 core
-        layout (location = 0) in dvec3 a_Position; // Input double-precision data
-        uniform dmat4 u_Projection;               // Double-precision uniform
-        uniform dmat4 u_View;                     // Double-precision uniform
+    std::string vertexShaderSource = loadShaderFromFile("C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/grid.vert.glsl");
+    std::string fragmentShaderSource = loadShaderFromFile("C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/grid.frag.glsl");
 
-        void main() {
-            // Convert double-precision to single-precision for gl_Position
-            gl_Position = mat4(u_Projection) * mat4(u_View) * vec4(a_Position, 1.0);
-        }
-    )";
-
-    const char* fragmentShaderSource = R"(
-        #version 460 core
-        out vec4 FragColor;    // Fragment color output (single-precision)
-        uniform dvec3 u_Color; // Double-precision uniform
-
-        void main() {
-            // Convert double-precision to single-precision for output
-            FragColor = vec4(u_Color, 1.0);
-        }
-    )";
-
-    m_GridShaderProgram = createShaderProgram(vertexShaderSource, fragmentShaderSource);
+    m_GridShaderProgram = createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
 
 }
 
 
 Renderer::~Renderer() {
     std::cout << "Renderer destroyed." << std::endl;
+}
+
+
+std::string Renderer::loadShaderFromFile(const std::string& filepath) {
+    std::ifstream file(filepath, std::ios::in);
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open shader file: " + filepath);
+    }
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    file.close();
+    return buffer.str();
 }
 
 
@@ -259,4 +254,12 @@ GLuint Renderer::createShaderProgram(const char* vertexSource, const char* fragm
     glDeleteShader(fragmentShader);
 
     return program;
+}
+
+glm::dvec3 Renderer::getCameraPosition() const {
+    return m_CameraPos;
+}
+
+glm::dvec3 Renderer::getCameraOrientation() const {
+    return m_CameraFront;
 }

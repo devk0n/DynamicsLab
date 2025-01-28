@@ -13,8 +13,13 @@ public:
     void renderUI();
     void updateSimulationData(double position, double velocity);
 
+    void updateCameraData(const glm::dvec3 &position, const glm::dvec3 &orientation);
+
 private:
     GLFWwindow* m_Window;
+
+    glm::dvec3 m_CameraPosition{};
+    glm::dvec3 m_CameraOrientation{};
 
     // Circular buffer for storing simulation data
     static constexpr int historySize = 100;
@@ -25,8 +30,9 @@ private:
     static void showMainMenu();
     static void showSimulationControls();
     static void showRenderingOptions();
-    static void showDebugWindow();
+    void showDebugWindow();
     void showSimulationData();
+
 
 };
 

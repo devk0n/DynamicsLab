@@ -16,12 +16,16 @@ public:
     void handleMouseMovement(double xpos, double ypos);
     void handleKeyboardInput(GLFWwindow* window, double deltaTime);
 
+    glm::dvec3 getCameraPosition() const;
+
+    glm::dvec3 getCameraOrientation() const;
+
 private:
     GLFWwindow* m_Window;
     GLuint m_GridShaderProgram;
 
-    glm::dvec3 m_CameraPos = glm::dvec3(0.0, 0.0, 3.0);
-    glm::dvec3 m_CameraFront = glm::dvec3(0.0, 0.0, -1.0);
+    glm::dvec3 m_CameraPos = glm::dvec3(0.0, 5.2, 10.5);
+    glm::dvec3 m_CameraFront = glm::dvec3(0.0, -0.5, -1.0);
     glm::dvec3 m_CameraUp = glm::dvec3(0.0, 1.0, 0.0);
     double m_Yaw = -90.0;
     double m_Pitch = 0.0;
@@ -39,6 +43,9 @@ private:
 
     static GLuint compileShader(GLenum type, const char *source);
     static GLuint createShaderProgram(const char *vertexSource, const char *fragmentSource);
+
+    static std::string loadShaderFromFile(const std::string &filepath);
+
 };
 
 

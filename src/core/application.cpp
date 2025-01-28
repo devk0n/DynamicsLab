@@ -107,14 +107,22 @@ void Application::update(double stepTime) {
     velocity += acceleration * stepTime;
     position += velocity * stepTime;
 
+    // Pass simulation data to ImGui
     if (m_ImGuiLayer) {
         m_ImGuiLayer->updateSimulationData(position, velocity);
+    }
+
+    // Pass camera data to ImGui
+    if (m_Renderer && m_ImGuiLayer) {
+        glm::dvec3 cameraPos = m_Renderer->getCameraPosition();
+        glm::dvec3 cameraOrientation = m_Renderer->getCameraOrientation();
+        m_ImGuiLayer->updateCameraData(cameraPos, cameraOrientation);
     }
 }
 
 
 void Application::render() {
-    Renderer::clearScreen({0.1, 0.1, 0.1, 1.0});
+    m_Renderer->clearScreen({0.1, 0.1, 0.1, 1.0});
     m_Renderer->draw();
     m_ImGuiLayer->renderUI();
 }
