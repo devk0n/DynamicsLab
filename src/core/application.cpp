@@ -41,6 +41,13 @@ Application::Application(int width, int height, const char* title)
         }
     });
 
+    glfwSetCursorPosCallback(m_Window.get(), [](GLFWwindow* window, double xpos, double ypos) {
+        auto renderer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
+        if (renderer) {
+            renderer->handleMouseMovement(xpos, ypos);
+        }
+    });
+
     m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Window.get());
 }
 
@@ -73,12 +80,17 @@ void Application::run() {
 }
 
 void Application::processInput() {
-    // Poll input states
-    double xpos, ypos;
-    glfwGetCursorPos(m_Window.get(), &xpos, &ypos);
+    static float lastFrameTime = 0.0f;
+    float currentFrameTime = glfwGetTime();
+    float deltaTime = currentFrameTime - lastFrameTime;
+    lastFrameTime = currentFrameTime;
 
-    if (glfwGetMouseButton(m_Window.get(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
-        m_Renderer->handleMouseMovement(xpos, ypos);
+    if (m_Window && glfwGetKey(m_Window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(m_Window.get(), true);
+    }
+
+    if (m_Renderer) {
+        m_Renderer->handleKeyboardInput(m_Window.get(), deltaTime);
     }
 }
 

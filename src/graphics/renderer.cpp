@@ -4,7 +4,7 @@
 
 #include "glad/glad.h"
 #include "glm/glm.hpp"
-#include <glm/gtc/matrix_transform.hpp> // For glm::lookAt
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "renderer.h"
@@ -81,29 +81,28 @@ void Renderer::draw() {
 
 void Renderer::drawGrid(float size, int divisions, const glm::vec3& color) const {
     std::vector<float> vertices;
-    float half = size / 2.0f;             // Half grid size
-    float step = size / divisions;        // Distance between grid lines
+    float half = size / 2.0f;   // Half grid size
+    float step = size / divisions; // Step size for grid lines
 
-    // Generate grid lines along X and Z axes
+    // Generate grid vertices
     for (int i = 0; i <= divisions; ++i) {
         float offset = -half + step * i;
 
-        // Add two lines per iteration: one parallel to X and one parallel to Z
         // Line parallel to X-axis
-        vertices.push_back(-half);    // Start point (x)
-        vertices.push_back(0.0f);     // Start point (y)
-        vertices.push_back(offset);   // Start point (z)
-        vertices.push_back(half);     // End point (x)
-        vertices.push_back(0.0f);     // End point (y)
-        vertices.push_back(offset);   // End point (z)
+        vertices.push_back(-half);    // Start x
+        vertices.push_back(0.0f);     // Start y
+        vertices.push_back(offset);   // Start z
+        vertices.push_back(half);     // End x
+        vertices.push_back(0.0f);     // End y
+        vertices.push_back(offset);   // End z
 
         // Line parallel to Z-axis
-        vertices.push_back(offset);   // Start point (x)
-        vertices.push_back(0.0f);     // Start point (y)
-        vertices.push_back(-half);    // Start point (z)
-        vertices.push_back(offset);   // End point (x)
-        vertices.push_back(0.0f);     // End point (y)
-        vertices.push_back(half);     // End point (z)
+        vertices.push_back(offset);   // Start x
+        vertices.push_back(0.0f);     // Start y
+        vertices.push_back(-half);    // Start z
+        vertices.push_back(offset);   // End x
+        vertices.push_back(0.0f);     // End y
+        vertices.push_back(half);     // End z
     }
 
     GLuint VAO, VBO;
@@ -119,22 +118,23 @@ void Renderer::drawGrid(float size, int divisions, const glm::vec3& color) const
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // Set grid color
-    glUseProgram(m_GridShaderProgram); // Assumes a shader program is created and linked
+    // Use shader program and set color
+    glUseProgram(m_GridShaderProgram);
     glUniform3fv(glGetUniformLocation(m_GridShaderProgram, "u_Color"), 1, &color[0]);
 
     // Draw the grid
     glBindVertexArray(VAO);
     glDrawArrays(GL_LINES, 0, vertices.size() / 3);
 
-    // Unbind and clean up
+    // Clean up
     glBindVertexArray(0);
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
 }
 
+
 void Renderer::handleMouseMovement(double xpos, double ypos) {
-    if (!m_RightMouseHeld) return; // Only rotate when the right button is held
+    if (!m_RightMouseHeld) return;
 
     if (m_FirstMouse) {
         m_LastMouseX = xpos;
@@ -143,7 +143,7 @@ void Renderer::handleMouseMovement(double xpos, double ypos) {
     }
 
     float xOffset = xpos - m_LastMouseX;
-    float yOffset = m_LastMouseY - ypos; // Reversed: y-coordinates go bottom to top
+    float yOffset = m_LastMouseY - ypos; // Inverted because y-coordinates go bottom to top
     m_LastMouseX = xpos;
     m_LastMouseY = ypos;
 
@@ -155,12 +155,10 @@ void Renderer::handleMouseMovement(double xpos, double ypos) {
     m_Pitch += yOffset;
 
     // Constrain pitch to prevent flipping
-    if (m_Pitch > 89.0f)
-        m_Pitch = 89.0f;
-    if (m_Pitch < -89.0f)
-        m_Pitch = -89.0f;
+    if (m_Pitch > 89.0f) m_Pitch = 89.0f;
+    if (m_Pitch < -89.0f) m_Pitch = -89.0f;
 
-    // Update camera front vector
+    // Update the front vector based on updated yaw and pitch
     glm::vec3 front;
     front.x = cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
     front.y = sin(glm::radians(m_Pitch));
@@ -168,16 +166,34 @@ void Renderer::handleMouseMovement(double xpos, double ypos) {
     m_CameraFront = glm::normalize(front);
 }
 
+
 void Renderer::handleMouseButton(int button, int action) {
     if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         if (action == GLFW_PRESS) {
             m_RightMouseHeld = true;
-            m_FirstMouse = true; // Reset first mouse movement
-            glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Hide cursor
+            m_FirstMouse = true; // Reset the first mouse movement
+            glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Hide and lock cursor
         } else if (action == GLFW_RELEASE) {
             m_RightMouseHeld = false;
-            glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL); // Show cursor
+            glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL); // Show and unlock cursor
         }
+    }
+}
+
+void Renderer::handleKeyboardInput(GLFWwindow* window, float deltaTime) {
+    float velocity = m_CameraSpeed * deltaTime;
+
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        m_CameraPos += m_CameraFront * velocity; // Move forward
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        m_CameraPos -= m_CameraFront * velocity; // Move backward
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        m_CameraPos -= glm::normalize(glm::cross(m_CameraFront, m_CameraUp)) * velocity; // Move left
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        m_CameraPos += glm::normalize(glm::cross(m_CameraFront, m_CameraUp)) * velocity; // Move right
     }
 }
 
