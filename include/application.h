@@ -20,7 +20,7 @@ private:
     std::unique_ptr<ImGuiLayer> m_ImGuiLayer;
 
     void processInput();
-    void update(double deltaTime);
+    void update();
     void render();
 
 };

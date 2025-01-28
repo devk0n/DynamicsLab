@@ -1,6 +1,7 @@
 #include "GLFW/glfw3.h"
 #include <stdexcept>
 #include <iostream>
+#include <thread>
 
 #include "application.h"
 #include "renderer.h"
@@ -23,6 +24,8 @@ Application::Application(int width, int height, const char* title)
     }
 
     glfwMakeContextCurrent(m_Window.get());
+    glfwSwapInterval(0); // Disable vsync
+
 
     m_Renderer = std::make_unique<Renderer>(m_Window.get());
     glfwSetWindowUserPointer(m_Window.get(), m_Renderer.get());
@@ -66,14 +69,18 @@ Application::~Application() {
 
 void Application::run() {
     while (!glfwWindowShouldClose(m_Window.get())) {
+
+        // Main loop tasks
         processInput();
-        update(0.00025);
+        update();  // Use the actual elapsed time for simulation
         render();
 
         glfwSwapBuffers(m_Window.get());
         glfwPollEvents();
     }
 }
+
+
 
 
 void Application::processInput() {
@@ -92,19 +99,7 @@ void Application::processInput() {
 }
 
 
-void Application::update(double stepTime) {
-    static double position = 0.0;
-    static double velocity = 0.0;
-    static const double acceleration = -9.8;
-
-    velocity += acceleration * stepTime;
-    position += velocity * stepTime;
-
-    // Pass simulation data to ImGui
-    if (m_ImGuiLayer) {
-        m_ImGuiLayer->updateSimulationData(position, velocity);
-    }
-
+void Application::update() {
     // Pass camera data to ImGui
     if (m_Renderer && m_ImGuiLayer) {
         glm::dvec3 cameraPos = m_Renderer->getCameraPosition();

@@ -108,15 +108,15 @@ void Renderer::draw() {
 
 
     // Draw the box, with transformations (position, rotation, scaling)
-    drawBox(glm::dvec3(-1.0, 0.0, 0.0),  // Position
+    drawBox(glm::dvec3(-1.0, 5.0, 0.0),  // Position
             glm::dvec3(2.0, 0.2, 0.2),    // Scale
             glm::dvec3(0.0, 0.0, 0.0),  // Rotation (x, y, z)
             glm::dvec3(1.0, 0.0, 0.0));   // Color
 
 
-    drawBox(glm::dvec3(-3.0, 0.0, 0.0),  // Position
+    drawBox(glm::dvec3(-3.0, 5.0, 0.0),  // Position
             glm::dvec3(2.0, 0.2, 0.2),    // Scale
-            glm::dvec3(0.0, 0.0, 0.0),  // Rotation (x, y, z)
+            glm::dvec3(0.0, 40.0, 0.0),  // Rotation (x, y, z)
             glm::dvec3(0.0, 1.0, 0.0));   // Color
 }
 
