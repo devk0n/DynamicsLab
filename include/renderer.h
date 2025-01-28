@@ -16,9 +16,8 @@ public:
     void handleMouseMovement(double xpos, double ypos);
     void handleKeyboardInput(GLFWwindow* window, double deltaTime);
 
-    glm::dvec3 getCameraPosition() const;
-
-    glm::dvec3 getCameraOrientation() const;
+    glm::dvec3 getCameraPosition();
+    glm::dvec3 getCameraOrientation();
 
 private:
     GLFWwindow* m_Window;
@@ -27,11 +26,12 @@ private:
     glm::dvec3 m_CameraPos = glm::dvec3(0.0, 5.2, 10.5);
     glm::dvec3 m_CameraFront = glm::dvec3(0.0, -0.5, -1.0);
     glm::dvec3 m_CameraUp = glm::dvec3(0.0, 1.0, 0.0);
+
     double m_Yaw = -90.0;
     double m_Pitch = 0.0;
     double m_CameraSpeed = 5.0;
     bool m_RightMouseHeld = false;
-    double m_LastMouseX = 400.0, m_LastMouseY = 300.0;
+    double m_LastMouseX = 0.0, m_LastMouseY = 0.0;
     bool m_FirstMouse = true;
 
     static void initOpenGL();

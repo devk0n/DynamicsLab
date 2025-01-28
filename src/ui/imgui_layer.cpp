@@ -10,6 +10,7 @@ ImGuiLayer::ImGuiLayer(GLFWwindow* window) : m_Window(window) {
     ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
     ImGui_ImplOpenGL3_Init("#version 460 core");
+
 }
 
 

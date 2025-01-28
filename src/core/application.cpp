@@ -42,13 +42,6 @@ Application::Application(int width, int height, const char* title)
         }
     });
 
-    glfwSetCursorPosCallback(m_Window.get(), [](GLFWwindow* window, double xpos, double ypos) {
-        auto renderer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
-        if (renderer) {
-            renderer->handleMouseMovement(xpos, ypos);
-        }
-    });
-
     m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Window.get());
 }
 

@@ -18,8 +18,8 @@ public:
 private:
     GLFWwindow* m_Window;
 
-    glm::dvec3 m_CameraPosition{};
-    glm::dvec3 m_CameraOrientation{};
+    glm::dvec3 m_CameraPosition;
+    glm::dvec3 m_CameraOrientation;
 
     // Circular buffer for storing simulation data
     static constexpr int historySize = 100;

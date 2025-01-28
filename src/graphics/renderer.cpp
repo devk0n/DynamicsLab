@@ -137,23 +137,29 @@ void Renderer::drawGrid(double size, int divisions, const glm::dvec3& color) con
 
 
 void Renderer::handleMouseMovement(double xpos, double ypos) {
-    if (!m_RightMouseHeld) return;
+    if (!m_RightMouseHeld) return; // Process only if the right mouse button is held
 
+    // On the first mouse movement, initialize the last mouse position
     if (m_FirstMouse) {
         m_LastMouseX = xpos;
         m_LastMouseY = ypos;
         m_FirstMouse = false;
+
+        return; // Skip offset calculation on the first frame
     }
 
+    // Calculate mouse movement offset
     double xOffset = xpos - m_LastMouseX;
     double yOffset = m_LastMouseY - ypos; // Inverted because y-coordinates go bottom to top
     m_LastMouseX = xpos;
     m_LastMouseY = ypos;
 
-    const double sensitivity = 0.1; // Adjust sensitivity
+    // Apply sensitivity to mouse movement
+    const double sensitivity = 0.1;
     xOffset *= sensitivity;
     yOffset *= sensitivity;
 
+    // Update yaw and pitch
     m_Yaw += xOffset;
     m_Pitch += yOffset;
 
@@ -161,30 +167,43 @@ void Renderer::handleMouseMovement(double xpos, double ypos) {
     if (m_Pitch > 89.0) m_Pitch = 89.0;
     if (m_Pitch < -89.0) m_Pitch = -89.0;
 
-    // Update the front vector based on updated yaw and pitch
+    // Update camera's front vector based on yaw and pitch
     glm::dvec3 front;
     front.x = cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
     front.y = sin(glm::radians(m_Pitch));
     front.z = sin(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
     m_CameraFront = glm::normalize(front);
+
 }
+
+
 
 
 void Renderer::handleMouseButton(int button, int action) {
     if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         if (action == GLFW_PRESS) {
             m_RightMouseHeld = true;
-            m_FirstMouse = true; // Reset the first mouse movement
+            m_FirstMouse = true; // Reset the first mouse movement flag
             glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // Hide and lock cursor
         } else if (action == GLFW_RELEASE) {
             m_RightMouseHeld = false;
+
+            // Get the window dimensions to calculate the center
+            int width, height;
+            glfwGetWindowSize(m_Window, &width, &height);
+            double centerX = width / 2.0;
+            double centerY = height / 2.0;
+
+            // Reset the cursor to the center of the window
+            glfwSetCursorPos(m_Window, centerX, centerY);
+
             glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL); // Show and unlock cursor
         }
     }
 }
 
 
-void Renderer::handleKeyboardInput(GLFWwindow* window, double deltaTime) {
+void Renderer::handleKeyboardInput(GLFWwindow *window, double deltaTime) {
     double velocity = m_CameraSpeed * deltaTime;
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
@@ -198,6 +217,12 @@ void Renderer::handleKeyboardInput(GLFWwindow* window, double deltaTime) {
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         m_CameraPos += glm::normalize(glm::cross(m_CameraFront, m_CameraUp)) * velocity; // Move right
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
+        m_CameraPos += glm::normalize(glm::cross(glm::cross(m_CameraFront, m_CameraUp), m_CameraFront)) * velocity; // Move up
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+        m_CameraPos -= glm::normalize(glm::cross(glm::cross(m_CameraFront, m_CameraUp), m_CameraFront)) * velocity; // Move down
     }
 }
 
@@ -256,10 +281,10 @@ GLuint Renderer::createShaderProgram(const char* vertexSource, const char* fragm
     return program;
 }
 
-glm::dvec3 Renderer::getCameraPosition() const {
+glm::dvec3 Renderer::getCameraPosition() {
     return m_CameraPos;
 }
 
-glm::dvec3 Renderer::getCameraOrientation() const {
+glm::dvec3 Renderer::getCameraOrientation() {
     return m_CameraFront;
 }
