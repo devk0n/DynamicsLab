@@ -1,27 +1,24 @@
-//
-// Created by devkon on 28/01/2025.
-//
-
 #ifndef DYNAMICSLAB_DYNAMICS_H
 #define DYNAMICSLAB_DYNAMICS_H
 
 #include <Eigen/Dense>
 
-struct RidgedBody {
-    double mass;
-    double length, height, width;
-    double xInertia, yInertia, zInertia;
-    double xPosition, yPosition, zPosition;
-    double xVelocity, yVelocity, zVelocity;
-    double wOrientation, xOrientation, yOrientation, zOrientation;
-    double w
-};
-
-class dynamics {
+class Dynamics {
 public:
+    Dynamics();
+    ~Dynamics();
+
+    void run();
 
 private:
 
+    // Ms size is 7 * "b" bodies
+    // One body example
+    Eigen::MatrixXd Ms;
+
+    Eigen::Matrix<double, 3, 4> gMatrix(const Eigen::Vector4d &p);
+    Eigen::Matrix<double, 3, 4> lMatrix(const Eigen::Vector4d &p);
+    Eigen::Matrix4d skewN(const Eigen::Vector3d &a);
 };
 
 
