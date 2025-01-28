@@ -3,6 +3,7 @@
 
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
+#include <string>
 
 class Renderer {
 public:
@@ -19,6 +20,11 @@ public:
     glm::dvec3 getCameraPosition();
     glm::dvec3 getCameraOrientation();
 
+    bool getDrawGrid() const;
+    void setDrawGrid(bool drawGrid);
+
+    double getCameraSpeed() const;
+
 private:
     GLFWwindow* m_Window;
     GLuint m_GridShaderProgram;
@@ -34,6 +40,8 @@ private:
     double m_LastMouseX = 0.0, m_LastMouseY = 0.0;
     bool m_FirstMouse = true;
 
+    bool m_DrawGrid = true;
+
     static void initOpenGL();
 
     void drawGrid(double size, int divisions, const glm::dvec3 &color) const;
@@ -45,6 +53,11 @@ private:
     static GLuint createShaderProgram(const char *vertexSource, const char *fragmentSource);
 
     static std::string loadShaderFromFile(const std::string &filepath);
+
+    void drawBox(const glm::dvec3 &position, const glm::dvec3 &scale, const glm::dvec3 &rotation,
+                 const glm::dvec3 &color) const;
+
+    void handleMouseScroll(double yOffset);
 
 };
 

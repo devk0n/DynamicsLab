@@ -2,9 +2,12 @@
 
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "renderer.h"
 
 
-ImGuiLayer::ImGuiLayer(GLFWwindow* window) : m_Window(window) {
+ImGuiLayer::ImGuiLayer(GLFWwindow* window, Renderer* renderer)
+    : m_Window(window),
+      m_Renderer(renderer){
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
@@ -29,7 +32,7 @@ void ImGuiLayer::renderUI() {
     // Call individual UI sections here
     showMainMenu();
     showSimulationControls();
-    showRenderingOptions();
+    showRenderingOptions(m_Renderer);
     showDebugWindow();
     showSimulationData();
 
@@ -44,9 +47,10 @@ void ImGuiLayer::updateSimulationData(double position, double velocity) {
     m_CurrentIndex = (m_CurrentIndex + 1) % historySize;
 }
 
-void ImGuiLayer::updateCameraData(const glm::dvec3& position, const glm::dvec3& orientation) {
+void ImGuiLayer::updateCameraData(const glm::dvec3& position, const glm::dvec3& orientation, const double& speed) {
     m_CameraPosition = position;
     m_CameraOrientation = orientation;
+    m_CameraSpeed = speed;
 }
 
 
@@ -79,7 +83,7 @@ void ImGuiLayer::showSimulationControls() {
 }
 
 
-void ImGuiLayer::showRenderingOptions() {
+void ImGuiLayer::showRenderingOptions(Renderer* renderer) {
     ImGui::Begin("Rendering Options");
 
     static bool showWireframe = false;
@@ -93,6 +97,14 @@ void ImGuiLayer::showRenderingOptions() {
     static float bgColor[3] = {0.1f, 0.1f, 0.1f};
     ImGui::ColorEdit3("Background Color", bgColor);
     glClearColor(bgColor[0], bgColor[1], bgColor[2], 1.0f);
+
+    static bool m_DrawGrid = renderer->getDrawGrid();
+    ImGui::Checkbox("Draw Grid", &m_DrawGrid);
+    if (m_DrawGrid) {
+        renderer->setDrawGrid(true);
+    } else {
+        renderer->setDrawGrid(false);
+    }
 
     ImGui::End();
 }
@@ -113,6 +125,7 @@ void ImGuiLayer::showDebugWindow() {
     ImGui::Text("Camera Info:");
     ImGui::Text("Position: (%.2f, %.2f, %.2f)", m_CameraPosition.x, m_CameraPosition.y, m_CameraPosition.z);
     ImGui::Text("Orientation: (%.2f, %.2f, %.2f)", m_CameraOrientation.x, m_CameraOrientation.y, m_CameraOrientation.z);
+    ImGui::Text("Camera Speed: %.2f", m_CameraSpeed);
 
     ImGui::End();
 }

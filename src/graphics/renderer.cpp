@@ -26,6 +26,17 @@ Renderer::Renderer(GLFWwindow* window)
 
     initOpenGL();
 
+    // Set the mouse scroll callback
+    glfwSetScrollCallback(m_Window, [](GLFWwindow* window, double xOffset, double yOffset) {
+        auto renderer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
+        if (renderer) {
+            renderer->handleMouseScroll(yOffset);
+        }
+    });
+
+    glfwSetWindowUserPointer(m_Window, this); // Bind this to the GLFW window pointer
+
+
     std::string vertexShaderSource = loadShaderFromFile("C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/grid.vert.glsl");
     std::string fragmentShaderSource = loadShaderFromFile("C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/grid.frag.glsl");
 
@@ -61,8 +72,11 @@ void Renderer::initOpenGL() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glViewport(0, 0, 1920, 1080);
 
+    // Enable Multi-Sampling
+    glEnable(GL_MULTISAMPLE);
+
+    glViewport(0, 0, 1920, 1080);
     std::cout << "OpenGL Initialized" << std::endl;
 }
 
@@ -77,17 +91,107 @@ void Renderer::clearScreen(const glm::dvec4& color) {
 
 
 void Renderer::draw() {
+    // Clear the screen
     clearScreen(glm::dvec4(0.1, 0.1, 0.1, 1.0));
 
-    double aspectRatio = 1920.0 / 1080.0; // Adjust for your window size
+    // Calculate the aspect ratio
+    double aspectRatio = 1920.0 / 1080.0; // Adjust based on the window size
+
+    // Update projection and view matrices for the scene
     updateProjectionMatrix(aspectRatio);
     updateViewMatrix();
 
-    drawGrid(10.0, 20, glm::dvec3(1.0, 1.0, 1.0));
+    // Draw the grid, should not have any transformations applied (uses identity model matrix)
+    if (m_DrawGrid) {
+        drawGrid(10.0, 20, glm::dvec3(1.0, 1.0, 1.0));
+    }
+
+
+    // Draw the box, with transformations (position, rotation, scaling)
+    drawBox(glm::dvec3(-1.0, 0.0, 0.0),  // Position
+            glm::dvec3(2.0, 0.2, 0.2),    // Scale
+            glm::dvec3(0.0, 0.0, 0.0),  // Rotation (x, y, z)
+            glm::dvec3(1.0, 0.0, 0.0));   // Color
+
+
+    drawBox(glm::dvec3(-3.0, 0.0, 0.0),  // Position
+            glm::dvec3(2.0, 0.2, 0.2),    // Scale
+            glm::dvec3(0.0, 0.0, 0.0),  // Rotation (x, y, z)
+            glm::dvec3(0.0, 1.0, 0.0));   // Color
 }
 
+void Renderer::drawBox(const glm::dvec3& position, const glm::dvec3& scale, const glm::dvec3& rotation, const glm::dvec3& color) const {
+    // Compute the model matrix
+    glm::dmat4 model = glm::mat4(1.0); // Start with the identity matrix
+    model = glm::translate(model, position); // Translate to position
+    model = glm::rotate(model, glm::radians(rotation.x), glm::dvec3(1.0, 0.0, 0.0)); // Rotate around X-axis
+    model = glm::rotate(model, glm::radians(rotation.y), glm::dvec3(0.0, 1.0, 0.0)); // Rotate around Y-axis
+    model = glm::rotate(model, glm::radians(rotation.z), glm::dvec3(0.0, 0.0, 1.0)); // Rotate around Z-axis
+    model = glm::scale(model, scale); // Scale the box
+
+    // Pass the model matrix to the shader
+    glUseProgram(m_GridShaderProgram);
+    glUniformMatrix4dv(glGetUniformLocation(m_GridShaderProgram, "u_Model"), 1, GL_FALSE, glm::value_ptr(model));
+
+
+    // Define vertices for the box (centered at 0,0,0)
+    std::vector<double> vertices = {
+        -0.5, -0.5, -0.5,   // 0
+         0.5, -0.5, -0.5,   // 1
+        -0.5,  0.5, -0.5,   // 2
+         0.5,  0.5, -0.5,   // 3
+        -0.5, -0.5,  0.5,   // 4
+         0.5, -0.5,  0.5,   // 5
+        -0.5,  0.5,  0.5,   // 6
+         0.5,  0.5,  0.5    // 7
+    };
+
+    // Define indices (same as previously)
+    std::vector<GLuint> indices = {
+        0, 1,  1, 3,  3, 2,  2, 0, // Bottom face
+        4, 5,  5, 7,  7, 6,  6, 4, // Top face
+        0, 4,  1, 5,  2, 6,  3, 7  // Vertical edges
+    };
+
+    // Create VAO and VBO (similar as in the existing code)
+    GLuint VAO, VBO, EBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    std::size_t bufferSize = vertices.size() * sizeof(double);
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(bufferSize), vertices.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(indices.size() * sizeof(GLuint)), indices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), nullptr);
+    glEnableVertexAttribArray(0);
+
+    // Draw the box
+    glUseProgram(m_GridShaderProgram);
+    glUniform3dv(glGetUniformLocation(m_GridShaderProgram, "u_Color"), 1, glm::value_ptr(color));
+    glBindVertexArray(VAO);
+
+    glDrawElements(GL_LINES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
+
+    // Cleanup
+    glBindVertexArray(0);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+    glDeleteVertexArrays(1, &VAO);
+}
 
 void Renderer::drawGrid(double size, int divisions, const glm::dvec3& color) const {
+    // Set the model matrix to identity, so no transformations are applied to the grid
+    glm::dmat4 model = glm::mat4(1.0); // Identity matrix
+    glUseProgram(m_GridShaderProgram);
+    glUniformMatrix4dv(glGetUniformLocation(m_GridShaderProgram, "u_Model"), 1, GL_FALSE, glm::value_ptr(model));
+
+    // Generate grid vertices
     std::vector<double> vertices;
     double half = size / 2.0;
     double step = size / divisions;
@@ -96,12 +200,13 @@ void Renderer::drawGrid(double size, int divisions, const glm::dvec3& color) con
         double offset = -half + step * i;
 
         vertices.push_back(-half); vertices.push_back(0.0); vertices.push_back(offset);
-        vertices.push_back(half); vertices.push_back(0.0); vertices.push_back(offset);
+        vertices.push_back(half);  vertices.push_back(0.0); vertices.push_back(offset);
 
         vertices.push_back(offset); vertices.push_back(0.0); vertices.push_back(-half);
         vertices.push_back(offset); vertices.push_back(0.0); vertices.push_back(half);
     }
 
+    // Create VAO and VBO
     GLuint VAO, VBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -119,10 +224,12 @@ void Renderer::drawGrid(double size, int divisions, const glm::dvec3& color) con
     glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), nullptr);
     glEnableVertexAttribArray(0);
 
+    // Use the shader and specify the color
     glUseProgram(m_GridShaderProgram);
     glUniform3dv(glGetUniformLocation(m_GridShaderProgram, "u_Color"), 1, glm::value_ptr(color));
     glBindVertexArray(VAO);
 
+    // Draw the grid lines
     std::size_t count = vertices.size() / 3;
     if (count > static_cast<std::size_t>(std::numeric_limits<GLsizei>::max())) {
         throw std::runtime_error("Too many vertices to draw; exceeds maximum GLsizei value.");
@@ -130,6 +237,7 @@ void Renderer::drawGrid(double size, int divisions, const glm::dvec3& color) con
 
     glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(count));
 
+    // Cleanup
     glBindVertexArray(0);
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
@@ -177,8 +285,6 @@ void Renderer::handleMouseMovement(double xpos, double ypos) {
 }
 
 
-
-
 void Renderer::handleMouseButton(int button, int action) {
     if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         if (action == GLFW_PRESS) {
@@ -200,6 +306,16 @@ void Renderer::handleMouseButton(int button, int action) {
             glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL); // Show and unlock cursor
         }
     }
+}
+
+// Method to handle mouse scroll input
+void Renderer::handleMouseScroll(double yOffset) {
+    const double scrollSensitivity = 0.1; // Adjust sensitivity as needed
+    m_CameraSpeed += yOffset * scrollSensitivity;
+
+    // Clamp the camera speed to avoid invalid values
+    if (m_CameraSpeed < 0.1) m_CameraSpeed = 0.1; // Set minimum camera speed
+    if (m_CameraSpeed > 20.0) m_CameraSpeed = 20.0; // Set maximum camera speed
 }
 
 
@@ -287,4 +403,16 @@ glm::dvec3 Renderer::getCameraPosition() {
 
 glm::dvec3 Renderer::getCameraOrientation() {
     return m_CameraFront;
+}
+
+bool Renderer::getDrawGrid() const {
+    return m_DrawGrid;
+}
+
+double Renderer::getCameraSpeed() const {
+    return m_CameraSpeed;
+}
+
+void Renderer::setDrawGrid(bool drawGrid) {
+    m_DrawGrid = drawGrid;
 }

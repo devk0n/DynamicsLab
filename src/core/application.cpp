@@ -42,7 +42,7 @@ Application::Application(int width, int height, const char* title)
         }
     });
 
-    m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Window.get());
+    m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Window.get(), m_Renderer.get());
 }
 
 
@@ -109,7 +109,8 @@ void Application::update(double stepTime) {
     if (m_Renderer && m_ImGuiLayer) {
         glm::dvec3 cameraPos = m_Renderer->getCameraPosition();
         glm::dvec3 cameraOrientation = m_Renderer->getCameraOrientation();
-        m_ImGuiLayer->updateCameraData(cameraPos, cameraOrientation);
+        double cameraSpeed = m_Renderer->getCameraSpeed();
+        m_ImGuiLayer->updateCameraData(cameraPos, cameraOrientation, cameraSpeed);
     }
 }
 
