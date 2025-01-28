@@ -19,8 +19,11 @@ public:
 
 private:
     GLFWwindow* m_Window;
+    GLuint m_GridShaderProgram;
+
     void initOpenGL();
 
+    void drawGrid(float size, int divisions, const glm::vec3 &color);
 };
 
 

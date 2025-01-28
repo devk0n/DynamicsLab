@@ -18,12 +18,11 @@ private:
     std::unique_ptr<GLFWwindow, void(*)(GLFWwindow*)> m_Window;
     std::unique_ptr<Renderer> m_Renderer;
     std::unique_ptr<ImGuiLayer> m_ImGuiLayer;
-    // Scene* m_Scene;
-    // Simulation* m_Simulation;
 
     void processInput();
     void update(float deltaTime);
     void render();
+
 };
 
 
