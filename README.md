@@ -5,6 +5,40 @@
 ## Alpha Interface
 ![Alt text](./assets/images/alpha.png)
 
+## Project Tree
+```bash
+DynamicsLab
+├───assets
+│   ├───images
+│   └───shaders
+│       ├───grid.frag.glsl
+│       └───grid.vert.glsl
+├───include
+│   ├───glad
+│   ├───KHR
+│   ├───application.h
+│   ├───dynamics.h
+│   ├───imgui_layer.h
+│   ├───quaternion_math.h
+│   ├───renderer.h
+│   ├───rigid_body.h
+│   └───simulation.h
+└───src
+    ├───core
+    │   ├───main.cpp
+    │   └───application.cpp
+    ├───graphics
+    │   ├───glad.c
+    │   └───renderer.cpp
+    ├───simulation
+    │   ├───rigid_body.cpp
+    │   ├───simulation.cpp
+    │   ├───dynamics.cpp
+    │   └───quaternion_math.cpp
+    └───ui
+        └───imgui_layer.cpp
+```
+
 ## References
 
 1. Nikravesh, Parviz E. *Computer-Aided Analysis of Mechanical Systems*. Prentice-Hall, Inc., USA, 1988. ISBN: 0131642200.
