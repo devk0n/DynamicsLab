@@ -48,3 +48,5 @@ build/* binary
 include/glad/* linguist-vendored
 include/KHR/* linguist-vendored
 src/graphics/glad.c linguist-vendored
+
+include/main.m linguist-vendored
