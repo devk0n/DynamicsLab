@@ -24,6 +24,23 @@ Application::Application(int width, int height, const char* title)
     glfwMakeContextCurrent(m_Window.get());
 
     m_Renderer = std::make_unique<Renderer>(m_Window.get());
+    glfwSetWindowUserPointer(m_Window.get(), m_Renderer.get()); // Link Renderer to the window
+
+    // Register callbacks
+    glfwSetCursorPosCallback(m_Window.get(), [](GLFWwindow* window, double xpos, double ypos) {
+        auto renderer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
+        if (renderer) {
+            renderer->handleMouseMovement(xpos, ypos);
+        }
+    });
+
+    glfwSetMouseButtonCallback(m_Window.get(), [](GLFWwindow* window, int button, int action, int mods) {
+        auto renderer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
+        if (renderer) {
+            renderer->handleMouseButton(button, action);
+        }
+    });
+
     m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Window.get());
 }
 
@@ -56,8 +73,12 @@ void Application::run() {
 }
 
 void Application::processInput() {
-    if (m_Window && glfwGetKey(m_Window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(m_Window.get(), true);
+    // Poll input states
+    double xpos, ypos;
+    glfwGetCursorPos(m_Window.get(), &xpos, &ypos);
+
+    if (glfwGetMouseButton(m_Window.get(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+        m_Renderer->handleMouseMovement(xpos, ypos);
     }
 }
 
