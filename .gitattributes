@@ -50,3 +50,5 @@ include/KHR/* linguist-vendored
 src/graphics/glad.c linguist-vendored
 
 include/main.m linguist-vendored
+
+include/stb_image_write.h linguist-vendored

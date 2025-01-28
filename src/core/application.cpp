@@ -1,7 +1,12 @@
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
+
 #include "GLFW/glfw3.h"
 #include <stdexcept>
 #include <iostream>
 #include <thread>
+#include <iomanip>
+#include <filesystem>
 
 #include "application.h"
 #include "renderer.h"
@@ -81,6 +86,41 @@ void Application::run() {
 }
 
 
+// New method to capture and save a screenshot
+void Application::captureScreenshot() {
+    int width, height;
+    glfwGetFramebufferSize(m_Window.get(), &width, &height);
+
+    // Allocate buffer for pixel data (RGBA format)
+    std::vector<unsigned char> pixels(width * height * 4);
+
+    // Read the pixels from the framebuffer
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+
+    // Flip the image vertically (OpenGL's origin is bottom-left)
+    for (int y = 0; y < height / 2; ++y) {
+        for (int x = 0; x < width * 4; ++x) {
+            std::swap(pixels[y * width * 4 + x], pixels[(height - y - 1) * width * 4 + x]);
+        }
+    }
+
+    // Create the directory if it doesn't exist
+    const std::string screenshotDir = "../assets/screenshots";
+    std::filesystem::create_directories(screenshotDir);
+
+    // Generate a timestamped filename
+    std::ostringstream filename;
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+    filename << screenshotDir << "/screenshot_" << std::put_time(&tm, "%Y%m%d_%H%M%S") << ".png";
+
+    // Save the PNG
+    if (stbi_write_png(filename.str().c_str(), width, height, 4, pixels.data(), width * 4)) {
+        std::cout << "Screenshot saved to " << filename.str() << std::endl;
+    } else {
+        std::cerr << "Failed to save screenshot!" << std::endl;
+    }
+}
 
 
 void Application::processInput() {
@@ -91,6 +131,11 @@ void Application::processInput() {
 
     if (m_Window && glfwGetKey(m_Window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(m_Window.get(), true);
+    }
+
+    // Capture screenshot with F12
+    if (glfwGetKey(m_Window.get(), GLFW_KEY_F12) == GLFW_PRESS) {
+        captureScreenshot();
     }
 
     if (m_Renderer) {
