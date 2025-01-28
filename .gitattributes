@@ -10,11 +10,11 @@
 *.yaml text eol=lf
 *.json text eol=lf
 
-# Windows-specific files
+# Normalize line endings for Windows-specific files
 *.bat text eol=crlf
 *.ps1 text eol=crlf
 
-# Binary files
+# Treat binary files
 *.exe binary
 *.dll binary
 *.lib binary
@@ -34,17 +34,17 @@
 *.gz binary
 *.7z binary
 
-# Build artifacts
+# Specify build artifacts
 build/* binary
 
-# Diff settings
+# Configure diff settings
 *.cpp diff=cpp
 *.hpp diff=cpp
 
-# Ignore diffs for large or irrelevant text files
+# Ignore diff for large or irrelevant text files
 *.log text -diff
 
-#
+# Mark vendored files and directories
 include/glad/* linguist-vendored
 include/KHR/* linguist-vendored
 src/graphics/glad.c linguist-vendored
