@@ -1,10 +1,12 @@
 #include <iostream>
-#include "../../include/application.h"
+
+#include "include/application.h"
+
 
 int main() {
 
     try {
-        Application app(1920, 1080, "Dynamics Lab");
+        Application app(1920, 1080, "DynamicsLab");
         app.run();
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

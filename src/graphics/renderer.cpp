@@ -1,8 +1,11 @@
+#define GLM_FORCE_PRECISION GLM_PRECISION_HIGHP_DOUBLE
+
 #include <iostream>
 #include <vector>
 #include <stdexcept>
 
 #include "glad/glad.h"
+
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -11,7 +14,7 @@
 
 Renderer::Renderer(GLFWwindow* window)
     : m_Window(window) {
-if (!m_Window) {
+    if (!m_Window) {
         throw std::runtime_error("Renderer: Invalid GLFW window.");
     }
 
@@ -23,23 +26,28 @@ if (!m_Window) {
     initOpenGL();
 
     const char* vertexShaderSource = R"(
-        #version 330 core
-        layout (location = 0) in vec3 a_Position;
-        uniform mat4 u_Projection;
-        uniform mat4 u_View;
+        #version 460 core
+        layout (location = 0) in dvec3 a_Position; // Input double-precision data
+        uniform dmat4 u_Projection;               // Double-precision uniform
+        uniform dmat4 u_View;                     // Double-precision uniform
+
         void main() {
-            gl_Position = u_Projection * u_View * vec4(a_Position, 1.0);
+            // Convert double-precision to single-precision for gl_Position
+            gl_Position = mat4(u_Projection) * mat4(u_View) * vec4(a_Position, 1.0);
         }
     )";
 
     const char* fragmentShaderSource = R"(
-        #version 330 core
-        out vec4 FragColor;
-        uniform vec3 u_Color;
+        #version 460 core
+        out vec4 FragColor;    // Fragment color output (single-precision)
+        uniform dvec3 u_Color; // Double-precision uniform
+
         void main() {
+            // Convert double-precision to single-precision for output
             FragColor = vec4(u_Color, 1.0);
         }
     )";
+
 
     m_GridShaderProgram = createShaderProgram(vertexShaderSource, fragmentShaderSource);
 
@@ -63,46 +71,39 @@ void Renderer::initOpenGL() {
     std::cout << "OpenGL Initialized" << std::endl;
 }
 
-void Renderer::clearScreen(const glm::vec4& color) {
-    glClearColor(color.r, color.g, color.b, color.a);
+void Renderer::clearScreen(const glm::dvec4& color) {
+    // Convert double to float before passing to glClearColor
+    glClearColor(static_cast<float>(color.r),
+                 static_cast<float>(color.g),
+                 static_cast<float>(color.b),
+                 static_cast<float>(color.a));
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void Renderer::draw() {
-    clearScreen(glm::vec4(0.1f, 0.1f, 0.1f, 1.0f));
+    clearScreen(glm::dvec4(0.1, 0.1, 0.1, 1.0));
 
-    float aspectRatio = 1920.0f / 1080.0f; // Adjust for your window size
+    double aspectRatio = 1920.0 / 1080.0; // Adjust for your window size
     updateProjectionMatrix(aspectRatio);
     updateViewMatrix();
 
-    drawGrid(10.0f, 20, glm::vec3(1.0f, 1.0f, 1.0f));
+    drawGrid(10.0, 20, glm::dvec3(1.0, 1.0, 1.0));
 }
 
 
-void Renderer::drawGrid(float size, int divisions, const glm::vec3& color) const {
-    std::vector<float> vertices;
-    float half = size / 2.0f;   // Half grid size
-    float step = size / divisions; // Step size for grid lines
+void Renderer::drawGrid(double size, int divisions, const glm::dvec3& color) const {
+    std::vector<double> vertices;
+    double half = size / 2.0;
+    double step = size / divisions;
 
-    // Generate grid vertices
     for (int i = 0; i <= divisions; ++i) {
-        float offset = -half + step * i;
+        double offset = -half + step * i;
 
-        // Line parallel to X-axis
-        vertices.push_back(-half);    // Start x
-        vertices.push_back(0.0f);     // Start y
-        vertices.push_back(offset);   // Start z
-        vertices.push_back(half);     // End x
-        vertices.push_back(0.0f);     // End y
-        vertices.push_back(offset);   // End z
+        vertices.push_back(-half); vertices.push_back(0.0); vertices.push_back(offset);
+        vertices.push_back(half); vertices.push_back(0.0); vertices.push_back(offset);
 
-        // Line parallel to Z-axis
-        vertices.push_back(offset);   // Start x
-        vertices.push_back(0.0f);     // Start y
-        vertices.push_back(-half);    // Start z
-        vertices.push_back(offset);   // End x
-        vertices.push_back(0.0f);     // End y
-        vertices.push_back(half);     // End z
+        vertices.push_back(offset); vertices.push_back(0.0); vertices.push_back(-half);
+        vertices.push_back(offset); vertices.push_back(0.0); vertices.push_back(half);
     }
 
     GLuint VAO, VBO;
@@ -110,27 +111,33 @@ void Renderer::drawGrid(float size, int divisions, const glm::vec3& color) const
     glGenBuffers(1, &VBO);
 
     glBindVertexArray(VAO);
-
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
-    // Set up vertex attributes
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    std::size_t bufferSize = vertices.size() * sizeof(double);
+    if (bufferSize > static_cast<std::size_t>(std::numeric_limits<GLsizeiptr>::max())) {
+        throw std::runtime_error("Buffer size exceeds maximum allowable GLsizeiptr value.");
+    }
+    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(bufferSize), vertices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), nullptr);
     glEnableVertexAttribArray(0);
 
-    // Use shader program and set color
     glUseProgram(m_GridShaderProgram);
-    glUniform3fv(glGetUniformLocation(m_GridShaderProgram, "u_Color"), 1, &color[0]);
-
-    // Draw the grid
+    glUniform3dv(glGetUniformLocation(m_GridShaderProgram, "u_Color"), 1, glm::value_ptr(color));
     glBindVertexArray(VAO);
-    glDrawArrays(GL_LINES, 0, vertices.size() / 3);
+    std::size_t count = vertices.size() / 3;
+    if (count > static_cast<std::size_t>(std::numeric_limits<GLsizei>::max())) {
+        throw std::runtime_error("Too many vertices to draw; exceeds maximum GLsizei value.");
+    }
 
-    // Clean up
+    glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(count));
+
+
     glBindVertexArray(0);
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
 }
+
 
 
 void Renderer::handleMouseMovement(double xpos, double ypos) {
@@ -142,12 +149,12 @@ void Renderer::handleMouseMovement(double xpos, double ypos) {
         m_FirstMouse = false;
     }
 
-    float xOffset = xpos - m_LastMouseX;
-    float yOffset = m_LastMouseY - ypos; // Inverted because y-coordinates go bottom to top
+    double xOffset = xpos - m_LastMouseX;
+    double yOffset = m_LastMouseY - ypos; // Inverted because y-coordinates go bottom to top
     m_LastMouseX = xpos;
     m_LastMouseY = ypos;
 
-    const float sensitivity = 0.1f; // Adjust sensitivity
+    const double sensitivity = 0.1; // Adjust sensitivity
     xOffset *= sensitivity;
     yOffset *= sensitivity;
 
@@ -155,11 +162,11 @@ void Renderer::handleMouseMovement(double xpos, double ypos) {
     m_Pitch += yOffset;
 
     // Constrain pitch to prevent flipping
-    if (m_Pitch > 89.0f) m_Pitch = 89.0f;
-    if (m_Pitch < -89.0f) m_Pitch = -89.0f;
+    if (m_Pitch > 89.0) m_Pitch = 89.0;
+    if (m_Pitch < -89.0) m_Pitch = -89.0;
 
     // Update the front vector based on updated yaw and pitch
-    glm::vec3 front;
+    glm::dvec3 front;
     front.x = cos(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
     front.y = sin(glm::radians(m_Pitch));
     front.z = sin(glm::radians(m_Yaw)) * cos(glm::radians(m_Pitch));
@@ -180,8 +187,8 @@ void Renderer::handleMouseButton(int button, int action) {
     }
 }
 
-void Renderer::handleKeyboardInput(GLFWwindow* window, float deltaTime) {
-    float velocity = m_CameraSpeed * deltaTime;
+void Renderer::handleKeyboardInput(GLFWwindow* window, double deltaTime) {
+    double velocity = m_CameraSpeed * deltaTime;
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         m_CameraPos += m_CameraFront * velocity; // Move forward
@@ -198,15 +205,15 @@ void Renderer::handleKeyboardInput(GLFWwindow* window, float deltaTime) {
 }
 
 void Renderer::updateViewMatrix() {
-    glm::mat4 view = glm::lookAt(m_CameraPos, m_CameraPos + m_CameraFront, m_CameraUp);
+    glm::dmat4 view = glm::lookAt(m_CameraPos, m_CameraPos + m_CameraFront, m_CameraUp);
     glUseProgram(m_GridShaderProgram);
-    glUniformMatrix4fv(glGetUniformLocation(m_GridShaderProgram, "u_View"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4dv(glGetUniformLocation(m_GridShaderProgram, "u_View"), 1, GL_FALSE, glm::value_ptr(view));
 }
 
-void Renderer::updateProjectionMatrix(float aspectRatio) {
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 100.0f);
+void Renderer::updateProjectionMatrix(double aspectRatio) const {
+    glm::dmat4 projection = glm::perspective(glm::radians(45.0), aspectRatio, 0.1, 100.0);
     glUseProgram(m_GridShaderProgram);
-    glUniformMatrix4fv(glGetUniformLocation(m_GridShaderProgram, "u_Projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4dv(glGetUniformLocation(m_GridShaderProgram, "u_Projection"), 1, GL_FALSE, glm::value_ptr(projection));
 }
 
 GLuint Renderer::compileShader(GLenum type, const char* source) {

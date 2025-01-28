@@ -11,21 +11,21 @@ public:
     ~ImGuiLayer();
 
     void renderUI();
-    void updateSimulationData(float position, float velocity);
+    void updateSimulationData(double position, double velocity);
 
 private:
     GLFWwindow* m_Window;
 
     // Circular buffer for storing simulation data
     static constexpr int historySize = 100;
-    std::vector<float> m_PositionHistory = std::vector<float>(historySize, 0.0f);
-    std::vector<float> m_VelocityHistory = std::vector<float>(historySize, 0.0f);
+    std::vector<double> m_PositionHistory = std::vector<double>(historySize, 0.0);
+    std::vector<double> m_VelocityHistory = std::vector<double>(historySize, 0.0);
     int m_CurrentIndex = 0;
 
-    void showMainMenu();
-    void showSimulationControls();
-    void showRenderingOptions();
-    void showDebugWindow();
+    static void showMainMenu();
+    static void showSimulationControls();
+    static void showRenderingOptions();
+    static void showDebugWindow();
     void showSimulationData();
 
 };

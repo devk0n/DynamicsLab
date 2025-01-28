@@ -33,7 +33,7 @@ void ImGuiLayer::renderUI() {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
-void ImGuiLayer::updateSimulationData(float position, float velocity) {
+void ImGuiLayer::updateSimulationData(double position, double velocity) {
     m_PositionHistory[m_CurrentIndex] = position;
     m_VelocityHistory[m_CurrentIndex] = velocity;
     m_CurrentIndex = (m_CurrentIndex + 1) % historySize;
@@ -56,8 +56,10 @@ void ImGuiLayer::showMainMenu() {
 void ImGuiLayer::showSimulationControls() {
     ImGui::Begin("Simulation Controls");
 
-    static float simulationSpeed = 1.0f;
-    ImGui::SliderFloat("Speed", &simulationSpeed, 0.1f, 10.0f);
+    static double simulationSpeed = 1.0;
+    static double minSpeed = 0.0;
+    static double maxSpeed = 10.0;
+    ImGui::SliderScalar("Speed", ImGuiDataType_Double, &simulationSpeed, &minSpeed, &maxSpeed);
 
     static bool enablePhysics = true;
     ImGui::Checkbox("Enable Physics", &enablePhysics);
@@ -100,15 +102,11 @@ void ImGuiLayer::showSimulationData() {
     ImGui::Begin("Simulation Data");
 
     // Show current values
-    float currentPos = m_PositionHistory[(m_CurrentIndex - 1 + historySize) % historySize];
-    float currentVel = m_VelocityHistory[(m_CurrentIndex - 1 + historySize) % historySize];
+    double currentPos = m_PositionHistory[(m_CurrentIndex - 1 + historySize) % historySize];
+    double currentVel = m_VelocityHistory[(m_CurrentIndex - 1 + historySize) % historySize];
 
     ImGui::Text("Position: %.2f m", currentPos);
     ImGui::Text("Velocity: %.2f m/s", currentVel);
-
-    // Plot position and velocity
-    ImGui::PlotLines("Position (m)", m_PositionHistory.data(), historySize, m_CurrentIndex, nullptr, -100.0f, 100.0f, ImVec2(0, 100));
-    ImGui::PlotLines("Velocity (m/s)", m_VelocityHistory.data(), historySize, m_CurrentIndex, nullptr, -100.0f, 100.0f, ImVec2(0, 100));
 
     ImGui::End();
 }

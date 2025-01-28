@@ -9,36 +9,36 @@ public:
     Renderer(GLFWwindow* window);
     ~Renderer();
 
-    void clearScreen(const glm::vec4& color);
+    static void clearScreen(const glm::dvec4& color);
     void draw();
 
     void handleMouseButton(int button, int action);
     void handleMouseMovement(double xpos, double ypos);
-    void handleKeyboardInput(GLFWwindow* window, float deltaTime);
+    void handleKeyboardInput(GLFWwindow* window, double deltaTime);
 
 private:
     GLFWwindow* m_Window;
     GLuint m_GridShaderProgram;
 
-    glm::vec3 m_CameraPos = glm::vec3(10.0f, 10.0f, 3.0f);
-    glm::vec3 m_CameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-    glm::vec3 m_CameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-    float m_Yaw = -90.0f;
-    float m_Pitch = 0.0f;
-    float m_CameraSpeed = 5.0f;
+    glm::dvec3 m_CameraPos = glm::dvec3(0.0, 0.0, 3.0);
+    glm::dvec3 m_CameraFront = glm::dvec3(0.0, 0.0, -1.0);
+    glm::dvec3 m_CameraUp = glm::dvec3(0.0, 1.0, 0.0);
+    double m_Yaw = -90.0;
+    double m_Pitch = 0.0;
+    double m_CameraSpeed = 5.0;
     bool m_RightMouseHeld = false;
-    float m_LastMouseX = 400.0f, m_LastMouseY = 300.0f; // Initial cursor position
+    double m_LastMouseX = 400.0, m_LastMouseY = 300.0;
     bool m_FirstMouse = true;
 
-    void initOpenGL();
+    static void initOpenGL();
 
-    void drawGrid(float size, int divisions, const glm::vec3 &color) const;
+    void drawGrid(double size, int divisions, const glm::dvec3 &color) const;
 
     void updateViewMatrix();
-    void updateProjectionMatrix(float aspectRatio);
+    void updateProjectionMatrix(double aspectRatio) const;
 
-    GLuint compileShader(GLenum type, const char *source);
-    GLuint createShaderProgram(const char *vertexSource, const char *fragmentSource);
+    static GLuint compileShader(GLenum type, const char *source);
+    static GLuint createShaderProgram(const char *vertexSource, const char *fragmentSource);
 };
 
 

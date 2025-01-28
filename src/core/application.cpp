@@ -24,7 +24,7 @@ Application::Application(int width, int height, const char* title)
     glfwMakeContextCurrent(m_Window.get());
 
     m_Renderer = std::make_unique<Renderer>(m_Window.get());
-    glfwSetWindowUserPointer(m_Window.get(), m_Renderer.get()); // Link Renderer to the window
+    glfwSetWindowUserPointer(m_Window.get(), m_Renderer.get());
 
     // Register callbacks
     glfwSetCursorPosCallback(m_Window.get(), [](GLFWwindow* window, double xpos, double ypos) {
@@ -71,7 +71,7 @@ Application::~Application() {
 void Application::run() {
     while (!glfwWindowShouldClose(m_Window.get())) {
         processInput();
-        update(0.00025f);
+        update(0.00025);
         render();
 
         glfwSwapBuffers(m_Window.get());
@@ -80,9 +80,9 @@ void Application::run() {
 }
 
 void Application::processInput() {
-    static float lastFrameTime = 0.0f;
-    float currentFrameTime = glfwGetTime();
-    float deltaTime = currentFrameTime - lastFrameTime;
+    static double lastFrameTime = 0.0;
+    double currentFrameTime = glfwGetTime();
+    double deltaTime = currentFrameTime - lastFrameTime;
     lastFrameTime = currentFrameTime;
 
     if (m_Window && glfwGetKey(m_Window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -94,10 +94,10 @@ void Application::processInput() {
     }
 }
 
-void Application::update(float stepTime) {
-    static float position = 0.0f;
-    static float velocity = 0.0f;
-    static const float acceleration = -9.8f;
+void Application::update(double stepTime) {
+    static double position = 0.0;
+    static double velocity = 0.0;
+    static const double acceleration = -9.8;
 
     velocity += acceleration * stepTime;
     position += velocity * stepTime;
@@ -108,7 +108,7 @@ void Application::update(float stepTime) {
 }
 
 void Application::render() {
-    m_Renderer->clearScreen({0.1f, 0.1f, 0.1f, 1.0f});
+    m_Renderer->clearScreen({0.1, 0.1, 0.1, 1.0});
     m_Renderer->draw();
     m_ImGuiLayer->renderUI();
 }
