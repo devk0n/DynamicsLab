@@ -3,7 +3,7 @@
 **DynamicsLab** is a real-time simulation tool for multibody dynamics systems. It is designed to help users visualize, analyze, and interact with complex system data efficiently. By combining powerful simulation capabilities with an intuitive interface, **DynamicsLab** supports researchers and engineers in better understanding dynamic systems.
 
 ## Alpha Interface
-![Alt text](./assets/images/alpha.png)
+![Alt text](./assets/images/alpha_0.11.png)
 
 ## Features
 - **Real-time Simulation**: Simulates rigid body dynamics with position, velocity, and acceleration updates.
