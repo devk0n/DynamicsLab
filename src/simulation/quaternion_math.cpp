@@ -1,15 +1,15 @@
 #include "quaternion_math.h"
 
-Eigen::Matrix4d skewMatrix(Eigen::Vector3d a) {
-    Eigen::Matrix4d Sn = Eigen::Matrix4d::Zero();
+Eigen::Matrix4d skewNegativeMatrix(Eigen::Vector3d a) {
+    Eigen::Matrix4d sN = Eigen::Matrix4d::Zero();
 
-    Sn.block<1, 3>(0, 1) = -a.transpose();
-    Sn.block<3, 1>(1, 0) = a;
-    Sn.block<3, 3>(1, 1) = -Eigen::Matrix3d((Eigen::Matrix3d() << 0, -a(2), a(1),
+    sN.block<1, 3>(0, 1) = -a.transpose();
+    sN.block<3, 1>(1, 0) = a;
+    sN.block<3, 3>(1, 1) = -Eigen::Matrix3d((Eigen::Matrix3d() << 0, -a(2), a(1),
                                                     a(2), 0, -a(0),
                                                    -a(1), a(0), 0).finished());
 
-    return Sn;
+    return sN;
 }
 
 Eigen::Matrix<double, 3, 4> gMatrix(Eigen::Vector4d p) {

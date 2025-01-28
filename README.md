@@ -2,6 +2,8 @@
 
 **DynamicsLab** is a real-time simulation tool for multibody dynamics systems. Used to visualize and analyze system data efficiently.
 
+![Alt text](./assets/images/pre-alpha.png)
+
 ## References
 
 1. Nikravesh, Parviz E. *Computer-Aided Analysis of Mechanical Systems*. Prentice-Hall, Inc., USA, 1988. ISBN: 0131642200.

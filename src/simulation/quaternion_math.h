@@ -4,7 +4,7 @@
 #include <Eigen/Dense>
 
 class QuaternionMath {
-    static Eigen::Matrix4d skewMatrix(Eigen::Vector3d a);
+    static Eigen::Matrix4d skewNegativeMatrix(Eigen::Vector3d a);
     static Eigen::Matrix<double, 3, 4> gMatrix(Eigen::Vector4d p);
     static Eigen::Matrix<double, 3, 4> lMatrix(Eigen::Vector4d p);
 };
