@@ -105,7 +105,7 @@ void Application::captureScreenshot() {
     }
 
     // Create the directory if it doesn't exist
-    const std::string screenshotDir = "../assets/screenshots";
+    const std::string screenshotDir = "../assets/images";
     std::filesystem::create_directories(screenshotDir);
 
     // Generate a timestamped filename

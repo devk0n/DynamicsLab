@@ -12,9 +12,6 @@ public:
     ~ImGuiLayer();
 
     void renderUI();
-    void updateSimulationData(double position, double velocity);
-
-    void updateCameraData(const glm::dvec3 &position, const glm::dvec3 &orientation);
 
     void updateCameraData(const glm::dvec3 &position, const glm::dvec3 &orientation, const double &speed);
 
@@ -22,9 +19,9 @@ private:
     GLFWwindow* m_Window;
     Renderer* m_Renderer;
 
-    glm::dvec3 m_CameraPosition;
-    glm::dvec3 m_CameraOrientation;
-    double m_CameraSpeed;
+    glm::dvec3 m_CameraPosition{};
+    glm::dvec3 m_CameraOrientation{};
+    double m_CameraSpeed{};
 
     // Circular buffer for storing simulation data
     static constexpr int historySize = 100;
@@ -35,7 +32,7 @@ private:
     static void showMainMenu();
     static void showSimulationControls();
     static void showRenderingOptions(Renderer*);
-    void showDebugWindow();
+    void showDebugWindow() const;
     void showSimulationData();
 
 };

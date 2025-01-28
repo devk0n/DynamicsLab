@@ -41,12 +41,6 @@ void ImGuiLayer::renderUI() {
 }
 
 
-void ImGuiLayer::updateSimulationData(double position, double velocity) {
-    m_PositionHistory[m_CurrentIndex] = position;
-    m_VelocityHistory[m_CurrentIndex] = velocity;
-    m_CurrentIndex = (m_CurrentIndex + 1) % historySize;
-}
-
 void ImGuiLayer::updateCameraData(const glm::dvec3& position, const glm::dvec3& orientation, const double& speed) {
     m_CameraPosition = position;
     m_CameraOrientation = orientation;
@@ -110,7 +104,7 @@ void ImGuiLayer::showRenderingOptions(Renderer* renderer) {
 }
 
 
-void ImGuiLayer::showDebugWindow() {
+void ImGuiLayer::showDebugWindow() const {
     ImGui::Begin("Debug Info");
 
     // Basic statistics
