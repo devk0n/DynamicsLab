@@ -6,6 +6,7 @@
 #include "renderer.h"
 #include "imgui_layer.h"
 
+
 Application::Application(int width, int height, const char* title)
     : m_Window(nullptr, glfwDestroyWindow) {
 
@@ -51,6 +52,7 @@ Application::Application(int width, int height, const char* title)
     m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Window.get());
 }
 
+
 Application::~Application() {
     try {
         m_ImGuiLayer.reset();
@@ -68,6 +70,7 @@ Application::~Application() {
     }
 }
 
+
 void Application::run() {
     while (!glfwWindowShouldClose(m_Window.get())) {
         processInput();
@@ -78,6 +81,7 @@ void Application::run() {
         glfwPollEvents();
     }
 }
+
 
 void Application::processInput() {
     static double lastFrameTime = 0.0;
@@ -94,6 +98,7 @@ void Application::processInput() {
     }
 }
 
+
 void Application::update(double stepTime) {
     static double position = 0.0;
     static double velocity = 0.0;
@@ -107,8 +112,9 @@ void Application::update(double stepTime) {
     }
 }
 
+
 void Application::render() {
-    m_Renderer->clearScreen({0.1, 0.1, 0.1, 1.0});
+    Renderer::clearScreen({0.1, 0.1, 0.1, 1.0});
     m_Renderer->draw();
     m_ImGuiLayer->renderUI();
 }

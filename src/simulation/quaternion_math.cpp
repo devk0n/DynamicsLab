@@ -1,5 +1,6 @@
 #include "quaternion_math.h"
 
+
 Eigen::Matrix4d skewNegativeMatrix(Eigen::Vector3d a) {
     Eigen::Matrix4d sN = Eigen::Matrix4d::Zero();
 
@@ -12,6 +13,7 @@ Eigen::Matrix4d skewNegativeMatrix(Eigen::Vector3d a) {
     return sN;
 }
 
+
 Eigen::Matrix<double, 3, 4> gMatrix(Eigen::Vector4d p) {
     Eigen::Matrix<double, 3, 4> G;
 
@@ -21,6 +23,7 @@ Eigen::Matrix<double, 3, 4> gMatrix(Eigen::Vector4d p) {
 
     return G;
 }
+
 
 Eigen::Matrix<double, 3, 4> lMatrix(Eigen::Vector4d p) {
     Eigen::Matrix<double, 3, 4> L;

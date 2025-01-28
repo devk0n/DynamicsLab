@@ -3,6 +3,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
+
 ImGuiLayer::ImGuiLayer(GLFWwindow* window) : m_Window(window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -11,11 +12,13 @@ ImGuiLayer::ImGuiLayer(GLFWwindow* window) : m_Window(window) {
     ImGui_ImplOpenGL3_Init("#version 460 core");
 }
 
+
 ImGuiLayer::~ImGuiLayer() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
+
 
 void ImGuiLayer::renderUI() {
     ImGui_ImplOpenGL3_NewFrame();
@@ -33,14 +36,15 @@ void ImGuiLayer::renderUI() {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
+
 void ImGuiLayer::updateSimulationData(double position, double velocity) {
     m_PositionHistory[m_CurrentIndex] = position;
     m_VelocityHistory[m_CurrentIndex] = velocity;
     m_CurrentIndex = (m_CurrentIndex + 1) % historySize;
 }
 
-// Individual UI components
 
+// Individual UI components
 void ImGuiLayer::showMainMenu() {
     ImGui::Begin("Main Menu");
     if (ImGui::Button("Start Simulation")) {
@@ -52,6 +56,7 @@ void ImGuiLayer::showMainMenu() {
     }
     ImGui::End();
 }
+
 
 void ImGuiLayer::showSimulationControls() {
     ImGui::Begin("Simulation Controls");
@@ -66,6 +71,7 @@ void ImGuiLayer::showSimulationControls() {
 
     ImGui::End();
 }
+
 
 void ImGuiLayer::showRenderingOptions() {
     ImGui::Begin("Rendering Options");
@@ -85,6 +91,7 @@ void ImGuiLayer::showRenderingOptions() {
     ImGui::End();
 }
 
+
 void ImGuiLayer::showDebugWindow() {
     ImGui::Begin("Debug Info");
 
@@ -97,6 +104,7 @@ void ImGuiLayer::showDebugWindow() {
 
     ImGui::End();
 }
+
 
 void ImGuiLayer::showSimulationData() {
     ImGui::Begin("Simulation Data");

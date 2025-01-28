@@ -1,5 +1,3 @@
-#define GLM_FORCE_PRECISION GLM_PRECISION_HIGHP_DOUBLE
-
 #include <iostream>
 #include <vector>
 #include <stdexcept>
@@ -11,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "renderer.h"
+
 
 Renderer::Renderer(GLFWwindow* window)
     : m_Window(window) {
@@ -48,14 +47,15 @@ Renderer::Renderer(GLFWwindow* window)
         }
     )";
 
-
     m_GridShaderProgram = createShaderProgram(vertexShaderSource, fragmentShaderSource);
 
 }
 
+
 Renderer::~Renderer() {
     std::cout << "Renderer destroyed." << std::endl;
 }
+
 
 void Renderer::initOpenGL() {
     GLenum err = glGetError();
@@ -71,14 +71,15 @@ void Renderer::initOpenGL() {
     std::cout << "OpenGL Initialized" << std::endl;
 }
 
+
 void Renderer::clearScreen(const glm::dvec4& color) {
-    // Convert double to float before passing to glClearColor
     glClearColor(static_cast<float>(color.r),
                  static_cast<float>(color.g),
                  static_cast<float>(color.b),
                  static_cast<float>(color.a));
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
+
 
 void Renderer::draw() {
     clearScreen(glm::dvec4(0.1, 0.1, 0.1, 1.0));
@@ -117,6 +118,7 @@ void Renderer::drawGrid(double size, int divisions, const glm::dvec3& color) con
     if (bufferSize > static_cast<std::size_t>(std::numeric_limits<GLsizeiptr>::max())) {
         throw std::runtime_error("Buffer size exceeds maximum allowable GLsizeiptr value.");
     }
+
     glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(bufferSize), vertices.data(), GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), nullptr);
@@ -125,6 +127,7 @@ void Renderer::drawGrid(double size, int divisions, const glm::dvec3& color) con
     glUseProgram(m_GridShaderProgram);
     glUniform3dv(glGetUniformLocation(m_GridShaderProgram, "u_Color"), 1, glm::value_ptr(color));
     glBindVertexArray(VAO);
+
     std::size_t count = vertices.size() / 3;
     if (count > static_cast<std::size_t>(std::numeric_limits<GLsizei>::max())) {
         throw std::runtime_error("Too many vertices to draw; exceeds maximum GLsizei value.");
@@ -132,12 +135,10 @@ void Renderer::drawGrid(double size, int divisions, const glm::dvec3& color) con
 
     glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(count));
 
-
     glBindVertexArray(0);
     glDeleteBuffers(1, &VBO);
     glDeleteVertexArrays(1, &VAO);
 }
-
 
 
 void Renderer::handleMouseMovement(double xpos, double ypos) {
@@ -187,6 +188,7 @@ void Renderer::handleMouseButton(int button, int action) {
     }
 }
 
+
 void Renderer::handleKeyboardInput(GLFWwindow* window, double deltaTime) {
     double velocity = m_CameraSpeed * deltaTime;
 
@@ -204,17 +206,20 @@ void Renderer::handleKeyboardInput(GLFWwindow* window, double deltaTime) {
     }
 }
 
+
 void Renderer::updateViewMatrix() {
     glm::dmat4 view = glm::lookAt(m_CameraPos, m_CameraPos + m_CameraFront, m_CameraUp);
     glUseProgram(m_GridShaderProgram);
     glUniformMatrix4dv(glGetUniformLocation(m_GridShaderProgram, "u_View"), 1, GL_FALSE, glm::value_ptr(view));
 }
 
+
 void Renderer::updateProjectionMatrix(double aspectRatio) const {
     glm::dmat4 projection = glm::perspective(glm::radians(45.0), aspectRatio, 0.1, 100.0);
     glUseProgram(m_GridShaderProgram);
     glUniformMatrix4dv(glGetUniformLocation(m_GridShaderProgram, "u_Projection"), 1, GL_FALSE, glm::value_ptr(projection));
 }
+
 
 GLuint Renderer::compileShader(GLenum type, const char* source) {
     GLuint shader = glCreateShader(type);
@@ -231,6 +236,7 @@ GLuint Renderer::compileShader(GLenum type, const char* source) {
 
     return shader;
 }
+
 
 GLuint Renderer::createShaderProgram(const char* vertexSource, const char* fragmentSource) {
     GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexSource);
@@ -254,5 +260,3 @@ GLuint Renderer::createShaderProgram(const char* vertexSource, const char* fragm
 
     return program;
 }
-
-
