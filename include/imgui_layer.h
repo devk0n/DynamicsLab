@@ -1,7 +1,3 @@
-//
-// Created by devkon on 27/01/2025.
-//
-
 #ifndef DYNAMICSLAB_IMGUI_LAYER_H
 #define DYNAMICSLAB_IMGUI_LAYER_H
 

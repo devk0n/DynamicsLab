@@ -1,4 +1,3 @@
-
 #include "GLFW/glfw3.h"
 #include <stdexcept>
 #include <iostream>
