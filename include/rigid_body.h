@@ -12,6 +12,10 @@ public:
             Eigen::Matrix3d inertiaTensor);
 
     Eigen::Vector3d getPosition();
+    Eigen::Vector4d getOrientation();
+    Eigen::Matrix3d getMassMatrix();
+    Eigen::Matrix3d getGlobalInertiaTensor();
+
 private:
     double m_Mass;
 

@@ -29,9 +29,24 @@ public:
 
     void debug();
 
+    Eigen::MatrixXd getSystemMassInertiaMatrix();
+    Eigen::MatrixXd getQuaternionConstraintMatrix();
+    Eigen::MatrixXd getGeneralizedCoordinates();
+    Eigen::MatrixXd getGeneralizedVelocities();
+    Eigen::MatrixXd getGeneralizedAccelerations();
+    Eigen::MatrixXd getVelocityDependentTerm();
+
+    Eigen::MatrixXd getAZeros();
+
+    Eigen::MatrixXd getQuaternionNormSquared();
+
+    Eigen::MatrixXd getGeneralizedExternalForces();
     Eigen::MatrixXd getMatrixA();
-    size_t getBodyCount() const;
-    const std::shared_ptr<RigidBody> &getBody(size_t index) const;
+    Eigen::MatrixXd getMatrixB();
+    Eigen::MatrixXd getMatrixX();
+    
+    size_t getBodyCount();
+    std::shared_ptr<RigidBody> &getBody(size_t index);
 
 
 private:
@@ -56,8 +71,8 @@ private:
     Eigen::MatrixXd m_AZeros;
     Eigen::MatrixXd m_BZeros;
 
-    void initialize();
-
+    void initializeSize();
+    void initializeContent();
 };
 
 

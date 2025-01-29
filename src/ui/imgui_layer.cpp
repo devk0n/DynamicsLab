@@ -120,7 +120,7 @@ void ImGuiLayer::showDynamicsData() {
         ImGui::Text("Total Bodies: %zu", m_Dynamics->getBodyCount());
 
         // Retrieve the matrix
-        const Eigen::MatrixXd& matrixA = m_Dynamics->getMatrixA();
+        const Eigen::MatrixXd& matrixA = m_Dynamics->getSystemMassInertiaMatrix();
 
         if (matrixA.size() == 0) {
             ImGui::Text("m_A matrix is empty");
@@ -132,7 +132,7 @@ void ImGuiLayer::showDynamicsData() {
                     ImGui::TableNextRow();
                     for (int j = 0; j < matrixA.cols(); ++j) {
                         ImGui::TableSetColumnIndex(j);
-                        ImGui::Text("%.3f", matrixA(i, j));
+                        ImGui::Text("%.0f", matrixA(i, j));
                     }
                 }
                 ImGui::EndTable();

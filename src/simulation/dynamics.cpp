@@ -5,11 +5,20 @@ Dynamics::Dynamics() {}
 
 void Dynamics::addBody(const std::shared_ptr<RigidBody>& body) {
     m_Bodies.push_back(body);
-    initialize();
+    initializeSize();
+    initializeContent();
     std::cout << "Added body. Total count: " << m_Bodies.size() << std::endl;
 }
 
-void Dynamics::initialize() {
+void Dynamics::initializeContent() {
+    if (m_Bodies.empty()) return;
+
+    for (size_t i = 0; i < m_Bodies.size(); i++) {
+        m_SystemMassInertiaMatrix.block(7 * i, 7 * i, 3, 3) = m_Bodies[i]->getMassMatrix();
+    }
+}
+
+void Dynamics::initializeSize() {
     if (m_Bodies.empty()) return;
     size_t b = m_Bodies.size();
 
@@ -51,11 +60,11 @@ void Dynamics::step(double deltaTime) {
 
 }
 
-size_t Dynamics::getBodyCount() const {
+size_t Dynamics::getBodyCount() {
     return m_Bodies.size();
 }
 
-const std::shared_ptr<RigidBody>& Dynamics::getBody(size_t index) const {
+std::shared_ptr<RigidBody>& Dynamics::getBody(size_t index) {
     return m_Bodies[index];
 }
 
@@ -95,4 +104,48 @@ void Dynamics::debug() {
 
 Eigen::MatrixXd Dynamics::getMatrixA() {
     return m_A;
+}
+
+Eigen::MatrixXd Dynamics::getSystemMassInertiaMatrix() {
+    return m_SystemMassInertiaMatrix;
+}
+
+Eigen::MatrixXd Dynamics::getQuaternionConstraintMatrix() {
+    return m_QuaternionConstraintMatrix;
+}
+
+Eigen::MatrixXd Dynamics::getGeneralizedCoordinates() {
+    return m_GeneralizedCoordinates;
+}
+
+Eigen::MatrixXd Dynamics::getGeneralizedVelocities() {
+    return m_GeneralizedVelocities;
+}
+
+Eigen::MatrixXd Dynamics::getGeneralizedAccelerations() {
+    return m_GeneralizedAccelerations;
+}
+
+Eigen::MatrixXd Dynamics::getVelocityDependentTerm() {
+    return m_VelocityDependentTerm;
+}
+
+Eigen::MatrixXd Dynamics::getQuaternionNormSquared() {
+    return m_QuaternionNormSquared;
+}
+
+Eigen::MatrixXd Dynamics::getGeneralizedExternalForces() {
+    return m_GeneralizedExternalForces;
+}
+
+Eigen::MatrixXd Dynamics::getAZeros() {
+    return m_AZeros;
+}
+
+Eigen::MatrixXd Dynamics::getMatrixB() {
+    return m_B;
+}
+
+Eigen::MatrixXd Dynamics::getMatrixX() {
+    return m_X;
 }

@@ -57,5 +57,17 @@ Eigen::Vector3d RigidBody::getPosition() {
     return m_Position;
 }
 
+Eigen::Vector4d RigidBody::getOrientation() {
+    return m_Orientation;
+}
+
+Eigen::Matrix3d RigidBody::getMassMatrix() {
+    return m_MassMatrix;
+}
+
+Eigen::Matrix3d RigidBody::getGlobalInertiaTensor() {
+    return m_GlobalInertiaTensor;
+}
+
 // Eigen::Matrix4d inertiaTensor = 4 * transformationMatrix.transpose() * globalInertiaTensor * transformationMatrix;
 
