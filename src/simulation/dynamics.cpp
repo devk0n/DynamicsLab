@@ -30,7 +30,7 @@ void Dynamics::initializeContent() {
         m_VelocityDependentTerm.middleRows(3, 4) = 2 * H * m_Bodies[i]->getAngularVelocity();
         m_QuaternionNormSquared.row(i) = m_Bodies[i]->getOrientation().transpose() * m_Bodies[i]->getOrientation();
 
-        m_GeneralizedExternalForces.setOnes();
+        m_GeneralizedExternalForces.setZero();
 
         m_B.segment(0, 7 * b) = m_VelocityDependentTerm - m_GeneralizedExternalForces;
         m_B.tail(b) = m_QuaternionNormSquared;
@@ -40,6 +40,15 @@ void Dynamics::initializeContent() {
     m_A.bottomLeftCorner(b, 7 * b) = m_QuaternionConstraintMatrix;
     m_A.topRightCorner(7 * b, b) = m_QuaternionConstraintMatrix.transpose();
 
+}
+
+void Dynamics::step(double deltaTime) {
+    m_X = m_A.partialPivLu().solve(m_B);
+    m_GeneralizedAccelerations = m_X.head(7 * getBodyCount());
+
+    // Integration
+    m_GeneralizedVelocities += m_GeneralizedAccelerations * deltaTime;
+    m_GeneralizedCoordinates += m_GeneralizedVelocities * deltaTime;
 }
 
 void Dynamics::initializeSize() {
@@ -73,10 +82,6 @@ void Dynamics::initializeSize() {
     m_A.setZero();
     m_B.setZero();
     m_X.setZero();
-
-}
-
-void Dynamics::step(double deltaTime) {
 
 }
 
