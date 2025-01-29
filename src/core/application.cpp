@@ -55,9 +55,37 @@ Application::Application(int width, int height, const char* title)
                 Eigen::Matrix3d::Identity() * 10,
                 Eigen::Matrix3d::Identity() * 60);
 
+    auto body2 = std::make_shared<RigidBody>(
+                Eigen::Vector3d(1, 0, 0),
+                Eigen::Vector4d(1, 0, 0, 0),
+                Eigen::Matrix3d::Identity() * 20,
+                Eigen::Matrix3d::Identity() * 120);
+
+    auto body3 = std::make_shared<RigidBody>(
+                Eigen::Vector3d(1, 0, 0),
+                Eigen::Vector4d(1, 0, 0, 0),
+                Eigen::Matrix3d::Identity() * 20,
+                Eigen::Matrix3d::Identity() * 120);
+
+    auto body4 = std::make_shared<RigidBody>(
+                Eigen::Vector3d(1, 0, 0),
+                Eigen::Vector4d(1, 0, 0, 0),
+                Eigen::Matrix3d::Identity() * 20,
+                Eigen::Matrix3d::Identity() * 120);
+
+    auto body5 = std::make_shared<RigidBody>(
+                Eigen::Vector3d(1, 0, 0),
+                Eigen::Vector4d(1, 0, 0, 0),
+                Eigen::Matrix3d::Identity() * 20,
+                Eigen::Matrix3d::Identity() * 120);
+
 
     m_Dynamics = std::make_unique<Dynamics>();
     m_Dynamics->addBody(body1);
+    m_Dynamics->addBody(body2);
+    // m_Dynamics->addBody(body3);
+    // m_Dynamics->addBody(body4);
+    // m_Dynamics->addBody(body5);
 
     m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Window.get(), m_Renderer.get(), m_Dynamics.get());
 

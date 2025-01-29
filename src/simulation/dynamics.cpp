@@ -12,15 +12,23 @@ void Dynamics::addBody(const std::shared_ptr<RigidBody>& body) {
 
 void Dynamics::initializeContent() {
     if (m_Bodies.empty()) return;
+    int b = getBodyCount();
 
-    for (size_t i = 0; i < m_Bodies.size(); i++) {
+    for (int i = 0; i < b; i++) {
         m_SystemMassInertiaMatrix.block(7 * i, 7 * i, 3, 3) = m_Bodies[i]->getMassMatrix();
+        m_SystemMassInertiaMatrix.block(7 * i + 4, 7 * i + 4, 3, 3) = m_Bodies[i]->getGlobalInertiaTensor();
+
+        m_QuaternionConstraintMatrix.block(1 * i, 3 + (7 * i), 1, 4) = m_Bodies[i]->getOrientation().transpose();
     }
+
+    m_A.topLeftCorner(7 * b, 7 * b) = m_SystemMassInertiaMatrix;
+    m_A.bottomLeftCorner(b, 7 * b) = m_QuaternionConstraintMatrix;
+    m_A.topRightCorner(7 * b, b) = m_QuaternionConstraintMatrix.transpose();
 }
 
 void Dynamics::initializeSize() {
     if (m_Bodies.empty()) return;
-    size_t b = m_Bodies.size();
+    int b = getBodyCount();
 
     m_SystemMassInertiaMatrix.resize(7 * b, 7 * b);
     m_QuaternionConstraintMatrix.resize(1 * b, 7 * b);
@@ -60,11 +68,11 @@ void Dynamics::step(double deltaTime) {
 
 }
 
-size_t Dynamics::getBodyCount() {
-    return m_Bodies.size();
+int Dynamics::getBodyCount() {
+    return static_cast<int>(m_Bodies.size());
 }
 
-std::shared_ptr<RigidBody>& Dynamics::getBody(size_t index) {
+std::shared_ptr<RigidBody>& Dynamics::getBody(int index) {
     return m_Bodies[index];
 }
 

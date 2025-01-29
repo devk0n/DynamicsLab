@@ -45,8 +45,8 @@ public:
     Eigen::MatrixXd getMatrixB();
     Eigen::MatrixXd getMatrixX();
     
-    size_t getBodyCount();
-    std::shared_ptr<RigidBody> &getBody(size_t index);
+    int getBodyCount();
+    std::shared_ptr<RigidBody> &getBody(int index);
 
 
 private:
