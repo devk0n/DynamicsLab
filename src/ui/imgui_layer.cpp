@@ -127,17 +127,16 @@ void ImGuiLayer::showDynamicsData() {
         } else {
             ImGui::Text("m_A Matrix: %ld x %ld", matrixA.rows(), matrixA.cols());
 
-            ImGui::BeginChild("MatrixScrollRegion", ImVec2(0, 300), true, ImGuiWindowFlags_HorizontalScrollbar);
-
-            // Display each row
-            for (int i = 0; i < matrixA.rows(); ++i) {
-                for (int j = 0; j < matrixA.cols(); ++j) {
-                    ImGui::Text("%.1f", matrixA(i, j));
-                    if (j < matrixA.cols() - 1) ImGui::SameLine(); // Keep elements in the same row
+            if (ImGui::BeginTable("MatrixA", matrixA.cols(), ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+                for (int i = 0; i < matrixA.rows(); ++i) {
+                    ImGui::TableNextRow();
+                    for (int j = 0; j < matrixA.cols(); ++j) {
+                        ImGui::TableSetColumnIndex(j);
+                        ImGui::Text("%.3f", matrixA(i, j));
+                    }
                 }
+                ImGui::EndTable();
             }
-
-            ImGui::EndChild();
         }
     }
     ImGui::End();
