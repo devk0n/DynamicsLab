@@ -23,17 +23,10 @@ private:
     glm::dvec3 m_CameraOrientation{};
     double m_CameraSpeed{};
 
-    // Circular buffer for storing simulation data
-    static constexpr int historySize = 100;
-    std::vector<double> m_PositionHistory = std::vector<double>(historySize, 0.0);
-    std::vector<double> m_VelocityHistory = std::vector<double>(historySize, 0.0);
-    int m_CurrentIndex = 0;
-
     static void showMainMenu();
     static void showSimulationControls();
     static void showRenderingOptions(Renderer*);
     void showDebugWindow() const;
-    void showSimulationData();
 
 };
 

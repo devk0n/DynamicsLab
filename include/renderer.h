@@ -10,7 +10,7 @@ public:
     Renderer(GLFWwindow* window);
     ~Renderer();
 
-    static void clearScreen(const glm::dvec4& color);
+    void clearScreen(const glm::dvec4& color);
     void draw();
 
     void handleMouseButton(int button, int action);

@@ -4,7 +4,6 @@
 #include "imgui_impl_opengl3.h"
 #include "renderer.h"
 
-
 ImGuiLayer::ImGuiLayer(GLFWwindow* window, Renderer* renderer)
     : m_Window(window),
       m_Renderer(renderer){
@@ -16,13 +15,11 @@ ImGuiLayer::ImGuiLayer(GLFWwindow* window, Renderer* renderer)
 
 }
 
-
 ImGuiLayer::~ImGuiLayer() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
-
 
 void ImGuiLayer::renderUI() {
     ImGui_ImplOpenGL3_NewFrame();
@@ -34,19 +31,16 @@ void ImGuiLayer::renderUI() {
     showSimulationControls();
     showRenderingOptions(m_Renderer);
     showDebugWindow();
-    showSimulationData();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
-
 
 void ImGuiLayer::updateCameraData(const glm::dvec3& position, const glm::dvec3& orientation, const double& speed) {
     m_CameraPosition = position;
     m_CameraOrientation = orientation;
     m_CameraSpeed = speed;
 }
-
 
 // Individual UI components
 void ImGuiLayer::showMainMenu() {
@@ -61,7 +55,6 @@ void ImGuiLayer::showMainMenu() {
     ImGui::End();
 }
 
-
 void ImGuiLayer::showSimulationControls() {
     ImGui::Begin("Simulation Controls");
 
@@ -75,7 +68,6 @@ void ImGuiLayer::showSimulationControls() {
 
     ImGui::End();
 }
-
 
 void ImGuiLayer::showRenderingOptions(Renderer* renderer) {
     ImGui::Begin("Rendering Options");
@@ -103,7 +95,6 @@ void ImGuiLayer::showRenderingOptions(Renderer* renderer) {
     ImGui::End();
 }
 
-
 void ImGuiLayer::showDebugWindow() const {
     ImGui::Begin("Debug Info");
 
@@ -123,22 +114,4 @@ void ImGuiLayer::showDebugWindow() const {
 
     ImGui::End();
 }
-
-
-
-void ImGuiLayer::showSimulationData() {
-    ImGui::Begin("Simulation Data");
-
-    // Show current values
-    double currentPos = m_PositionHistory[(m_CurrentIndex - 1 + historySize) % historySize];
-    double currentVel = m_VelocityHistory[(m_CurrentIndex - 1 + historySize) % historySize];
-
-    ImGui::Text("Position: %.2f m", currentPos);
-    ImGui::Text("Velocity: %.2f m/s", currentVel);
-
-    ImGui::End();
-}
-
-
-
 

@@ -12,7 +12,6 @@
 #include "renderer.h"
 #include "imgui_layer.h"
 
-
 Application::Application(int width, int height, const char* title)
     : m_Window(nullptr, glfwDestroyWindow) {
 
@@ -53,7 +52,6 @@ Application::Application(int width, int height, const char* title)
     m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Window.get(), m_Renderer.get());
 }
 
-
 Application::~Application() {
     try {
         m_ImGuiLayer.reset();
@@ -71,20 +69,18 @@ Application::~Application() {
     }
 }
 
-
 void Application::run() {
     while (!glfwWindowShouldClose(m_Window.get())) {
 
         // Main loop tasks
         processInput();
-        update();  // Use the actual elapsed time for simulation
+        update();
         render();
 
         glfwSwapBuffers(m_Window.get());
         glfwPollEvents();
     }
 }
-
 
 // New method to capture and save a screenshot
 void Application::captureScreenshot() {
@@ -122,7 +118,6 @@ void Application::captureScreenshot() {
     }
 }
 
-
 void Application::processInput() {
     static double lastFrameTime = 0.0;
     double currentFrameTime = glfwGetTime();
@@ -143,7 +138,6 @@ void Application::processInput() {
     }
 }
 
-
 void Application::update() {
     // Pass camera data to ImGui
     if (m_Renderer && m_ImGuiLayer) {
@@ -153,7 +147,6 @@ void Application::update() {
         m_ImGuiLayer->updateCameraData(cameraPos, cameraOrientation, cameraSpeed);
     }
 }
-
 
 void Application::render() {
     m_Renderer->clearScreen({0.1, 0.1, 0.1, 1.0});

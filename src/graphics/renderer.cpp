@@ -12,7 +12,6 @@
 
 #include "renderer.h"
 
-
 Renderer::Renderer(GLFWwindow* window)
     : m_Window(window) {
     if (!m_Window) {
@@ -44,11 +43,9 @@ Renderer::Renderer(GLFWwindow* window)
 
 }
 
-
 Renderer::~Renderer() {
     std::cout << "Renderer destroyed." << std::endl;
 }
-
 
 std::string Renderer::loadShaderFromFile(const std::string& filepath) {
     std::ifstream file(filepath, std::ios::in);
@@ -61,7 +58,6 @@ std::string Renderer::loadShaderFromFile(const std::string& filepath) {
     file.close();
     return buffer.str();
 }
-
 
 void Renderer::initOpenGL() {
     GLenum err = glGetError();
@@ -80,7 +76,6 @@ void Renderer::initOpenGL() {
     std::cout << "OpenGL Initialized" << std::endl;
 }
 
-
 void Renderer::clearScreen(const glm::dvec4& color) {
     glClearColor(static_cast<float>(color.r),
                  static_cast<float>(color.g),
@@ -88,7 +83,6 @@ void Renderer::clearScreen(const glm::dvec4& color) {
                  static_cast<float>(color.a));
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
-
 
 void Renderer::draw() {
     // Clear the screen
@@ -108,13 +102,13 @@ void Renderer::draw() {
 
 
     // Draw the box, with transformations (position, rotation, scaling)
-    drawBox(glm::dvec3(-1.0, 5.0, 0.0),  // Position
+    drawBox(glm::dvec3(-1.0, 2.0, 0.0),  // Position
             glm::dvec3(2.0, 0.2, 0.2),    // Scale
             glm::dvec3(0.0, 0.0, 0.0),  // Rotation (x, y, z)
             glm::dvec3(1.0, 0.0, 0.0));   // Color
 
 
-    drawBox(glm::dvec3(-3.0, 5.0, 0.0),  // Position
+    drawBox(glm::dvec3(-3.0, 2.0, 0.0),  // Position
             glm::dvec3(2.0, 0.2, 0.2),    // Scale
             glm::dvec3(0.0, 40.0, 0.0),  // Rotation (x, y, z)
             glm::dvec3(0.0, 1.0, 0.0));   // Color
@@ -243,7 +237,6 @@ void Renderer::drawGrid(double size, int divisions, const glm::dvec3& color) con
     glDeleteVertexArrays(1, &VAO);
 }
 
-
 void Renderer::handleMouseMovement(double xpos, double ypos) {
     if (!m_RightMouseHeld) return; // Process only if the right mouse button is held
 
@@ -284,7 +277,6 @@ void Renderer::handleMouseMovement(double xpos, double ypos) {
 
 }
 
-
 void Renderer::handleMouseButton(int button, int action) {
     if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         if (action == GLFW_PRESS) {
@@ -318,7 +310,6 @@ void Renderer::handleMouseScroll(double yOffset) {
     if (m_CameraSpeed > 20.0) m_CameraSpeed = 20.0; // Set maximum camera speed
 }
 
-
 void Renderer::handleKeyboardInput(GLFWwindow *window, double deltaTime) {
     double velocity = m_CameraSpeed * deltaTime;
 
@@ -342,20 +333,17 @@ void Renderer::handleKeyboardInput(GLFWwindow *window, double deltaTime) {
     }
 }
 
-
 void Renderer::updateViewMatrix() {
     glm::dmat4 view = glm::lookAt(m_CameraPos, m_CameraPos + m_CameraFront, m_CameraUp);
     glUseProgram(m_GridShaderProgram);
     glUniformMatrix4dv(glGetUniformLocation(m_GridShaderProgram, "u_View"), 1, GL_FALSE, glm::value_ptr(view));
 }
 
-
 void Renderer::updateProjectionMatrix(double aspectRatio) const {
     glm::dmat4 projection = glm::perspective(glm::radians(45.0), aspectRatio, 0.1, 100.0);
     glUseProgram(m_GridShaderProgram);
     glUniformMatrix4dv(glGetUniformLocation(m_GridShaderProgram, "u_Projection"), 1, GL_FALSE, glm::value_ptr(projection));
 }
-
 
 GLuint Renderer::compileShader(GLenum type, const char* source) {
     GLuint shader = glCreateShader(type);
@@ -372,7 +360,6 @@ GLuint Renderer::compileShader(GLenum type, const char* source) {
 
     return shader;
 }
-
 
 GLuint Renderer::createShaderProgram(const char* vertexSource, const char* fragmentSource) {
     GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexSource);

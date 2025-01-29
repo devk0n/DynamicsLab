@@ -1,19 +1,23 @@
-cmake_minimum_required(VERSION 3.3)
+cmake_minimum_required(VERSION 3.16)
 project(DynamicsLab)
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Add include directories for project headers
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-# Eigen include directory
-set(EIGEN3_INCLUDE_DIR "C:/Users/devkon/Development/Tools/eigen-3.4.0")
-include_directories(${EIGEN3_INCLUDE_DIR})
-
 # Include FetchContent module
 include(FetchContent)
+
+# Fetch Eigen
+FetchContent_Declare(
+    Eigen
+    GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+    GIT_TAG master
+    GIT_SHALLOW TRUE
+)
+set(EIGEN_BUILD_DOC OFF)
+set(EIGEN_BUILD_PKGCONFIG OFF)
+FetchContent_MakeAvailable(Eigen)
 
 # Fetch GLFW
 FetchContent_Declare(
@@ -26,13 +30,9 @@ set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
 FetchContent_MakeAvailable(glfw)
 
-# GLAD
+# Add GLAD library (using the local glad.c file)
 add_library(glad STATIC src/graphics/glad.c)
 target_include_directories(glad PUBLIC include)
-
-# GLEW
-set(GLEW_INCLUDE_DIR "C:/Users/devkon/Development/Tools/glew-2.2.0/include")
-include_directories(${GLEW_INCLUDE_DIR})
 
 # Fetch ImGui
 FetchContent_Declare(
@@ -41,7 +41,6 @@ FetchContent_Declare(
     GIT_TAG v1.91.7
 )
 FetchContent_MakeAvailable(imgui)
-
 add_library(imgui STATIC
     ${imgui_SOURCE_DIR}/imgui.cpp
     ${imgui_SOURCE_DIR}/imgui_demo.cpp
@@ -72,7 +71,6 @@ FetchContent_Declare(
     GIT_TAG v0.16
 )
 FetchContent_MakeAvailable(implot)
-
 add_library(implot STATIC
     ${implot_SOURCE_DIR}/implot.cpp
     ${implot_SOURCE_DIR}/implot_items.cpp
@@ -89,6 +87,10 @@ set(SOURCES
     src/core/application.cpp
     src/graphics/renderer.cpp
     src/ui/imgui_layer.cpp
+    src/simulation/dynamics.cpp
+    src/simulation/quaternion_math.cpp
+    src/simulation/rigid_body.cpp
+    src/simulation/simulation.cpp
 )
 
 # Add executable
@@ -102,7 +104,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     glad
     glm::glm
     OpenGL::GL
+    Eigen3::Eigen
 )
 
 # Include the current source directory in the project's include directories
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+)

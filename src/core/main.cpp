@@ -1,7 +1,6 @@
 #include <iostream>
 
-#include "include/application.h"
-
+#include "application.h"
 
 int main() {
 
