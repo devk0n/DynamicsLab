@@ -9,6 +9,7 @@ RigidBody::RigidBody(Eigen::Vector3d position, Eigen::Vector4d orientation, Eige
       m_Orientation(std::move(orientation)){
 
     m_Velocity = Eigen::Vector3d::Zero();
+    m_Velocity(2) = 4;
     m_AngularVelocity = Eigen::Vector4d::Zero();
 
     /*

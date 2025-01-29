@@ -60,10 +60,8 @@ DynamicsLab
 │   ├───application.h
 │   ├───dynamics.h
 │   ├───imgui_layer.h
-│   ├───quaternion_math.h
 │   ├───renderer.h
-│   ├───rigid_body.h
-│   └───simulation.h
+│   └───rigid_body.h
 └───src
     ├───core
     │   ├───main.cpp
@@ -73,9 +71,7 @@ DynamicsLab
     │   └───renderer.cpp
     ├───simulation
     │   ├───rigid_body.cpp
-    │   ├───simulation.cpp
-    │   ├───dynamics.cpp
-    │   └───quaternion_math.cpp
+    │   └───dynamics.cpp
     └───ui
         └───imgui_layer.cpp
 ```

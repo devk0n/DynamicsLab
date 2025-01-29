@@ -88,9 +88,7 @@ set(SOURCES
     src/graphics/renderer.cpp
     src/ui/imgui_layer.cpp
     src/simulation/dynamics.cpp
-    src/simulation/quaternion_math.cpp
     src/simulation/rigid_body.cpp
-    src/simulation/simulation.cpp
 )
 
 # Add executable
