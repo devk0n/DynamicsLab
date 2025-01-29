@@ -8,7 +8,7 @@ public:
     explicit RigidBody(
             Eigen::Vector3d position,
             Eigen::Vector4d orientation,
-            double mass,
+            Eigen::Matrix3d massMatrix,
             Eigen::Matrix3d inertiaTensor);
 
 private:
@@ -27,8 +27,6 @@ private:
 
     Eigen::Matrix<double, 3, 4> m_LTransformationMatrix();
     Eigen::Matrix<double, 3, 4> m_GTransformationMatrix();
-
-    static Eigen::Matrix3d createMassMatrix(double mass);
 
 };
 

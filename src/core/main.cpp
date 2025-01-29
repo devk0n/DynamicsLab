@@ -9,7 +9,15 @@ int main() {
 
     if (debug) {
 
-        Dynamics dynamics(1);
+
+
+        RigidBody body(
+                Eigen::Vector3d(0, 0, 0),
+                Eigen::Vector4d(1, 0, 0, 0),
+                Eigen::Matrix3d::Identity() * 10,
+                Eigen::Matrix3d::Identity() * 60);
+
+        // Dynamics dynamics(1);
 
     } else {
         try {

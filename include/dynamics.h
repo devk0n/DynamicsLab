@@ -16,7 +16,7 @@
 
     VelocityDependentTerm           (b*)
 
-    QuaternionNormSquared         (c)
+    QuaternionNormSquared           (c)
     GeneralizedExternalForces       (g*)
  */
 
