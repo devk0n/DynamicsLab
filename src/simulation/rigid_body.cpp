@@ -1,20 +1,59 @@
+#include <iostream>
+#include <utility>
 #include "rigid_body.h"
 
-
-RigidBody::RigidBody(double mass, const Eigen::Matrix3d& inertia, const Eigen::Vector3d& position, const Eigen::Vector4d& orientation)
+RigidBody::RigidBody(Eigen::Vector3d position, Eigen::Vector4d orientation, double mass, Eigen::Matrix3d globalInertiaTensor)
     : m_Mass(mass),
-      m_Inertia(inertia),
-      m_Position(position),
-      m_Orientation(orientation),
-      m_Velocity(Eigen::Vector3d::Zero()),
-      m_AngularVelocity(Eigen::Vector4d::Zero()) {}
+      m_GlobalInertiaTensor(std::move(globalInertiaTensor)),
+      m_Position(std::move(position)),
+      m_Orientation(std::move(orientation)){
 
+    m_MassMatrix = createMassMatrix(m_Mass);
 
-Eigen::Vector3d RigidBody::getPosition() const {
-    return m_Position;
+    m_Velocity = Eigen::Vector3d::Zero();
+    m_AngularVelocity = Eigen::Vector4d::Zero();
+
+    std::cout << m_Position << std::endl;
+    std::cout << m_Orientation << std::endl;
+    std::cout << m_Mass << std::endl;
+    std::cout << m_MassMatrix << std::endl;
+    std::cout << m_GlobalInertiaTensor << std::endl;
 }
 
-
-Eigen::Vector4d RigidBody::getOrientation() const {
-    return m_Orientation;
+Eigen::Matrix<double, 3, 3> RigidBody::createMassMatrix(double mass) {
+    return Eigen::Matrix<double, 3, 3>::Identity() * mass;
 }
+
+Eigen::Matrix<double, 3, 4> RigidBody::m_LTransformationMatrix() {
+
+    double w = m_Orientation(0);
+    double x = m_Orientation(1);
+    double y = m_Orientation(2);
+    double z = m_Orientation(3);
+
+    Eigen::Matrix<double, 3, 4> L;
+    L <<  -x,  w,  z, -y,
+          -y, -z,  w,  x,
+          -z,  y, -x,  w;
+
+    return L;
+}
+
+Eigen::Matrix<double, 3, 4> RigidBody::m_GTransformationMatrix() {
+
+    double w = m_Orientation(0);
+    double x = m_Orientation(1);
+    double y = m_Orientation(2);
+    double z = m_Orientation(3);
+
+    Eigen::Matrix<double, 3, 4> G;
+
+    G << -x,  w, -z,  y,
+         -y,  z,  w, -x,
+         -z, -y,  x,  w;
+
+    return G;
+}
+
+// Eigen::Matrix4d inertiaTensor = 4 * transformationMatrix.transpose() * globalInertiaTensor * transformationMatrix;
+

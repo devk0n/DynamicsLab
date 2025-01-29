@@ -5,21 +5,31 @@
 
 class RigidBody {
 public:
-    RigidBody(double mass, const Eigen::Matrix3d& inertia, const Eigen::Vector3d& position, const Eigen::Vector4d& orientation);
-
-    Eigen::Vector3d getPosition() const;
-    Eigen::Vector4d getOrientation() const;
-
-    Eigen::Vector3d setPosition() const;
-    Eigen::Vector4d setOrientation() const;
+    explicit RigidBody(
+            Eigen::Vector3d position,
+            Eigen::Vector4d orientation,
+            double mass,
+            Eigen::Matrix3d inertiaTensor);
 
 private:
     double m_Mass;
-    Eigen::Matrix3d m_Inertia;
+
     Eigen::Vector3d m_Position;
     Eigen::Vector3d m_Velocity;
+
     Eigen::Vector4d m_Orientation;
     Eigen::Vector4d m_AngularVelocity;
+
+    Eigen::Matrix3d m_GlobalInertiaTensor;
+
+    Eigen::Matrix3d m_MassMatrix;
+    Eigen::Matrix4d m_InertiaTensor;
+
+    Eigen::Matrix<double, 3, 4> m_LTransformationMatrix();
+    Eigen::Matrix<double, 3, 4> m_GTransformationMatrix();
+
+    static Eigen::Matrix3d createMassMatrix(double mass);
+
 };
 
 
