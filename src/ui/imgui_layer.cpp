@@ -120,7 +120,7 @@ void ImGuiLayer::showDynamicsData() {
         ImGui::Text("Total Bodies: %zu", m_Dynamics->getBodyCount());
 
         // Retrieve the matrix
-        const Eigen::MatrixXd& matrixA = m_Dynamics->getMatrixA();
+        const Eigen::MatrixXd& matrixA = m_Dynamics->getVelocityDependentTerm();
 
         if (matrixA.size() == 0) {
             ImGui::Text("m_A matrix is empty");

@@ -34,7 +34,7 @@ public:
     Eigen::MatrixXd getGeneralizedCoordinates();
     Eigen::MatrixXd getGeneralizedVelocities();
     Eigen::MatrixXd getGeneralizedAccelerations();
-    Eigen::MatrixXd getVelocityDependentTerm();
+    Eigen::VectorXd getVelocityDependentTerm();
 
     Eigen::MatrixXd getAZeros();
 
@@ -59,10 +59,12 @@ private:
     Eigen::MatrixXd m_GeneralizedVelocities;
     Eigen::MatrixXd m_GeneralizedAccelerations;
 
-    Eigen::MatrixXd m_VelocityDependentTerm;
+    Eigen::VectorXd m_VelocityDependentTerm;
 
     Eigen::VectorXd m_QuaternionNormSquared;
     Eigen::MatrixXd m_GeneralizedExternalForces;
+
+    Eigen::VectorXd m_ExternalForces;
 
     Eigen::MatrixXd m_A;
     Eigen::MatrixXd m_B;

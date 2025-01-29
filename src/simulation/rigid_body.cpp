@@ -22,12 +22,12 @@ RigidBody::RigidBody(Eigen::Vector3d position, Eigen::Vector4d orientation, Eige
     std::cout << m_GlobalInertiaTensor << std::endl;
 }
 
-Eigen::Matrix<double, 3, 4> RigidBody::m_LTransformationMatrix() {
+Eigen::Matrix<double, 3, 4> RigidBody::getLTransformationMatrix(Eigen::Vector4d transformationMatrix) {
 
-    double w = m_Orientation(0);
-    double x = m_Orientation(1);
-    double y = m_Orientation(2);
-    double z = m_Orientation(3);
+    double w = transformationMatrix(0);
+    double x = transformationMatrix(1);
+    double y = transformationMatrix(2);
+    double z = transformationMatrix(3);
 
     Eigen::Matrix<double, 3, 4> L;
     L <<  -x,  w,  z, -y,
@@ -37,12 +37,12 @@ Eigen::Matrix<double, 3, 4> RigidBody::m_LTransformationMatrix() {
     return L;
 }
 
-Eigen::Matrix<double, 3, 4> RigidBody::m_GTransformationMatrix() {
+Eigen::Matrix<double, 3, 4> RigidBody::getGTransformationMatrix(Eigen::Vector4d transformationMatrix) {
 
-    double w = m_Orientation(0);
-    double x = m_Orientation(1);
-    double y = m_Orientation(2);
-    double z = m_Orientation(3);
+    double w = transformationMatrix(0);
+    double x = transformationMatrix(1);
+    double y = transformationMatrix(2);
+    double z = transformationMatrix(3);
 
     Eigen::Matrix<double, 3, 4> G;
 
@@ -67,6 +67,14 @@ Eigen::Matrix3d RigidBody::getMassMatrix() {
 
 Eigen::Matrix3d RigidBody::getGlobalInertiaTensor() {
     return m_GlobalInertiaTensor;
+}
+
+Eigen::Vector4d RigidBody::getAngularVelocity() {
+    return m_AngularVelocity;
+}
+
+Eigen::Vector3d RigidBody::getVelocity() {
+    return m_Velocity;
 }
 
 // Eigen::Matrix4d inertiaTensor = 4 * transformationMatrix.transpose() * globalInertiaTensor * transformationMatrix;
