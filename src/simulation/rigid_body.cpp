@@ -11,6 +11,7 @@ RigidBody::RigidBody(Eigen::Vector3d position, Eigen::Vector4d orientation, Eige
     m_Velocity = Eigen::Vector3d::Zero();
     m_AngularVelocity = Eigen::Vector4d::Zero();
 
+    /*
     std::cout << "RigidBody constructor" << std::endl;
     std::cout << "Position:" << std::endl;
     std::cout << m_Position << std::endl;
@@ -20,6 +21,7 @@ RigidBody::RigidBody(Eigen::Vector3d position, Eigen::Vector4d orientation, Eige
     std::cout << m_MassMatrix << std::endl;
     std::cout << "Global Inertia Tensor:" << std::endl;
     std::cout << m_GlobalInertiaTensor << std::endl;
+    */
 }
 
 Eigen::Matrix<double, 3, 4> RigidBody::getLTransformationMatrix(Eigen::Vector4d transformationMatrix) {

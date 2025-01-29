@@ -23,8 +23,6 @@ public:
     Eigen::Matrix<double, 3, 4> getGTransformationMatrix(Eigen::Vector4d transformationMatrix);
 
 private:
-    double m_Mass;
-
     Eigen::Vector3d m_Position;
     Eigen::Vector3d m_Velocity;
 

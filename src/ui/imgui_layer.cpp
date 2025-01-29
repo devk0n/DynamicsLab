@@ -119,27 +119,59 @@ void ImGuiLayer::showDynamicsData() {
     if (ImGui::Begin("Dynamics Data")) {
         ImGui::Text("Total Bodies: %zu", m_Dynamics->getBodyCount());
 
-        // Retrieve the matrix
-        const Eigen::MatrixXd& matrixA = m_Dynamics->getVelocityDependentTerm();
+        // Begin a tab bar for multiple matrices
+        if (ImGui::BeginTabBar("MatricesTabBar")) {
 
-        if (matrixA.size() == 0) {
-            ImGui::Text("m_A matrix is empty");
-        } else {
-            ImGui::Text("m_A Matrix: %ld x %ld", matrixA.rows(), matrixA.cols());
+            // Define all matrices
+            struct MatrixInfo {
+                const char* name;
+                const Eigen::MatrixXd& matrix;
+            };
 
-            if (ImGui::BeginTable("MatrixA", matrixA.cols(), ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
-                for (int i = 0; i < matrixA.rows(); ++i) {
-                    ImGui::TableNextRow();
-                    for (int j = 0; j < matrixA.cols(); ++j) {
-                        ImGui::TableSetColumnIndex(j);
-                        ImGui::Text("%.0f", matrixA(i, j));
+            std::vector<MatrixInfo> matrices = {
+                {"Velocity Dependent Term", m_Dynamics->getVelocityDependentTerm()},
+                {"System Mass Inertia Matrix", m_Dynamics->getSystemMassInertiaMatrix()},
+                {"Quaternion Constraint Matrix", m_Dynamics->getQuaternionConstraintMatrix()},
+                {"Generalized Coordinates", m_Dynamics->getGeneralizedCoordinates()},
+                {"Generalized Velocities", m_Dynamics->getGeneralizedVelocities()},
+                {"Generalized Accelerations", m_Dynamics->getGeneralizedAccelerations()},
+                {"Quaternion Norm Squared", m_Dynamics->getQuaternionNormSquared()},
+                {"Generalized External Forces", m_Dynamics->getGeneralizedExternalForces()},
+                {"Matrix A", m_Dynamics->getMatrixA()},
+                {"Matrix B", m_Dynamics->getMatrixB()},
+                {"Matrix X", m_Dynamics->getMatrixX()}
+            };
+
+            for (const auto& matrixInfo : matrices) {
+                if (ImGui::BeginTabItem(matrixInfo.name)) {
+                    const Eigen::MatrixXd& matrix = matrixInfo.matrix;
+
+                    if (matrix.size() == 0) {
+                        ImGui::Text("%s is empty", matrixInfo.name);
+                    } else {
+                        ImGui::Text("%s: %ld x %ld", matrixInfo.name, matrix.rows(), matrix.cols());
+
+                        if (ImGui::BeginTable(matrixInfo.name, matrix.cols(), ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+                            for (int i = 0; i < matrix.rows(); ++i) {
+                                ImGui::TableNextRow();
+                                for (int j = 0; j < matrix.cols(); ++j) {
+                                    ImGui::TableSetColumnIndex(j);
+                                    ImGui::Text("%.2f", matrix(i, j));  // Display float values with two decimal precision
+                                }
+                            }
+                            ImGui::EndTable();
+                        }
                     }
+
+                    ImGui::EndTabItem();
                 }
-                ImGui::EndTable();
             }
+
+            ImGui::EndTabBar();
         }
     }
     ImGui::End();
 }
+
 
 

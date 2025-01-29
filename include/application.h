@@ -20,7 +20,6 @@ private:
     std::unique_ptr<GLFWwindow, void(*)(GLFWwindow*)> m_Window;
     std::unique_ptr<Renderer> m_Renderer;
     std::unique_ptr<ImGuiLayer> m_ImGuiLayer;
-
     std::unique_ptr<Dynamics> m_Dynamics;
 
     void processInput();
@@ -28,8 +27,6 @@ private:
     void render();
 
     void captureScreenshot();
-
-    void initializeSimulation();
 };
 
 

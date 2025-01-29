@@ -25,12 +25,15 @@ void Dynamics::initializeContent() {
         auto Ld = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getAngularVelocity());
         auto Jm = m_Bodies[i]->getGlobalInertiaTensor();
         auto L = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getOrientation());
-        auto H = 4 * Ld.transpose() * Jm * Ld;
+        auto H = 4 * Ld.transpose() * Jm * L;
 
         m_VelocityDependentTerm.middleRows(3, 4) = 2 * H * m_Bodies[i]->getAngularVelocity();
         m_QuaternionNormSquared.row(i) = m_Bodies[i]->getOrientation().transpose() * m_Bodies[i]->getOrientation();
 
-        m_GeneralizedExternalForces.setZero();
+        m_GeneralizedExternalForces.setOnes();
+
+        m_B.segment(0, 7 * b) = m_VelocityDependentTerm - m_GeneralizedExternalForces;
+        m_B.tail(b) = m_QuaternionNormSquared;
     }
 
     m_A.topLeftCorner(7 * b, 7 * b) = m_SystemMassInertiaMatrix;
@@ -55,16 +58,11 @@ void Dynamics::initializeSize() {
     m_GeneralizedExternalForces.resize(7 * b, 1);
 
     m_A.resize(7 * b + b, 7 * b + b);
-    m_AZeros.resize(b, b);
-
     m_B.resize(7 * b + b, 1);
-    m_BZeros.resize(b, 1);
-
     m_X.resize(7 * b + b, 1);
 
     m_SystemMassInertiaMatrix.setZero();
     m_QuaternionConstraintMatrix.setZero();
-    m_AZeros.setZero();
     m_GeneralizedCoordinates.setZero();
     m_GeneralizedVelocities.setZero();
     m_GeneralizedAccelerations.setZero();
@@ -96,9 +94,6 @@ void Dynamics::debug() {
     std::cout << m_SystemMassInertiaMatrix << std::endl;
     std::cout << "Quaternion Constraint Matrix: " << m_QuaternionConstraintMatrix.rows() << " " << m_QuaternionConstraintMatrix.cols() << std::endl;
     std::cout << m_QuaternionConstraintMatrix << std::endl;
-
-    std::cout << "AZeros: " << m_AZeros.rows() << " " << m_AZeros.cols() << std::endl;
-    std::cout << m_AZeros << std::endl;
 
 
 
@@ -160,14 +155,10 @@ Eigen::MatrixXd Dynamics::getGeneralizedExternalForces() {
     return m_GeneralizedExternalForces;
 }
 
-Eigen::MatrixXd Dynamics::getAZeros() {
-    return m_AZeros;
-}
-
-Eigen::MatrixXd Dynamics::getMatrixB() {
+Eigen::VectorXd Dynamics::getMatrixB() {
     return m_B;
 }
 
-Eigen::MatrixXd Dynamics::getMatrixX() {
+Eigen::VectorXd Dynamics::getMatrixX() {
     return m_X;
 }
