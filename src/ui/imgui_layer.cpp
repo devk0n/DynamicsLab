@@ -4,9 +4,9 @@
 #include "imgui_impl_opengl3.h"
 #include "renderer.h"
 
-ImGuiLayer::ImGuiLayer(GLFWwindow* window, Renderer* renderer)
-    : m_Window(window),
-      m_Renderer(renderer){
+ImGuiLayer::ImGuiLayer(GLFWwindow* window, Renderer* renderer, Dynamics* dynamics)
+    : m_Window(window), m_Renderer(renderer), m_Dynamics(dynamics) {
+
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
@@ -31,6 +31,7 @@ void ImGuiLayer::renderUI() {
     showSimulationControls();
     showRenderingOptions(m_Renderer);
     showDebugWindow();
+    showDynamicsData();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -99,9 +100,6 @@ void ImGuiLayer::showDebugWindow() const {
     ImGui::Begin("Debug Info");
 
     // Basic statistics
-    static int frameCount = 0;
-    frameCount++;
-    ImGui::Text("Frame Count: %d", frameCount);
     ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
     ImGui::Text("Frame Time: %.3f ms", 1000.0f / ImGui::GetIO().Framerate);
 
@@ -114,4 +112,35 @@ void ImGuiLayer::showDebugWindow() const {
 
     ImGui::End();
 }
+
+void ImGuiLayer::showDynamicsData() {
+    if (!m_Dynamics) return;
+
+    if (ImGui::Begin("Dynamics Data")) {
+        ImGui::Text("Total Bodies: %zu", m_Dynamics->getBodyCount());
+
+        // Retrieve the matrix
+        const Eigen::MatrixXd& matrixA = m_Dynamics->getMatrixA();
+
+        if (matrixA.size() == 0) {
+            ImGui::Text("m_A matrix is empty");
+        } else {
+            ImGui::Text("m_A Matrix: %ld x %ld", matrixA.rows(), matrixA.cols());
+
+            ImGui::BeginChild("MatrixScrollRegion", ImVec2(0, 300), true, ImGuiWindowFlags_HorizontalScrollbar);
+
+            // Display each row
+            for (int i = 0; i < matrixA.rows(); ++i) {
+                for (int j = 0; j < matrixA.cols(); ++j) {
+                    ImGui::Text("%.1f", matrixA(i, j));
+                    if (j < matrixA.cols() - 1) ImGui::SameLine(); // Keep elements in the same row
+                }
+            }
+
+            ImGui::EndChild();
+        }
+    }
+    ImGui::End();
+}
+
 

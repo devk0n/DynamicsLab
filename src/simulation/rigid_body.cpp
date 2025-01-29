@@ -53,5 +53,9 @@ Eigen::Matrix<double, 3, 4> RigidBody::m_GTransformationMatrix() {
     return G;
 }
 
+Eigen::Vector3d RigidBody::getPosition() {
+    return m_Position;
+}
+
 // Eigen::Matrix4d inertiaTensor = 4 * transformationMatrix.transpose() * globalInertiaTensor * transformationMatrix;
 

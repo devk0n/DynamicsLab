@@ -1,7 +1,18 @@
 #include <iostream>
 #include "dynamics.h"
 
-Dynamics::Dynamics(int b) {
+Dynamics::Dynamics() {}
+
+void Dynamics::addBody(const std::shared_ptr<RigidBody>& body) {
+    m_Bodies.push_back(body);
+    initialize();
+    std::cout << "Added body. Total count: " << m_Bodies.size() << std::endl;
+}
+
+void Dynamics::initialize() {
+    if (m_Bodies.empty()) return;
+    size_t b = m_Bodies.size();
+
     m_SystemMassInertiaMatrix.resize(7 * b, 7 * b);
     m_QuaternionConstraintMatrix.resize(1 * b, 7 * b);
 
@@ -34,7 +45,21 @@ Dynamics::Dynamics(int b) {
     m_A.setZero();
     m_B.setZero();
     m_X.setZero();
+}
 
+void Dynamics::step(double deltaTime) {
+
+}
+
+size_t Dynamics::getBodyCount() const {
+    return m_Bodies.size();
+}
+
+const std::shared_ptr<RigidBody>& Dynamics::getBody(size_t index) const {
+    return m_Bodies[index];
+}
+
+void Dynamics::debug() {
     std::cout << "Dynamics Initialized" << std::endl;
     std::cout << "System Mass Inertia Matrix: " << m_SystemMassInertiaMatrix.rows() << " " << m_SystemMassInertiaMatrix.cols() << std::endl;
     std::cout << m_SystemMassInertiaMatrix << std::endl;
@@ -68,62 +93,6 @@ Dynamics::Dynamics(int b) {
     std::cout << m_X << std::endl;
 }
 
-void Dynamics::addBody() {
-
+Eigen::MatrixXd Dynamics::getMatrixA() {
+    return m_A;
 }
-/*
-void Dynamics::step() {
-    Vector3d r1 = q1.head<3>();
-    Vector4d p1 = q1.segment<4>(3);
-    // Vector3d r1d = q1d.head<3>();
-    Vector4d p1d = q1d.segment<4>(3);
-
-    // Inertia and Constraint Matrices
-    Matrix<double, 3, 4> L1 = lMatrix(p1);
-    Matrix4d J1s = 4 * L1.transpose() * J1m * L1;
-    MatrixXd Ms(7, 7);
-    Ms.setZero();
-    Ms.topLeftCorner<3, 3>() = N1;
-    Ms.bottomRightCorner<4, 4>() = J1s;
-
-    Matrix<double, 3, 7> B;
-    B.setZero();
-    B.topLeftCorner<3, 3>() = -Matrix3d::Identity();
-    B.rightCols<4>() = -2 * gMatrix(p1) * skewN(s1Am);
-
-    Matrix<double, 3, 4> L1d = lMatrix(p1d);
-    Vector3d gamma = -(-2 * gMatrix(p1d) * L1d.transpose() * s1Am);
-
-    Matrix<double, 1, 7> P;
-    P.setZero();
-    P.rightCols<4>() = p1.transpose();
-
-    MatrixXd A(11, 11);
-    A.setZero();
-    A.topLeftCorner<7, 7>() = Ms;
-    A.block<1, 7>(7, 0) = P;
-    A.block<7, 1>(0, 7) = P.transpose();
-    A.block<3, 7>(8, 0) = B;
-    A.block<7, 3>(0, 8) = B.transpose();
-
-    VectorXd bs(7);
-    bs.setZero();
-    bs.tail<4>() = 2 * (4 * L1d.transpose() * J1m * L1 * p1d);
-
-    double c = p1d.squaredNorm();
-    VectorXd Bv(11);
-    Bv.setZero();
-    Bv.segment<7>(0) = bs;
-    Bv(7) = c;
-
-    Vector3d f1(0.0, 0.0, m1 * g);
-    Vector4d n1s = Vector4d::Zero();
-
-    VectorXd gs(11);
-    gs << f1, n1s, 0, gamma;
-
-    VectorXd x = A.partialPivLu().solve(gs - Bv);
-    VectorXd q1dd = x.segment<7>(0);
-}
-
- */

@@ -49,7 +49,19 @@ Application::Application(int width, int height, const char* title)
         }
     });
 
-    m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Window.get(), m_Renderer.get());
+    auto body1 = std::make_shared<RigidBody>(
+                Eigen::Vector3d(0, 0, 0),
+                Eigen::Vector4d(1, 0, 0, 0),
+                Eigen::Matrix3d::Identity() * 10,
+                Eigen::Matrix3d::Identity() * 60);
+
+
+    m_Dynamics = std::make_unique<Dynamics>();
+    m_Dynamics->addBody(body1);
+
+    m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Window.get(), m_Renderer.get(), m_Dynamics.get());
+
+
 }
 
 Application::~Application() {
@@ -70,16 +82,37 @@ Application::~Application() {
 }
 
 void Application::run() {
-    while (!glfwWindowShouldClose(m_Window.get())) {
+    double lastTime = glfwGetTime();
 
-        // Main loop tasks
+    while (!glfwWindowShouldClose(m_Window.get())) {
+        double currentTime = glfwGetTime();
+        double deltaTime = currentTime - lastTime;
+        lastTime = currentTime;
+
         processInput();
+
+        // Step the physics simulation
+        if (m_Dynamics) {
+            m_Dynamics->step(0.0025);
+        }
+
         update();
         render();
 
         glfwSwapBuffers(m_Window.get());
         glfwPollEvents();
     }
+}
+
+
+void Application::initializeSimulation() {
+    Eigen::Vector3d position(0.0, 0.0, 0.0);
+    Eigen::Vector4d orientation(1.0, 0.0, 0.0, 0.0);
+    Eigen::Matrix3d massMatrix = Eigen::Matrix3d::Identity();
+    Eigen::Matrix3d inertiaTensor = Eigen::Matrix3d::Identity();
+
+    auto body = std::make_shared<RigidBody>(position, orientation, massMatrix, inertiaTensor);
+    m_Dynamics->addBody(body);
 }
 
 // New method to capture and save a screenshot

@@ -11,6 +11,7 @@ public:
             Eigen::Matrix3d massMatrix,
             Eigen::Matrix3d inertiaTensor);
 
+    Eigen::Vector3d getPosition();
 private:
     double m_Mass;
 
@@ -27,6 +28,7 @@ private:
 
     Eigen::Matrix<double, 3, 4> m_LTransformationMatrix();
     Eigen::Matrix<double, 3, 4> m_GTransformationMatrix();
+
 
 };
 

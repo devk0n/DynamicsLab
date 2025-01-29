@@ -20,13 +20,23 @@
     GeneralizedExternalForces       (g*)
  */
 
-
 class Dynamics {
 public:
-    explicit Dynamics(int bodies);
+    explicit Dynamics();
 
-    void addBody();
+    void addBody(const std::shared_ptr<RigidBody>& body);
+    void step(double deltaTime);
+
+    void debug();
+
+    Eigen::MatrixXd getMatrixA();
+    size_t getBodyCount() const;
+    const std::shared_ptr<RigidBody> &getBody(size_t index) const;
+
+
 private:
+    std::vector<std::shared_ptr<RigidBody>> m_Bodies;
+
     Eigen::MatrixXd m_SystemMassInertiaMatrix;
     Eigen::MatrixXd m_QuaternionConstraintMatrix;
 
@@ -45,6 +55,8 @@ private:
 
     Eigen::MatrixXd m_AZeros;
     Eigen::MatrixXd m_BZeros;
+
+    void initialize();
 
 };
 

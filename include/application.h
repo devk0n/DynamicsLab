@@ -7,6 +7,8 @@
 
 #include "renderer.h"
 #include "imgui_layer.h"
+#include "dynamics.h"
+
 
 class Application {
 public:
@@ -19,11 +21,15 @@ private:
     std::unique_ptr<Renderer> m_Renderer;
     std::unique_ptr<ImGuiLayer> m_ImGuiLayer;
 
+    std::unique_ptr<Dynamics> m_Dynamics;
+
     void processInput();
     void update();
     void render();
 
     void captureScreenshot();
+
+    void initializeSimulation();
 };
 
 

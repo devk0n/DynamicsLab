@@ -5,10 +5,11 @@
 #include "GLFW/glfw3.h"
 #include "glm/glm.hpp"
 #include "renderer.h"
+#include "dynamics.h"
 
 class ImGuiLayer {
 public:
-    ImGuiLayer(GLFWwindow* window, Renderer* renderer);
+    ImGuiLayer(GLFWwindow* window, Renderer* renderer, Dynamics* dynamics);
     ~ImGuiLayer();
 
     void renderUI();
@@ -18,6 +19,7 @@ public:
 private:
     GLFWwindow* m_Window;
     Renderer* m_Renderer;
+    Dynamics* m_Dynamics;
 
     glm::dvec3 m_CameraPosition{};
     glm::dvec3 m_CameraOrientation{};
@@ -27,6 +29,8 @@ private:
     static void showSimulationControls();
     static void showRenderingOptions(Renderer*);
     void showDebugWindow() const;
+
+    void showDynamicsData();
 
 };
 
