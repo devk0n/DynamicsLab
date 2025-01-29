@@ -2,7 +2,7 @@
 
 **DynamicsLab** is a real-time simulation tool for multibody dynamics systems. It is designed to help users visualize, analyze, and interact with complex system data efficiently. By combining powerful simulation capabilities with an intuitive interface, **DynamicsLab** supports researchers and engineers in better understanding dynamic systems.
 
-We are solving the system
+We are solving the system:
 
 $$
 \begin{bmatrix}
@@ -13,16 +13,16 @@ P & 0
 \ddot{q} \\
 \sigma
 \end{bmatrix}
-\;+\;
+\+\
 \begin{bmatrix}
 b^* \\
 c
 \end{bmatrix}
-\;=\;
+\=\
 \begin{bmatrix}
 g^* \\
 0
-\end{bmatrix}.
+\end{bmatrix}
 $$
 
 
