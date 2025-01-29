@@ -16,14 +16,16 @@
 
     VelocityDependentTerm           (b*)
 
-    QuaternionConstraintRHS         (c)
+    QuaternionNormSquared         (c)
     GeneralizedExternalForces       (g*)
  */
 
 
 class Dynamics {
 public:
+    explicit Dynamics(int bodies);
 
+    void addBody();
 private:
     Eigen::MatrixXd m_SystemMassInertiaMatrix;
     Eigen::MatrixXd m_QuaternionConstraintMatrix;
@@ -34,11 +36,16 @@ private:
 
     Eigen::MatrixXd m_VelocityDependentTerm;
 
-    Eigen::MatrixXd m_QuaternionConstraintRHS;
+    Eigen::VectorXd m_QuaternionNormSquared;
     Eigen::MatrixXd m_GeneralizedExternalForces;
 
-    Eigen::VectorXd m_VelocityTerm;
-    Eigen::VectorXd externalForces;
+    Eigen::MatrixXd m_A;
+    Eigen::MatrixXd m_B;
+    Eigen::MatrixXd m_X;
+
+    Eigen::MatrixXd m_AZeros;
+    Eigen::MatrixXd m_BZeros;
+
 };
 
 

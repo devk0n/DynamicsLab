@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "application.h"
-#include "rigid_body.h"
+#include "dynamics.h"
 
 bool debug = true;
 
@@ -9,12 +9,7 @@ int main() {
 
     if (debug) {
 
-        Eigen::Vector3d position(7, 6, 7);
-        Eigen::Vector4d orientation(1, 0, 0, 0);
-        double mass = 6277;
-        Eigen::Matrix3d inertiaTensor = (Eigen::Matrix3d() << 0.1, 0, 0, 0, 0.2, 0, 0, 0, 0.3).finished();
-
-        RigidBody body(position, orientation, mass, inertiaTensor);
+        Dynamics dynamics(1);
 
     } else {
         try {

@@ -3,3 +3,6 @@ cmake-build-debug/
 
 # Ignore IDE configuration
 .idea/
+
+# Ignore pdf
+*.pdf
