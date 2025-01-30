@@ -26,8 +26,8 @@ g^* \\
 $$
 
 
-## Alpha Interface
-![Alt text](./assets/images/alpha_0.11.png)
+## Interface
+![Alt text](./assets/images/screenshot_20250130_185815.png)
 
 ## Features
 - **Real-time Simulation**: Simulates rigid body dynamics with position, velocity, and acceleration updates.
