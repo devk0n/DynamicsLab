@@ -7,7 +7,6 @@ void Dynamics::addBody(const std::shared_ptr<RigidBody>& body) {
     m_Bodies.push_back(body);
     initializeSize();
     initializeContent();
-    std::cout << "Added body. Total count: " << m_Bodies.size() << std::endl;
 }
 
 void Dynamics::initializeContent() {
@@ -15,6 +14,12 @@ void Dynamics::initializeContent() {
     int b = getBodyCount();
 
     for (int i = 0; i < b; i++) {
+
+        m_GeneralizedCoordinates.segment(7 * i, 3) = m_Bodies[i]->getPosition();
+        m_GeneralizedCoordinates.segment(7 * i + 3, 4) = m_Bodies[i]->getOrientation();
+        m_GeneralizedVelocities.segment(7 * i, 3) = m_Bodies[i]->getVelocity();
+        m_GeneralizedVelocities.segment(7 * i + 3, 4) = m_Bodies[i]->getAngularVelocity();
+
         // Matrix A
         m_SystemMassInertiaMatrix.block(7 * i, 7 * i, 3, 3) = m_Bodies[i]->getMassMatrix();
         m_SystemMassInertiaMatrix.block(7 * i + 4, 7 * i + 4, 3, 3) = m_Bodies[i]->getGlobalInertiaTensor();
@@ -28,10 +33,8 @@ void Dynamics::initializeContent() {
         auto H = 4 * Ld.transpose() * Jm * L * m_Bodies[i]->getAngularVelocity();
 
         m_VelocityDependentTerm.middleRows(3, 4) = 2 * H;
-        // m_QuaternionNormSquared.row(i) = m_Bodies[i]->getOrientation().transpose() * m_Bodies[i]->getOrientation();
 
-        m_GeneralizedExternalForces.segment(7 * i, 7) << 0.0, 0.0, 10, 0.0, 0.0, 0.0, 0.0;
-
+        m_GeneralizedExternalForces.segment(7 * i, 7) << 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0;
 
         m_B.segment(0, 7 * b) = m_GeneralizedExternalForces - m_VelocityDependentTerm;
         m_B.tail(b) = m_QuaternionNormSquared;
@@ -45,6 +48,8 @@ void Dynamics::initializeContent() {
 
 void Dynamics::step(double deltaTime) {
     int b = getBodyCount();
+
+    initializeContent();
 
     m_X = m_A.partialPivLu().solve(m_B);
     m_GeneralizedAccelerations = m_X.head(7 * b);

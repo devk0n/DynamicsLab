@@ -83,12 +83,13 @@ find_package(OpenGL REQUIRED)
 
 # Source files
 set(SOURCES
-    src/core/main.cpp
-    src/core/application.cpp
-    src/graphics/renderer.cpp
-    src/ui/imgui_layer.cpp
-    src/simulation/dynamics.cpp
-    src/simulation/rigid_body.cpp
+        src/core/main.cpp
+        src/core/application.cpp
+        src/graphics/renderer.cpp
+        src/ui/imgui_layer.cpp
+        src/simulation/dynamics.cpp
+        src/simulation/rigid_body.cpp
+        src/simulation/tools.cpp
 )
 
 # Add executable
