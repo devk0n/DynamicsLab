@@ -217,7 +217,7 @@ void ImGuiLayer::showDynamicsData() {
                                 ImGui::TableNextRow();
                                 for (int j = 0; j < matrix.cols(); ++j) {
                                     ImGui::TableSetColumnIndex(j);
-                                    ImGui::Text("%.2f", matrix(i, j));
+                                    ImGui::Text("%.0f", matrix(i, j));
                                 }
                             }
                             ImGui::EndTable();
