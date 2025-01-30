@@ -12,7 +12,7 @@ public:
             Vector3d position,
             Vector4d orientation,
             Matrix3d massMatrix,
-            Matrix3d inertiaTensor);
+            Matrix3d globalInertiaTensor);
 
     void normalizeOrientation();
 
@@ -20,6 +20,7 @@ public:
     Vector4d getOrientation();
     Matrix3d getMassMatrix();
     Matrix3d getGlobalInertiaTensor();
+    Matrix4d getInertiaTensor();
     Vector3d getVelocity();
     Vector4d getAngularVelocity();
 

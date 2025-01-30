@@ -79,8 +79,8 @@ void Application::run() {
     auto body1 = std::make_shared<RigidBody>(
                 Vector3d(0, 0, 0),
                 Vector4d(1, 0, 0, 0),
-                Matrix3d::Identity() * 80,
-                Matrix3d::Identity() * 20);
+                Matrix3d::Identity() * 10,
+                Matrix3d::Identity() * 60);
 
     m_dynamics->addBody(body1);
 

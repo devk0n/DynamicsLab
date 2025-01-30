@@ -37,7 +37,7 @@ void Dynamics::initializeContent() {
 
         // Matrix A
         m_SystemMassInertiaMatrix.block(7 * i, 7 * i, 3, 3) = m_Bodies[i]->getMassMatrix();
-        m_SystemMassInertiaMatrix.block(7 * i + 4, 7 * i + 4, 3, 3) = m_Bodies[i]->getGlobalInertiaTensor();
+        m_SystemMassInertiaMatrix.block(7 * i + 3, 7 * i + 3, 4, 4) = m_Bodies[i]->getInertiaTensor();
 
         m_QuaternionConstraintMatrix.block(1 * i, 3 + (7 * i), 1, 4) = m_Bodies[i]->getOrientation().transpose();
 
@@ -45,11 +45,11 @@ void Dynamics::initializeContent() {
         auto Ld = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getAngularVelocity());
         auto Jm = m_Bodies[i]->getGlobalInertiaTensor();
         auto L = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getOrientation());
-        auto H = 4 * Ld.transpose() * Jm * L * m_Bodies[i]->getAngularVelocity();
+        auto H = 8 * Ld.transpose() * Jm * L * m_Bodies[i]->getAngularVelocity();
 
-        m_VelocityDependentTerm.middleRows(3, 4) = 2 * H;
+        m_VelocityDependentTerm.middleRows(3, 4) = H;
 
-        m_GeneralizedExternalForces.segment(7 * i, 7) << 0.0, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0;
+        m_GeneralizedExternalForces.segment(7 * i, 7) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
 
         m_B.segment(0, 7 * b) = m_GeneralizedExternalForces - m_VelocityDependentTerm;
         m_B.tail(b) = -m_QuaternionNormSquared;
@@ -81,33 +81,35 @@ void Dynamics::step(double deltaTime) {
         m_Bodies[i]->setAngularVelocity(m_GeneralizedVelocities.segment(7 * i + 3, 4));
         m_Bodies[i]->normalizeOrientation();
     }
-
 }
 
 void Dynamics::initializeSize() {
     if (m_Bodies.empty()) return;
     int b = getBodyCount();
+    int m = 7 * b;
 
-    m_SystemMassInertiaMatrix.resize(7 * b, 7 * b);
-    m_QuaternionConstraintMatrix.resize(1 * b, 7 * b);
+    m_SystemMassInertiaMatrix.resize(m, m);
+    m_QuaternionConstraintMatrix.resize(b, m);
 
-    m_GeneralizedCoordinates.resize(7 * b);
-    m_GeneralizedVelocities.resize(7 * b);
-    m_GeneralizedAccelerations.resize(7 * b);
+    m_GeneralizedCoordinates.resize(m);
+    m_GeneralizedVelocities.resize(m);
+    m_GeneralizedAccelerations.resize(m);
 
-    m_VelocityDependentTerm.resize(7 * b);
+    m_VelocityDependentTerm.resize(m);
     m_QuaternionNormSquared.resize(b);
-    m_GeneralizedExternalForces.resize(7 * b);
+    m_GeneralizedExternalForces.resize(m);
 
-    m_A.resize(7 * b + b, 7 * b + b);
-    m_B.resize(7 * b + b, 1);
-    m_X.resize(7 * b + b, 1);
+    m_A.resize(m + b, m + b);
+    m_B.resize(m + b);
+    m_X.resize(m + b);
 
     m_SystemMassInertiaMatrix.setZero();
     m_QuaternionConstraintMatrix.setZero();
+
     m_GeneralizedCoordinates.setZero();
     m_GeneralizedVelocities.setZero();
     m_GeneralizedAccelerations.setZero();
+
     m_VelocityDependentTerm.setZero();
     m_QuaternionNormSquared.setZero();
     m_GeneralizedExternalForces.setZero();

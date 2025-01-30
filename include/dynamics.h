@@ -31,18 +31,18 @@ public:
 
     void debug();
 
-    MatrixXd getSystemMassInertiaMatrix();
-    MatrixXd getQuaternionConstraintMatrix();
+    MatrixXd getSystemMassInertiaMatrix();      // M*
+    MatrixXd getQuaternionConstraintMatrix();   // P
 
-    VectorXd getGeneralizedCoordinates();
-    VectorXd getGeneralizedVelocities();
-    VectorXd getGeneralizedAccelerations();
+    VectorXd getGeneralizedCoordinates();       // q
+    VectorXd getGeneralizedVelocities();        // qd
+    VectorXd getGeneralizedAccelerations();     // qdd
 
-    VectorXd getVelocityDependentTerm();
+    VectorXd getVelocityDependentTerm();        // b*
 
-    VectorXd getQuaternionNormSquared();
+    VectorXd getQuaternionNormSquared();        // c
 
-    VectorXd getGeneralizedExternalForces();
+    VectorXd getGeneralizedExternalForces();    // g*
 
     MatrixXd getMatrixA();
     VectorXd getMatrixB();
@@ -50,7 +50,6 @@ public:
     
     int getBodyCount();
     std::shared_ptr<RigidBody> &getBody(int index);
-
 
 private:
     std::vector<std::shared_ptr<RigidBody>> m_Bodies;
