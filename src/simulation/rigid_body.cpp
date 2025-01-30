@@ -13,13 +13,13 @@ RigidBody::RigidBody(Vector3d position, Vector4d orientation, Matrix3d massMatri
 
     m_Velocity = Vector3d::Zero();
     m_AngularVelocity = Vector4d::Zero();
-    m_AngularVelocity(1) = 2.0;
-    m_AngularVelocity(2) = 4.0;
-    m_AngularVelocity(3) = 1.0;
+    m_AngularVelocity(1) = (std::rand() % 11) - 5;
+    m_AngularVelocity(2) = (std::rand() % 11) - 5;
+    m_AngularVelocity(3) = (std::rand() % 11) - 5;
 
-    m_Velocity(0) = 1.0;
-    m_Velocity(1) = 2.0;
-    m_Velocity(2) = 3.0;
+    m_Velocity(0) = (std::rand() % 11) - 5;
+    m_Velocity(1) = (std::rand() % 11) - 5;
+    m_Velocity(2) = (std::rand() % 11) - 5;
 }
 
 Matrix<double, 3, 4> RigidBody::getLTransformationMatrix(Vector4d transformationMatrix) {
