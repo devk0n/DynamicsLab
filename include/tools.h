@@ -9,4 +9,6 @@
 
 Eigen::Vector4d eulerToQuaternion(double roll, double pitch, double yaw);
 
+Eigen::Vector3d quaternionToEuler(const Eigen::Vector4d &quaternion);
+
 #endif //DYNAMICSLAB_TOOLS_H

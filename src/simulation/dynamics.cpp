@@ -1,6 +1,8 @@
 #include <iostream>
 #include "dynamics.h"
 
+using namespace Eigen;
+
 Dynamics::Dynamics() {}
 
 void Dynamics::addBody(const std::shared_ptr<RigidBody>& body) {
@@ -34,7 +36,7 @@ void Dynamics::initializeContent() {
 
         m_VelocityDependentTerm.middleRows(3, 4) = 2 * H;
 
-        m_GeneralizedExternalForces.segment(7 * i, 7) << 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0;
+        m_GeneralizedExternalForces.segment(7 * i, 7) << 0.0, 00.0, 0.0, 0.0, 0.0, 0.0, 0.0;
 
         m_B.segment(0, 7 * b) = m_GeneralizedExternalForces - m_VelocityDependentTerm;
         m_B.tail(b) = m_QuaternionNormSquared;
@@ -142,46 +144,46 @@ void Dynamics::debug() {
     std::cout << m_X << std::endl;
 }
 
-Eigen::MatrixXd Dynamics::getMatrixA() {
+MatrixXd Dynamics::getMatrixA() {
     return m_A;
 }
 
-Eigen::MatrixXd Dynamics::getSystemMassInertiaMatrix() {
+MatrixXd Dynamics::getSystemMassInertiaMatrix() {
     return m_SystemMassInertiaMatrix;
 }
 
-Eigen::MatrixXd Dynamics::getQuaternionConstraintMatrix() {
+MatrixXd Dynamics::getQuaternionConstraintMatrix() {
     return m_QuaternionConstraintMatrix;
 }
 
-Eigen::VectorXd Dynamics::getGeneralizedCoordinates() {
+VectorXd Dynamics::getGeneralizedCoordinates() {
     return m_GeneralizedCoordinates;
 }
 
-Eigen::VectorXd Dynamics::getGeneralizedVelocities() {
+VectorXd Dynamics::getGeneralizedVelocities() {
     return m_GeneralizedVelocities;
 }
 
-Eigen::VectorXd Dynamics::getGeneralizedAccelerations() {
+VectorXd Dynamics::getGeneralizedAccelerations() {
     return m_GeneralizedAccelerations;
 }
 
-Eigen::VectorXd Dynamics::getVelocityDependentTerm() {
+VectorXd Dynamics::getVelocityDependentTerm() {
     return m_VelocityDependentTerm;
 }
 
-Eigen::VectorXd Dynamics::getQuaternionNormSquared() {
+VectorXd Dynamics::getQuaternionNormSquared() {
     return m_QuaternionNormSquared;
 }
 
-Eigen::VectorXd Dynamics::getGeneralizedExternalForces() {
+VectorXd Dynamics::getGeneralizedExternalForces() {
     return m_GeneralizedExternalForces;
 }
 
-Eigen::VectorXd Dynamics::getMatrixB() {
+VectorXd Dynamics::getMatrixB() {
     return m_B;
 }
 
-Eigen::VectorXd Dynamics::getMatrixX() {
+VectorXd Dynamics::getMatrixX() {
     return m_X;
 }

@@ -4,6 +4,8 @@
 #include "imgui_impl_opengl3.h"
 #include "renderer.h"
 
+using namespace Eigen;
+
 ImGuiLayer::ImGuiLayer(GLFWwindow* window, Renderer* renderer, Dynamics* dynamics)
     : m_Window(window), m_Renderer(renderer), m_Dynamics(dynamics) {
 
@@ -145,9 +147,9 @@ void ImGuiLayer::showDynamicsData() {
                     ImGui::TableSetColumnIndex(2); ImGui::Text("(qdd) Accelerations");
 
                     // Get matrices
-                    const Eigen::MatrixXd& q   = m_Dynamics->getGeneralizedCoordinates();
-                    const Eigen::MatrixXd& qd  = m_Dynamics->getGeneralizedVelocities();
-                    const Eigen::MatrixXd& qdd = m_Dynamics->getGeneralizedAccelerations();
+                    const MatrixXd& q   = m_Dynamics->getGeneralizedCoordinates();
+                    const MatrixXd& qd  = m_Dynamics->getGeneralizedVelocities();
+                    const MatrixXd& qdd = m_Dynamics->getGeneralizedAccelerations();
 
                     // Determine max rows
                     int maxRows = std::max({q.rows(), qd.rows(), qdd.rows()});
@@ -188,8 +190,8 @@ void ImGuiLayer::showDynamicsData() {
                 ImGui::EndTabItem();
             }
 
-            // Instead of storing const Eigen::MatrixXd&, store by value here:
-            std::vector<std::pair<const char*, Eigen::MatrixXd>> matrices = {
+            // Instead of storing const MatrixXd&, store by value here:
+            std::vector<std::pair<const char*, MatrixXd>> matrices = {
                 {"(b*) Velocity Dependent Term",       m_Dynamics->getVelocityDependentTerm()},
                 {"(M*) System Mass Inertia Matrix",    m_Dynamics->getSystemMassInertiaMatrix()},
                 {"(P) Quaternion Constraint Matrix",   m_Dynamics->getQuaternionConstraintMatrix()},

@@ -5,13 +5,15 @@
 #include "glm/glm.hpp"
 #include <string>
 
+#include "dynamics.h"
+
 class Renderer {
 public:
     Renderer(GLFWwindow* window);
     ~Renderer();
 
     void clearScreen(const glm::dvec4& color);
-    void draw();
+    void draw(Dynamics* dynamics);
 
     void handleMouseButton(int button, int action);
     void handleMouseMovement(double xpos, double ypos);
@@ -24,6 +26,9 @@ public:
     void setDrawGrid(bool drawGrid);
 
     double getCameraSpeed() const;
+
+    void drawBox(const glm::dvec3 &position, const glm::dvec3 &scale, const glm::dvec3 &rotation,
+                 const glm::dvec3 &color) const;
 
 private:
     GLFWwindow* m_Window;
@@ -54,8 +59,7 @@ private:
 
     static std::string loadShaderFromFile(const std::string &filepath);
 
-    void drawBox(const glm::dvec3 &position, const glm::dvec3 &scale, const glm::dvec3 &rotation,
-                 const glm::dvec3 &color) const;
+
 
     void handleMouseScroll(double yOffset);
 

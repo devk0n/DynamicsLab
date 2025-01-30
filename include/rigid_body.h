@@ -2,43 +2,46 @@
 #define DYNAMICSLAB_RIGID_BODY_H
 
 #include <Eigen/Dense>
+#include <memory>
+
+using namespace Eigen;
 
 class RigidBody {
 public:
     explicit RigidBody(
-            Eigen::Vector3d position,
-            Eigen::Vector4d orientation,
-            Eigen::Matrix3d massMatrix,
-            Eigen::Matrix3d inertiaTensor);
+            Vector3d position,
+            Vector4d orientation,
+            Matrix3d massMatrix,
+            Matrix3d inertiaTensor);
 
     void normalizeOrientation();
 
-    Eigen::Vector3d getPosition();
-    Eigen::Vector4d getOrientation();
-    Eigen::Matrix3d getMassMatrix();
-    Eigen::Matrix3d getGlobalInertiaTensor();
-    Eigen::Vector3d getVelocity();
-    Eigen::Vector4d getAngularVelocity();
+    Vector3d getPosition();
+    Vector4d getOrientation();
+    Matrix3d getMassMatrix();
+    Matrix3d getGlobalInertiaTensor();
+    Vector3d getVelocity();
+    Vector4d getAngularVelocity();
 
-    void setPosition(Eigen::Vector3d position);
-    void setOrientation(Eigen::Vector4d orientation);
-    void setVelocity(Eigen::Vector3d velocity);
-    void setAngularVelocity(Eigen::Vector4d angularVelocity);
+    void setPosition(Vector3d position);
+    void setOrientation(Vector4d orientation);
+    void setVelocity(Vector3d velocity);
+    void setAngularVelocity(Vector4d angularVelocity);
 
-    Eigen::Matrix<double, 3, 4> getLTransformationMatrix(Eigen::Vector4d transformationMatrix);
-    Eigen::Matrix<double, 3, 4> getGTransformationMatrix(Eigen::Vector4d transformationMatrix);
+    Matrix<double, 3, 4> getLTransformationMatrix(Vector4d transformationMatrix);
+    Matrix<double, 3, 4> getGTransformationMatrix(Vector4d transformationMatrix);
 
 private:
-    Eigen::Vector3d m_Position;
-    Eigen::Vector3d m_Velocity;
+    Vector3d m_Position;
+    Vector3d m_Velocity;
 
-    Eigen::Vector4d m_Orientation;
-    Eigen::Vector4d m_AngularVelocity;
+    Vector4d m_Orientation;
+    Vector4d m_AngularVelocity;
 
-    Eigen::Matrix3d m_GlobalInertiaTensor;
+    Matrix3d m_GlobalInertiaTensor;
 
-    Eigen::Matrix3d m_MassMatrix;
-    Eigen::Matrix4d m_InertiaTensor;
+    Matrix3d m_MassMatrix;
+    Matrix4d m_InertiaTensor;
 
 };
 

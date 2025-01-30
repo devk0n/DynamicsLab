@@ -20,6 +20,8 @@
     GeneralizedExternalForces       (g*)
  */
 
+using namespace Eigen;
+
 class Dynamics {
 public:
     explicit Dynamics();
@@ -29,22 +31,22 @@ public:
 
     void debug();
 
-    Eigen::MatrixXd getSystemMassInertiaMatrix();
-    Eigen::MatrixXd getQuaternionConstraintMatrix();
+    MatrixXd getSystemMassInertiaMatrix();
+    MatrixXd getQuaternionConstraintMatrix();
 
-    Eigen::VectorXd getGeneralizedCoordinates();
-    Eigen::VectorXd getGeneralizedVelocities();
-    Eigen::VectorXd getGeneralizedAccelerations();
+    VectorXd getGeneralizedCoordinates();
+    VectorXd getGeneralizedVelocities();
+    VectorXd getGeneralizedAccelerations();
 
-    Eigen::VectorXd getVelocityDependentTerm();
+    VectorXd getVelocityDependentTerm();
 
-    Eigen::VectorXd getQuaternionNormSquared();
+    VectorXd getQuaternionNormSquared();
 
-    Eigen::VectorXd getGeneralizedExternalForces();
+    VectorXd getGeneralizedExternalForces();
 
-    Eigen::MatrixXd getMatrixA();
-    Eigen::VectorXd getMatrixB();
-    Eigen::VectorXd getMatrixX();
+    MatrixXd getMatrixA();
+    VectorXd getMatrixB();
+    VectorXd getMatrixX();
     
     int getBodyCount();
     std::shared_ptr<RigidBody> &getBody(int index);
@@ -53,23 +55,23 @@ public:
 private:
     std::vector<std::shared_ptr<RigidBody>> m_Bodies;
 
-    Eigen::MatrixXd m_SystemMassInertiaMatrix;
-    Eigen::MatrixXd m_QuaternionConstraintMatrix;
+    MatrixXd m_SystemMassInertiaMatrix;
+    MatrixXd m_QuaternionConstraintMatrix;
 
-    Eigen::VectorXd m_GeneralizedCoordinates;
-    Eigen::VectorXd m_GeneralizedVelocities;
-    Eigen::VectorXd m_GeneralizedAccelerations;
+    VectorXd m_GeneralizedCoordinates;
+    VectorXd m_GeneralizedVelocities;
+    VectorXd m_GeneralizedAccelerations;
 
-    Eigen::VectorXd m_VelocityDependentTerm;
+    VectorXd m_VelocityDependentTerm;
 
-    Eigen::VectorXd m_QuaternionNormSquared;
-    Eigen::VectorXd m_GeneralizedExternalForces;
+    VectorXd m_QuaternionNormSquared;
+    VectorXd m_GeneralizedExternalForces;
 
-    Eigen::VectorXd m_ExternalForces;
+    VectorXd m_ExternalForces;
 
-    Eigen::MatrixXd m_A;
-    Eigen::VectorXd m_B;
-    Eigen::VectorXd m_X;
+    MatrixXd m_A;
+    VectorXd m_B;
+    VectorXd m_X;
 
     void initializeSize();
     void initializeContent();

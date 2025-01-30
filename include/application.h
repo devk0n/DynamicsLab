@@ -9,7 +9,6 @@
 #include "imgui_layer.h"
 #include "dynamics.h"
 
-
 class Application {
 public:
     Application(int width, int height, const char* title);

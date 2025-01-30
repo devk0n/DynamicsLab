@@ -13,6 +13,8 @@
 #include "imgui_layer.h"
 #include "tools.h"
 
+using namespace Eigen;
+
 Application::Application(int width, int height, const char* title)
     : m_Window(nullptr, glfwDestroyWindow) {
 
@@ -30,7 +32,6 @@ Application::Application(int width, int height, const char* title)
 
     glfwMakeContextCurrent(m_Window.get());
     glfwSwapInterval(0); // Disable vsync
-
 
     m_Renderer = std::make_unique<Renderer>(m_Window.get());
     glfwSetWindowUserPointer(m_Window.get(), m_Renderer.get());
@@ -50,14 +51,16 @@ Application::Application(int width, int height, const char* title)
         }
     });
 
+
     auto body1 = std::make_shared<RigidBody>(
-                Eigen::Vector3d(0, 0, 0),
-                eulerToQuaternion(0.0, 0.0, 0.0),
-                Eigen::Matrix3d::Identity() * 10,
-                Eigen::Matrix3d::Identity() * 60);
+                Vector3d(0, 0, 0),
+                eulerToQuaternion(0.0, 1.0, 0.0),
+                Matrix3d::Identity() * 10,
+                Matrix3d::Identity() * 60);
 
     m_Dynamics = std::make_unique<Dynamics>();
     m_Dynamics->addBody(body1);
+
 
     m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Window.get(), m_Renderer.get(), m_Dynamics.get());
 
@@ -171,7 +174,7 @@ void Application::update() {
 
 void Application::render() {
     m_Renderer->clearScreen({0.1, 0.1, 0.1, 1.0});
-    m_Renderer->draw();
+    m_Renderer->draw(m_Dynamics.get());
     m_ImGuiLayer->renderUI();
 }
 

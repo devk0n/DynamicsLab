@@ -11,9 +11,13 @@
 #include <sstream>
 
 #include "renderer.h"
+#include "tools.h"
+
+using namespace Eigen;
 
 Renderer::Renderer(GLFWwindow* window)
     : m_Window(window) {
+
     if (!m_Window) {
         throw std::runtime_error("Renderer: Invalid GLFW window.");
     }
@@ -84,30 +88,39 @@ void Renderer::clearScreen(const glm::dvec4& color) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void Renderer::draw() {
+void Renderer::draw(Dynamics* dynamics) {
     // Clear the screen
     clearScreen(glm::dvec4(0.1, 0.1, 0.1, 1.0));
 
-    // Calculate the aspect ratio
-    double aspectRatio = 1920.0 / 1080.0; // Adjust based on the window size
-
-    // Update projection and view matrices for the scene
+    // Update projection and view matrices
+    double aspectRatio = 1920.0 / 1080.0; // Adjust dynamically if needed
     updateProjectionMatrix(aspectRatio);
     updateViewMatrix();
 
-    // Draw the grid, should not have any transformations applied (uses identity model matrix)
+    // Draw the grid
     if (m_DrawGrid) {
         drawGrid(10.0, 20, glm::dvec3(1.0, 1.0, 1.0));
     }
 
+    // Draw all rigid bodies via Dynamics (make sure m_Dynamics is available)
+    if (dynamics) {
+        for (int i = 0; i < dynamics->getBodyCount(); ++i) {
 
-    // Draw the box, with transformations (position, rotation, scaling)
-    drawBox(glm::dvec3(0.0, 0.0, 0.0),  // Position
-            glm::dvec3(1.0, 1.0, 1.0),    // Scale
-            glm::dvec3(0.0, 0.0, 0.0),  // Rotation (x, y, z)
-            glm::dvec3(1.0, 0.4, 0.8));   // Color
+            Vector3d position = dynamics->getBody(i)->getPosition();
+            double x = position[0];
+            double y = position[1];
+            double z = position[2];
 
+            Vector3d orientation = quaternionToEuler(dynamics->getBody(i)->getOrientation());
+            double roll = orientation[0];
+            double pitch = orientation[1];
+            double yaw = orientation[2];
+
+            drawBox(glm::vec3(x, y, z),glm::vec3(1.0, 1.0, 1.0), glm::vec3(roll, pitch, yaw), glm::vec3(1.0, 0.4, 0.8));
+        }
+    }
 }
+
 
 void Renderer::drawBox(const glm::dvec3& position, const glm::dvec3& scale, const glm::dvec3& rotation, const glm::dvec3& color) const {
     // Compute the model matrix
