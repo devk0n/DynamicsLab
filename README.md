@@ -36,6 +36,11 @@ $$
 - **User Interface**: Built using Dear ImGui, providing real-time control and visualization of simulation and camera data.
 - **Cross-platform Support**: Based on GLFW and OpenGL, the project is compatible with major OS platforms.
 
+| ![Screenshot 1](./assets/images/screenshot_20250130_104201.png) | ![Screenshot 2](./assets/images/screenshot_20250130_104001.png) | ![Screenshot 3](./assets/images/screenshot_20250130_094453.png) |
+|:---------------------------------:|:---------------------------------:|:---------------------------------:|
+| [View Full](./assets/images/screenshot_20250130_104201.png) | [View Full](./assets/images/screenshot_20250130_104001.png) | [View Full](./assets/images/screenshot_20250130_094453.png) |
+
+
 ## Camera Movement
 The application enables camera navigation to explore the simulation from any viewpoint. Users can control the camera position and orientation via:
 - **Mouse Input**:
