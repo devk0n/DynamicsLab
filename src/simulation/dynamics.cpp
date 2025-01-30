@@ -3,7 +3,7 @@
 
 using namespace Eigen;
 
-Dynamics::Dynamics() {}
+Dynamics::Dynamics() = default;
 
 void Dynamics::addBody(const std::shared_ptr<RigidBody>& body) {
     m_Bodies.push_back(body);
@@ -36,7 +36,7 @@ void Dynamics::initializeContent() {
 
         m_VelocityDependentTerm.middleRows(3, 4) = 2 * H;
 
-        m_GeneralizedExternalForces.segment(7 * i, 7) << 0.0, 00.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+        m_GeneralizedExternalForces.segment(7 * i, 7) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
 
         m_B.segment(0, 7 * b) = m_GeneralizedExternalForces - m_VelocityDependentTerm;
         m_B.tail(b) = m_QuaternionNormSquared;

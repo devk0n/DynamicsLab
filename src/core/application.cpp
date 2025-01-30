@@ -16,63 +16,52 @@
 using namespace Eigen;
 
 Application::Application(int width, int height, const char* title)
-    : m_Window(nullptr, glfwDestroyWindow) {
+    : m_window(nullptr, glfwDestroyWindow) {
 
     if (!glfwInit()) {
         throw std::runtime_error("Failed to initialize GLFW");
     }
 
     glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    m_Window.reset(glfwCreateWindow(width, height, title, nullptr, nullptr));
+    m_window.reset(glfwCreateWindow(width, height, title, nullptr, nullptr));
 
-    if (!m_Window) {
+    if (!m_window) {
         glfwTerminate();
         throw std::runtime_error("Failed to create GLFW window");
     }
 
-    glfwMakeContextCurrent(m_Window.get());
+    glfwMakeContextCurrent(m_window.get());
     glfwSwapInterval(0); // Disable vsync
 
-    m_Renderer = std::make_unique<Renderer>(m_Window.get());
-    glfwSetWindowUserPointer(m_Window.get(), m_Renderer.get());
+    m_renderer = std::make_unique<Renderer>(m_window.get());
+    glfwSetWindowUserPointer(m_window.get(), m_renderer.get());
 
     // Register callbacks
-    glfwSetCursorPosCallback(m_Window.get(), [](GLFWwindow* window, double xpos, double ypos) {
+    glfwSetCursorPosCallback(m_window.get(), [](GLFWwindow* window, double xpos, double ypos) {
         auto renderer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
         if (renderer) {
             renderer->handleMouseMovement(xpos, ypos);
         }
     });
-
-    glfwSetMouseButtonCallback(m_Window.get(), [](GLFWwindow* window, int button, int action, int mods) {
+    glfwSetMouseButtonCallback(m_window.get(), [](GLFWwindow* window, int button, int action, int mods) {
         auto renderer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
         if (renderer) {
             renderer->handleMouseButton(button, action);
         }
     });
 
-
-    auto body1 = std::make_shared<RigidBody>(
-                Vector3d(0, 0, 0),
-                eulerToQuaternion(0.0, 1.0, 0.0),
-                Matrix3d::Identity() * 10,
-                Matrix3d::Identity() * 60);
-
-    m_Dynamics = std::make_unique<Dynamics>();
-    m_Dynamics->addBody(body1);
-
-
-    m_ImGuiLayer = std::make_unique<ImGuiLayer>(m_Window.get(), m_Renderer.get(), m_Dynamics.get());
+    m_dynamics = std::make_unique<Dynamics>();
+    m_imguiLayer = std::make_unique<ImGuiLayer>(m_window.get(), m_renderer.get(), m_dynamics.get());
 
 }
 
 Application::~Application() {
     try {
-        m_ImGuiLayer.reset();
-        m_Renderer.reset();
+        m_imguiLayer.reset();
+        m_renderer.reset();
 
-        if (m_Window) {
-            m_Window.reset();
+        if (m_window) {
+            m_window.reset();
         }
 
         glfwTerminate();
@@ -86,7 +75,16 @@ Application::~Application() {
 void Application::run() {
     double lastTime = glfwGetTime();
 
-    while (!glfwWindowShouldClose(m_Window.get())) {
+
+    auto body1 = std::make_shared<RigidBody>(
+                Vector3d(0, 0, 0),
+                Vector4d(1, 0, 0, 0),
+                Matrix3d::Identity() * 80,
+                Matrix3d::Identity() * 20);
+
+    m_dynamics->addBody(body1);
+
+    while (!glfwWindowShouldClose(m_window.get())) {
         double currentTime = glfwGetTime();
         double deltaTime = currentTime - lastTime;
         lastTime = currentTime;
@@ -94,22 +92,37 @@ void Application::run() {
         processInput();
 
         // Step the physics simulation
-        if (m_Dynamics) {
-             m_Dynamics->step(deltaTime);
+        if (m_dynamics) {
+             m_dynamics->step(deltaTime);
         }
 
-        update();
+        // update();
         render();
 
-        glfwSwapBuffers(m_Window.get());
+        glfwSwapBuffers(m_window.get());
         glfwPollEvents();
     }
 }
 
-// New method to capture and save a screenshot
+void Application::render() {
+    m_renderer->clearScreen({0.1, 0.1, 0.1, 1.0});
+    m_renderer->draw(m_dynamics.get());
+    m_imguiLayer->renderUI();
+}
+
+void Application::update() {
+    // Pass camera data to ImGui
+    if (m_renderer && m_imguiLayer) {
+        glm::dvec3 cameraPos = m_renderer->getCameraPosition();
+        glm::dvec3 cameraOrientation = m_renderer->getCameraOrientation();
+        double cameraSpeed = m_renderer->getCameraSpeed();
+        m_imguiLayer->updateCameraData(cameraPos, cameraOrientation, cameraSpeed);
+    }
+}
+
 void Application::captureScreenshot() {
     int width, height;
-    glfwGetFramebufferSize(m_Window.get(), &width, &height);
+    glfwGetFramebufferSize(m_window.get(), &width, &height);
 
     // Allocate buffer for pixel data (RGBA format)
     std::vector<unsigned char> pixels(width * height * 4);
@@ -148,33 +161,16 @@ void Application::processInput() {
     double deltaTime = currentFrameTime - lastFrameTime;
     lastFrameTime = currentFrameTime;
 
-    if (m_Window && glfwGetKey(m_Window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(m_Window.get(), true);
+    if (m_window && glfwGetKey(m_window.get(), GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(m_window.get(), true);
     }
 
     // Capture screenshot with F12
-    if (glfwGetKey(m_Window.get(), GLFW_KEY_F12) == GLFW_PRESS) {
+    if (glfwGetKey(m_window.get(), GLFW_KEY_F12) == GLFW_PRESS) {
         captureScreenshot();
     }
 
-    if (m_Renderer) {
-        m_Renderer->handleKeyboardInput(m_Window.get(), deltaTime);
+    if (m_renderer) {
+        m_renderer->handleKeyboardInput(m_window.get(), deltaTime);
     }
 }
-
-void Application::update() {
-    // Pass camera data to ImGui
-    if (m_Renderer && m_ImGuiLayer) {
-        glm::dvec3 cameraPos = m_Renderer->getCameraPosition();
-        glm::dvec3 cameraOrientation = m_Renderer->getCameraOrientation();
-        double cameraSpeed = m_Renderer->getCameraSpeed();
-        m_ImGuiLayer->updateCameraData(cameraPos, cameraOrientation, cameraSpeed);
-    }
-}
-
-void Application::render() {
-    m_Renderer->clearScreen({0.1, 0.1, 0.1, 1.0});
-    m_Renderer->draw(m_Dynamics.get());
-    m_ImGuiLayer->renderUI();
-}
-

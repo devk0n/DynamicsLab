@@ -92,6 +92,17 @@ void Renderer::draw(Dynamics* dynamics) {
     // Clear the screen
     clearScreen(glm::dvec4(0.1, 0.1, 0.1, 1.0));
 
+    glm::vec3 lightPos = glm::vec3(2.0f, 4.0f, 2.0f);
+    glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 objectColor = glm::vec3(1.0f, 0.4f, 0.8f);  // Your pinkish box
+
+    glUseProgram(m_GridShaderProgram);
+    glUniform3fv(glGetUniformLocation(m_GridShaderProgram, "lightPos"), 1, glm::value_ptr(lightPos));
+    glUniform3fv(glGetUniformLocation(m_GridShaderProgram, "lightColor"), 1, glm::value_ptr(lightColor));
+    glUniform3fv(glGetUniformLocation(m_GridShaderProgram, "objectColor"), 1, glm::value_ptr(objectColor));
+
+
+
     // Update projection and view matrices
     double aspectRatio = 1920.0 / 1080.0; // Adjust dynamically if needed
     updateProjectionMatrix(aspectRatio);
@@ -102,23 +113,8 @@ void Renderer::draw(Dynamics* dynamics) {
         drawGrid(10.0, 20, glm::dvec3(1.0, 1.0, 1.0));
     }
 
-    // Draw all rigid bodies via Dynamics (make sure m_Dynamics is available)
-    if (dynamics) {
-        for (int i = 0; i < dynamics->getBodyCount(); ++i) {
+    drawBox(glm::vec3(0.0, 0.0, 0.0),glm::vec3(1.0, 1.0, 1.0), glm::vec3(0.0, 55.0, 55.0), glm::vec3(1.0, 0.4, 0.8));
 
-            Vector3d position = dynamics->getBody(i)->getPosition();
-            double x = position[0];
-            double y = position[1];
-            double z = position[2];
-
-            Vector3d orientation = quaternionToEuler(dynamics->getBody(i)->getOrientation());
-            double roll = orientation[0];
-            double pitch = orientation[1];
-            double yaw = orientation[2];
-
-            drawBox(glm::vec3(x, y, z),glm::vec3(1.0, 1.0, 1.0), glm::vec3(roll, pitch, yaw), glm::vec3(1.0, 0.4, 0.8));
-        }
-    }
 }
 
 

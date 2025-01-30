@@ -33,6 +33,7 @@ public:
 private:
     GLFWwindow* m_Window;
     GLuint m_GridShaderProgram;
+    GLuint m_BoxShaderProgram;
 
     glm::dvec3 m_CameraPos = glm::dvec3(0.0, 5.2, 10.5);
     glm::dvec3 m_CameraFront = glm::dvec3(0.0, -0.5, -1.0);
