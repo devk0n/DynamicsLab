@@ -102,16 +102,11 @@ void Renderer::draw() {
 
 
     // Draw the box, with transformations (position, rotation, scaling)
-    drawBox(glm::dvec3(-1.0, 2.0, 0.0),  // Position
-            glm::dvec3(2.0, 0.2, 0.2),    // Scale
+    drawBox(glm::dvec3(0.0, 0.0, 0.0),  // Position
+            glm::dvec3(1.0, 1.0, 1.0),    // Scale
             glm::dvec3(0.0, 0.0, 0.0),  // Rotation (x, y, z)
-            glm::dvec3(1.0, 0.0, 0.0));   // Color
+            glm::dvec3(1.0, 0.4, 0.8));   // Color
 
-
-    drawBox(glm::dvec3(-3.0, 2.0, 0.0),  // Position
-            glm::dvec3(2.0, 0.2, 0.2),    // Scale
-            glm::dvec3(0.0, 40.0, 0.0),  // Rotation (x, y, z)
-            glm::dvec3(0.0, 1.0, 0.0));   // Color
 }
 
 void Renderer::drawBox(const glm::dvec3& position, const glm::dvec3& scale, const glm::dvec3& rotation, const glm::dvec3& color) const {
@@ -130,24 +125,39 @@ void Renderer::drawBox(const glm::dvec3& position, const glm::dvec3& scale, cons
 
     // Define vertices for the box (centered at 0,0,0)
     std::vector<double> vertices = {
-        -0.5, -0.5, -0.5,   // 0
-         0.5, -0.5, -0.5,   // 1
-        -0.5,  0.5, -0.5,   // 2
-         0.5,  0.5, -0.5,   // 3
-        -0.5, -0.5,  0.5,   // 4
-         0.5, -0.5,  0.5,   // 5
-        -0.5,  0.5,  0.5,   // 6
-         0.5,  0.5,  0.5    // 7
+            -0.5, -0.5, -0.5,   // 0
+            0.5, -0.5, -0.5,   // 1
+            -0.5,  0.5, -0.5,   // 2
+            0.5,  0.5, -0.5,   // 3
+            -0.5, -0.5,  0.5,   // 4
+            0.5, -0.5,  0.5,   // 5
+            -0.5,  0.5,  0.5,   // 6
+            0.5,  0.5,  0.5    // 7
     };
 
-    // Define indices (same as previously)
-    std::vector<GLuint> indices = {
-        0, 1,  1, 3,  3, 2,  2, 0, // Bottom face
-        4, 5,  5, 7,  7, 6,  6, 4, // Top face
-        0, 4,  1, 5,  2, 6,  3, 7  // Vertical edges
+    // Define indices for solid faces (triangles)
+    std::vector<GLuint> faceIndices = {
+            // Bottom face
+            0, 1, 2,  2, 1, 3,
+            // Top face
+            4, 5, 6,  6, 5, 7,
+            // Front face
+            0, 1, 4,  4, 1, 5,
+            // Back face
+            2, 3, 6,  6, 3, 7,
+            // Left face
+            0, 2, 4,  4, 2, 6,
+            // Right face
+            1, 3, 5,  5, 3, 7
     };
 
-    // Create VAO and VBO (similar as in the existing code)
+    // Define indices for wireframe (edges)
+    std::vector<GLuint> wireframeIndices = {
+            0, 1,  1, 3,  3, 2,  2, 0, // Bottom face
+            4, 5,  5, 7,  7, 6,  6, 4, // Top face
+            0, 4,  1, 5,  2, 6,  3, 7  // Vertical edges
+    };
+
     GLuint VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -156,21 +166,22 @@ void Renderer::drawBox(const glm::dvec3& position, const glm::dvec3& scale, cons
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    std::size_t bufferSize = vertices.size() * sizeof(double);
-    glBufferData(GL_ARRAY_BUFFER, static_cast<GLsizeiptr>(bufferSize), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(double), vertices.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(indices.size() * sizeof(GLuint)), indices.data(), GL_STATIC_DRAW);
 
+    // Enable and pass vertex data
     glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), nullptr);
     glEnableVertexAttribArray(0);
 
-    // Draw the box
-    glUseProgram(m_GridShaderProgram);
-    glUniform3dv(glGetUniformLocation(m_GridShaderProgram, "u_Color"), 1, glm::value_ptr(color));
-    glBindVertexArray(VAO);
+    // Enable depth testing
+    glEnable(GL_DEPTH_TEST);
 
-    glDrawElements(GL_LINES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
+    // === First Pass: Draw solid faces ===
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, faceIndices.size() * sizeof(GLuint), faceIndices.data(), GL_STATIC_DRAW);
+    glUniform3dv(glGetUniformLocation(m_GridShaderProgram, "u_Color"), 1, glm::value_ptr(color)); // Face color
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(faceIndices.size()), GL_UNSIGNED_INT, nullptr);
+
 
     // Cleanup
     glBindVertexArray(0);
