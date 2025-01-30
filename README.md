@@ -81,6 +81,18 @@ DynamicsLab
         └───imgui_layer.cpp
 ```
 
+# Variable Mapping Table
+
+| **Variable from Book**  | **Description**                                   | **Corresponding Name in Code**      | **Additional Notes**                       |
+|-------------------------|---------------------------------------------------|--------------------------------------|--------------------------------------------|
+| **M\***                 | System mass-inertia matrix                        | `SystemMassInertiaMatrix`           | Represents the mass and inertia properties of the system. |
+| **P**                   | Quaternion constraint matrix                      | `QuaternionConstraintMatrix`        | Handles constraints related to quaternion representation. |
+| **q**                   | Generalized position coordinates of the system    | `GeneralizedCoordinates`            | Position variables describing the configuration of the system. |
+| **q̇**                  | Generalized velocity coordinates                  | `GeneralizedVelocities`             | Velocity variables associated with the system coordinates. |
+| **q̈**                  | Generalized accelerations                         | `GeneralizedAccelerations`          | Acceleration variables for the system's motion. |
+| **b\***                 | Velocity-dependent term                          | `VelocityDependentTerm`             | Represents effects dependent on the velocity, such as Coriolis or damping forces. |
+| **c**                   | Quaternion norm squared value                     | `QuaternionNormSquared`             | Constraint ensuring quaternions remain normalized. |
+| **g\***                 | Generalized external forces                       | `GeneralizedExternalForces`         | External forces acting on the system. |
 ## References
 
 1. Nikravesh, Parviz E. *Computer-Aided Analysis of Mechanical Systems*. Prentice-Hall, Inc., USA, 1988. ISBN: 0131642200.
