@@ -94,7 +94,7 @@ void RigidBody::setOrientation(Vector4d orientation) {
 }
 
 void RigidBody::normalizeOrientation() {
-    m_Orientation.normalize();
+    m_Orientation / m_Orientation.norm();
 }
 
 double RigidBody::getQuaternionNormSquared() {

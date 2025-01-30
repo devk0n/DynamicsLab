@@ -26,38 +26,39 @@ void Dynamics::addBody(const std::shared_ptr<RigidBody>& body) {
 void Dynamics::initializeContent() {
     if (m_Bodies.empty()) return;
     int b = getBodyCount();
+    int m = 7 * b;
 
     for (int i = 0; i < b; i++) {
 
-        m_GeneralizedCoordinates.segment(7 * i, 3) = m_Bodies[i]->getPosition();
-        m_GeneralizedCoordinates.segment(7 * i + 3, 4) = m_Bodies[i]->getOrientation();
-        m_GeneralizedVelocities.segment(7 * i, 3) = m_Bodies[i]->getVelocity();
-        m_GeneralizedVelocities.segment(7 * i + 3, 4) = m_Bodies[i]->getAngularVelocity();
+        m_GeneralizedCoordinates.segment(m    , 3) = m_Bodies[i]->getPosition();
+        m_GeneralizedCoordinates.segment(m + 3, 4) = m_Bodies[i]->getOrientation();
+        m_GeneralizedVelocities .segment(m    , 3) = m_Bodies[i]->getVelocity();
+        m_GeneralizedVelocities .segment(m + 3, 4) = m_Bodies[i]->getAngularVelocity();
         m_QuaternionNormSquared(i) = m_Bodies[i]->getQuaternionNormSquared();
 
         // Matrix A
-        m_SystemMassInertiaMatrix.block(7 * i, 7 * i, 3, 3) = m_Bodies[i]->getMassMatrix();
-        m_SystemMassInertiaMatrix.block(7 * i + 3, 7 * i + 3, 4, 4) = m_Bodies[i]->getInertiaTensor();
+        m_SystemMassInertiaMatrix.block(m,  m,     3, 3   ) = m_Bodies[i]->getMassMatrix();
+        m_SystemMassInertiaMatrix.block(m + 3, m + 3, 4, 4) = m_Bodies[i]->getInertiaTensor();
 
-        m_QuaternionConstraintMatrix.block(1 * i, 3 + (7 * i), 1, 4) = m_Bodies[i]->getOrientation().transpose();
+        m_QuaternionConstraintMatrix.block(1 * i, 3 + (m), 1, 4) = m_Bodies[i]->getOrientation().transpose();
 
         // Matrix B
         auto Ld = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getAngularVelocity());
         auto Jm = m_Bodies[i]->getGlobalInertiaTensor();
-        auto L = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getOrientation());
-        auto H = 8 * Ld.transpose() * Jm * L * m_Bodies[i]->getAngularVelocity();
+        auto L  = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getOrientation());
+        auto H  = 4 * Ld.transpose() * Jm * L;
 
-        m_VelocityDependentTerm.middleRows(3, 4) = H;
+        m_VelocityDependentTerm.middleRows(3, 4) = 2 * H * m_Bodies[i]->getAngularVelocity();
 
-        m_GeneralizedExternalForces.segment(7 * i, 7) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+        m_GeneralizedExternalForces.segment(m, 7) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
 
         m_B.segment(0, 7 * b) = m_GeneralizedExternalForces - m_VelocityDependentTerm;
         m_B.tail(b) = -m_QuaternionNormSquared;
     }
 
-    m_A.topLeftCorner(7 * b, 7 * b) = m_SystemMassInertiaMatrix;
-    m_A.bottomLeftCorner(b, 7 * b) = m_QuaternionConstraintMatrix;
-    m_A.topRightCorner(7 * b, b) = m_QuaternionConstraintMatrix.transpose();
+    m_A.topLeftCorner   (7 * b, 7 * b) = m_SystemMassInertiaMatrix;
+    m_A.bottomLeftCorner(    b, 7 * b) = m_QuaternionConstraintMatrix;
+    m_A.topRightCorner  (7 * b,     b) = m_QuaternionConstraintMatrix.transpose();
 
 }
 
@@ -70,8 +71,8 @@ void Dynamics::step(double deltaTime) {
     m_GeneralizedAccelerations = m_X.head(7 * b);
 
     // Integration
-    m_GeneralizedVelocities.noalias() += m_GeneralizedAccelerations * deltaTime;
-    m_GeneralizedCoordinates.noalias() += m_GeneralizedVelocities * deltaTime;
+    m_GeneralizedVelocities += m_GeneralizedAccelerations * deltaTime;
+    m_GeneralizedCoordinates += m_GeneralizedVelocities * deltaTime;
 
     for (int i = 0; i < b; i++) {
 
