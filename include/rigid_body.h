@@ -11,6 +11,8 @@ public:
             Eigen::Matrix3d massMatrix,
             Eigen::Matrix3d inertiaTensor);
 
+    void normalizeOrientation();
+
     Eigen::Vector3d getPosition();
     Eigen::Vector4d getOrientation();
     Eigen::Matrix3d getMassMatrix();
@@ -18,6 +20,10 @@ public:
     Eigen::Vector3d getVelocity();
     Eigen::Vector4d getAngularVelocity();
 
+    void setPosition(Eigen::Vector3d position);
+    void setOrientation(Eigen::Vector4d orientation);
+    void setVelocity(Eigen::Vector3d velocity);
+    void setAngularVelocity(Eigen::Vector4d angularVelocity);
 
     Eigen::Matrix<double, 3, 4> getLTransformationMatrix(Eigen::Vector4d transformationMatrix);
     Eigen::Matrix<double, 3, 4> getGTransformationMatrix(Eigen::Vector4d transformationMatrix);
@@ -33,7 +39,6 @@ private:
 
     Eigen::Matrix3d m_MassMatrix;
     Eigen::Matrix4d m_InertiaTensor;
-
 
 };
 

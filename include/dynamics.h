@@ -31,14 +31,17 @@ public:
 
     Eigen::MatrixXd getSystemMassInertiaMatrix();
     Eigen::MatrixXd getQuaternionConstraintMatrix();
-    Eigen::MatrixXd getGeneralizedCoordinates();
-    Eigen::MatrixXd getGeneralizedVelocities();
-    Eigen::MatrixXd getGeneralizedAccelerations();
+
+    Eigen::VectorXd getGeneralizedCoordinates();
+    Eigen::VectorXd getGeneralizedVelocities();
+    Eigen::VectorXd getGeneralizedAccelerations();
+
     Eigen::VectorXd getVelocityDependentTerm();
 
-    Eigen::MatrixXd getQuaternionNormSquared();
+    Eigen::VectorXd getQuaternionNormSquared();
 
-    Eigen::MatrixXd getGeneralizedExternalForces();
+    Eigen::VectorXd getGeneralizedExternalForces();
+
     Eigen::MatrixXd getMatrixA();
     Eigen::VectorXd getMatrixB();
     Eigen::VectorXd getMatrixX();
@@ -53,14 +56,14 @@ private:
     Eigen::MatrixXd m_SystemMassInertiaMatrix;
     Eigen::MatrixXd m_QuaternionConstraintMatrix;
 
-    Eigen::MatrixXd m_GeneralizedCoordinates;
-    Eigen::MatrixXd m_GeneralizedVelocities;
-    Eigen::MatrixXd m_GeneralizedAccelerations;
+    Eigen::VectorXd m_GeneralizedCoordinates;
+    Eigen::VectorXd m_GeneralizedVelocities;
+    Eigen::VectorXd m_GeneralizedAccelerations;
 
     Eigen::VectorXd m_VelocityDependentTerm;
 
     Eigen::VectorXd m_QuaternionNormSquared;
-    Eigen::MatrixXd m_GeneralizedExternalForces;
+    Eigen::VectorXd m_GeneralizedExternalForces;
 
     Eigen::VectorXd m_ExternalForces;
 

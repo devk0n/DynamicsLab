@@ -9,7 +9,6 @@ RigidBody::RigidBody(Eigen::Vector3d position, Eigen::Vector4d orientation, Eige
       m_Orientation(std::move(orientation)){
 
     m_Velocity = Eigen::Vector3d::Zero();
-    m_Velocity(2) = 4;
     m_AngularVelocity = Eigen::Vector4d::Zero();
 
     /*
@@ -78,6 +77,26 @@ Eigen::Vector4d RigidBody::getAngularVelocity() {
 
 Eigen::Vector3d RigidBody::getVelocity() {
     return m_Velocity;
+}
+
+void RigidBody::setPosition(Eigen::Vector3d position) {
+    m_Position = position;
+}
+
+void RigidBody::setAngularVelocity(Eigen::Vector4d angularVelocity) {
+    m_AngularVelocity = angularVelocity;
+}
+
+void RigidBody::setVelocity(Eigen::Vector3d velocity) {
+    m_Velocity = velocity;
+}
+
+void RigidBody::setOrientation(Eigen::Vector4d orientation) {
+    m_Orientation = orientation;
+}
+
+void RigidBody::normalizeOrientation() {
+    m_Orientation.normalize();
 }
 
 // Eigen::Matrix4d inertiaTensor = 4 * transformationMatrix.transpose() * globalInertiaTensor * transformationMatrix;

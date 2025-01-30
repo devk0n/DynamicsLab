@@ -25,14 +25,15 @@ void Dynamics::initializeContent() {
         auto Ld = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getAngularVelocity());
         auto Jm = m_Bodies[i]->getGlobalInertiaTensor();
         auto L = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getOrientation());
-        auto H = 4 * Ld.transpose() * Jm * L;
+        auto H = 4 * Ld.transpose() * Jm * L * m_Bodies[i]->getAngularVelocity();
 
-        m_VelocityDependentTerm.middleRows(3, 4) = 2 * H * m_Bodies[i]->getAngularVelocity();
-        m_QuaternionNormSquared.row(i) = m_Bodies[i]->getOrientation().transpose() * m_Bodies[i]->getOrientation();
+        m_VelocityDependentTerm.middleRows(3, 4) = 2 * H;
+        // m_QuaternionNormSquared.row(i) = m_Bodies[i]->getOrientation().transpose() * m_Bodies[i]->getOrientation();
 
-        m_GeneralizedExternalForces.setZero();
+        m_GeneralizedExternalForces.segment(7 * i, 7) << 0.0, 0.0, 10, 0.0, 0.0, 0.0, 0.0;
 
-        m_B.segment(0, 7 * b) = m_VelocityDependentTerm - m_GeneralizedExternalForces;
+
+        m_B.segment(0, 7 * b) = m_GeneralizedExternalForces - m_VelocityDependentTerm;
         m_B.tail(b) = m_QuaternionNormSquared;
     }
 
@@ -43,12 +44,24 @@ void Dynamics::initializeContent() {
 }
 
 void Dynamics::step(double deltaTime) {
+    int b = getBodyCount();
+
     m_X = m_A.partialPivLu().solve(m_B);
-    m_GeneralizedAccelerations = m_X.head(7 * getBodyCount());
+    m_GeneralizedAccelerations = m_X.head(7 * b);
 
     // Integration
     m_GeneralizedVelocities += m_GeneralizedAccelerations * deltaTime;
     m_GeneralizedCoordinates += m_GeneralizedVelocities * deltaTime;
+
+    for (int i = 0; i < b; i++) {
+
+        m_Bodies[i]->setPosition(m_GeneralizedCoordinates.segment(7 * i, 3));
+        m_Bodies[i]->setOrientation(m_GeneralizedCoordinates.segment(7 * i + 3, 4));
+        m_Bodies[i]->setVelocity(m_GeneralizedVelocities.segment(7 * i, 3));
+        m_Bodies[i]->setAngularVelocity(m_GeneralizedVelocities.segment(7 * i + 3, 4));
+        m_Bodies[i]->normalizeOrientation();
+    }
+
 }
 
 void Dynamics::initializeSize() {
@@ -58,13 +71,13 @@ void Dynamics::initializeSize() {
     m_SystemMassInertiaMatrix.resize(7 * b, 7 * b);
     m_QuaternionConstraintMatrix.resize(1 * b, 7 * b);
 
-    m_GeneralizedCoordinates.resize(7 * b, 1);
-    m_GeneralizedVelocities.resize(7 * b, 1);
-    m_GeneralizedAccelerations.resize(7 * b, 1);
+    m_GeneralizedCoordinates.resize(7 * b);
+    m_GeneralizedVelocities.resize(7 * b);
+    m_GeneralizedAccelerations.resize(7 * b);
 
     m_VelocityDependentTerm.resize(7 * b);
-    m_QuaternionNormSquared.resize(b, 1);
-    m_GeneralizedExternalForces.resize(7 * b, 1);
+    m_QuaternionNormSquared.resize(b);
+    m_GeneralizedExternalForces.resize(7 * b);
 
     m_A.resize(7 * b + b, 7 * b + b);
     m_B.resize(7 * b + b, 1);
@@ -136,15 +149,15 @@ Eigen::MatrixXd Dynamics::getQuaternionConstraintMatrix() {
     return m_QuaternionConstraintMatrix;
 }
 
-Eigen::MatrixXd Dynamics::getGeneralizedCoordinates() {
+Eigen::VectorXd Dynamics::getGeneralizedCoordinates() {
     return m_GeneralizedCoordinates;
 }
 
-Eigen::MatrixXd Dynamics::getGeneralizedVelocities() {
+Eigen::VectorXd Dynamics::getGeneralizedVelocities() {
     return m_GeneralizedVelocities;
 }
 
-Eigen::MatrixXd Dynamics::getGeneralizedAccelerations() {
+Eigen::VectorXd Dynamics::getGeneralizedAccelerations() {
     return m_GeneralizedAccelerations;
 }
 
@@ -152,11 +165,11 @@ Eigen::VectorXd Dynamics::getVelocityDependentTerm() {
     return m_VelocityDependentTerm;
 }
 
-Eigen::MatrixXd Dynamics::getQuaternionNormSquared() {
+Eigen::VectorXd Dynamics::getQuaternionNormSquared() {
     return m_QuaternionNormSquared;
 }
 
-Eigen::MatrixXd Dynamics::getGeneralizedExternalForces() {
+Eigen::VectorXd Dynamics::getGeneralizedExternalForces() {
     return m_GeneralizedExternalForces;
 }
 
