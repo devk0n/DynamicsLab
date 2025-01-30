@@ -6,6 +6,7 @@
 
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
+
 #include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 #include <sstream>
@@ -27,6 +28,7 @@ Renderer::Renderer(GLFWwindow* window)
         throw std::runtime_error("Failed to initialize GLAD");
     }
 
+    glfwGetWindowSize(m_Window, &m_width, &m_height);
     initOpenGL();
 
     // Set the mouse scroll callback
@@ -76,7 +78,9 @@ void Renderer::initOpenGL() {
     // Enable Multi-Sampling
     glEnable(GL_MULTISAMPLE);
 
-    glViewport(0, 0, 1920, 1080);
+
+
+    glViewport(0, 0, m_width, m_height);
     std::cout << "OpenGL Initialized" << std::endl;
 }
 
@@ -101,10 +105,8 @@ void Renderer::draw(Dynamics* dynamics) {
     glUniform3fv(glGetUniformLocation(m_GridShaderProgram, "lightColor"), 1, glm::value_ptr(lightColor));
     glUniform3fv(glGetUniformLocation(m_GridShaderProgram, "objectColor"), 1, glm::value_ptr(objectColor));
 
-
-
     // Update projection and view matrices
-    double aspectRatio = 1920.0 / 1080.0; // Adjust dynamically if needed
+    double aspectRatio = static_cast<float>(m_width) / static_cast<float>(m_height); // Adjust dynamically if needed
     updateProjectionMatrix(aspectRatio);
     updateViewMatrix();
 
@@ -113,58 +115,52 @@ void Renderer::draw(Dynamics* dynamics) {
         drawGrid(10.0, 20, glm::dvec3(1.0, 1.0, 1.0));
     }
 
-    drawBox(glm::vec3(0.0, 0.0, 0.0),glm::vec3(1.0, 1.0, 1.0), glm::vec3(0.0, 55.0, 55.0), glm::vec3(1.0, 0.4, 0.8));
+    for (int i = 0; i < dynamics->getBodyCount(); i++) {
+        drawBox(dynamics->getBody(i)->getPosition(), Vector3d(1.0, 1.0, 1.0), dynamics->getBody(i)->getOrientation(), Vector3d(1.0, 0.2, 0.8));
+    }
+
 
 }
 
+void Renderer::drawBox(const Vector3d& position, const Vector3d& scale, const Vector4d& rotation, const Vector3d& color) const {
+    // Convert Vector4d quaternion to glm::dquat
+    glm::dquat quat(rotation.w(), rotation.x(), rotation.y(), rotation.z());
 
-void Renderer::drawBox(const glm::dvec3& position, const glm::dvec3& scale, const glm::dvec3& rotation, const glm::dvec3& color) const {
+    // Convert Vector3d to glm::dvec3
+    glm::dvec3 glmPosition(position.x(), position.y(), position.z());
+    glm::dvec3 glmScale(scale.x(), scale.y(), scale.z());
+    glm::dvec3 glmColor(color.x(), color.y(), color.z());
+
     // Compute the model matrix
-    glm::dmat4 model = glm::mat4(1.0); // Start with the identity matrix
-    model = glm::translate(model, position); // Translate to position
-    model = glm::rotate(model, glm::radians(rotation.x), glm::dvec3(1.0, 0.0, 0.0)); // Rotate around X-axis
-    model = glm::rotate(model, glm::radians(rotation.y), glm::dvec3(0.0, 1.0, 0.0)); // Rotate around Y-axis
-    model = glm::rotate(model, glm::radians(rotation.z), glm::dvec3(0.0, 0.0, 1.0)); // Rotate around Z-axis
-    model = glm::scale(model, scale); // Scale the box
+    glm::dmat4 model = glm::dmat4(1.0); // Start with the identity matrix
+    model = glm::translate(model, glmPosition); // Translate to position
+    model *= glm::mat4_cast(quat); // Apply quaternion rotation
+    model = glm::scale(model, glmScale); // Scale the box
 
     // Pass the model matrix to the shader
     glUseProgram(m_GridShaderProgram);
     glUniformMatrix4dv(glGetUniformLocation(m_GridShaderProgram, "u_Model"), 1, GL_FALSE, glm::value_ptr(model));
 
-
     // Define vertices for the box (centered at 0,0,0)
     std::vector<double> vertices = {
             -0.5, -0.5, -0.5,   // 0
-            0.5, -0.5, -0.5,   // 1
+             0.5, -0.5, -0.5,   // 1
             -0.5,  0.5, -0.5,   // 2
-            0.5,  0.5, -0.5,   // 3
+             0.5,  0.5, -0.5,   // 3
             -0.5, -0.5,  0.5,   // 4
-            0.5, -0.5,  0.5,   // 5
+             0.5, -0.5,  0.5,   // 5
             -0.5,  0.5,  0.5,   // 6
-            0.5,  0.5,  0.5    // 7
+             0.5,  0.5,  0.5    // 7
     };
 
     // Define indices for solid faces (triangles)
     std::vector<GLuint> faceIndices = {
-            // Bottom face
             0, 1, 2,  2, 1, 3,
-            // Top face
             4, 5, 6,  6, 5, 7,
-            // Front face
             0, 1, 4,  4, 1, 5,
-            // Back face
             2, 3, 6,  6, 3, 7,
-            // Left face
             0, 2, 4,  4, 2, 6,
-            // Right face
             1, 3, 5,  5, 3, 7
-    };
-
-    // Define indices for wireframe (edges)
-    std::vector<GLuint> wireframeIndices = {
-            0, 1,  1, 3,  3, 2,  2, 0, // Bottom face
-            4, 5,  5, 7,  7, 6,  6, 4, // Top face
-            0, 4,  1, 5,  2, 6,  3, 7  // Vertical edges
     };
 
     GLuint VAO, VBO, EBO;
@@ -178,19 +174,16 @@ void Renderer::drawBox(const glm::dvec3& position, const glm::dvec3& scale, cons
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(double), vertices.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, faceIndices.size() * sizeof(GLuint), faceIndices.data(), GL_STATIC_DRAW);
 
-    // Enable and pass vertex data
     glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), nullptr);
     glEnableVertexAttribArray(0);
 
-    // Enable depth testing
     glEnable(GL_DEPTH_TEST);
 
-    // === First Pass: Draw solid faces ===
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, faceIndices.size() * sizeof(GLuint), faceIndices.data(), GL_STATIC_DRAW);
-    glUniform3dv(glGetUniformLocation(m_GridShaderProgram, "u_Color"), 1, glm::value_ptr(color)); // Face color
+    // Draw solid faces
+    glUniform3dv(glGetUniformLocation(m_GridShaderProgram, "u_Color"), 1, glm::value_ptr(glmColor));
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(faceIndices.size()), GL_UNSIGNED_INT, nullptr);
-
 
     // Cleanup
     glBindVertexArray(0);

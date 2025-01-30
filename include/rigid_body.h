@@ -28,6 +28,8 @@ public:
     void setVelocity(Vector3d velocity);
     void setAngularVelocity(Vector4d angularVelocity);
 
+    double getQuaternionNormSquared();
+
     Matrix<double, 3, 4> getLTransformationMatrix(Vector4d transformationMatrix);
     Matrix<double, 3, 4> getGTransformationMatrix(Vector4d transformationMatrix);
 

@@ -27,8 +27,7 @@ public:
 
     double getCameraSpeed() const;
 
-    void drawBox(const glm::dvec3 &position, const glm::dvec3 &scale, const glm::dvec3 &rotation,
-                 const glm::dvec3 &color) const;
+    void drawBox(const Vector3d &position, const Vector3d &scale, const Vector4d &rotation, const Vector3d &color) const;
 
 private:
     GLFWwindow* m_Window;
@@ -48,7 +47,10 @@ private:
 
     bool m_DrawGrid = true;
 
-    static void initOpenGL();
+    int m_width;
+    int m_height;
+
+    void initOpenGL();
 
     void drawGrid(double size, int divisions, const glm::dvec3 &color) const;
 
@@ -60,9 +62,9 @@ private:
 
     static std::string loadShaderFromFile(const std::string &filepath);
 
-
-
     void handleMouseScroll(double yOffset);
+
+
 
 };
 

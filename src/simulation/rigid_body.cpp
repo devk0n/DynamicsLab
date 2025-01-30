@@ -90,5 +90,9 @@ void RigidBody::normalizeOrientation() {
     m_Orientation.normalize();
 }
 
+double RigidBody::getQuaternionNormSquared() {
+    return m_AngularVelocity.transpose() * m_AngularVelocity;
+}
+
 // Matrix4d inertiaTensor = 4 * transformationMatrix.transpose() * globalInertiaTensor * transformationMatrix;
 

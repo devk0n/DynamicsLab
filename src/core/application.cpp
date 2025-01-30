@@ -93,7 +93,7 @@ void Application::run() {
 
         // Step the physics simulation
         if (m_dynamics) {
-             m_dynamics->step(deltaTime);
+             m_dynamics->step(0.00001);
         }
 
         // update();

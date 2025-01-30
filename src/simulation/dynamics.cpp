@@ -1,6 +1,18 @@
 #include <iostream>
 #include "dynamics.h"
+/*
+    SystemMassInertiaMatrix         (M*)
+    QuaternionConstraintMatrix      (P)
 
+    GeneralizedCoordinates          (q)
+    GeneralizedVelocities           (qd)
+    GeneralizedAccelerations        (qdd)
+
+    VelocityDependentTerm           (b*)
+
+    QuaternionNormSquared           (c)
+    GeneralizedExternalForces       (g*)
+ */
 using namespace Eigen;
 
 Dynamics::Dynamics() = default;
@@ -21,6 +33,7 @@ void Dynamics::initializeContent() {
         m_GeneralizedCoordinates.segment(7 * i + 3, 4) = m_Bodies[i]->getOrientation();
         m_GeneralizedVelocities.segment(7 * i, 3) = m_Bodies[i]->getVelocity();
         m_GeneralizedVelocities.segment(7 * i + 3, 4) = m_Bodies[i]->getAngularVelocity();
+        m_QuaternionNormSquared(i) = m_Bodies[i]->getQuaternionNormSquared();
 
         // Matrix A
         m_SystemMassInertiaMatrix.block(7 * i, 7 * i, 3, 3) = m_Bodies[i]->getMassMatrix();
@@ -36,10 +49,10 @@ void Dynamics::initializeContent() {
 
         m_VelocityDependentTerm.middleRows(3, 4) = 2 * H;
 
-        m_GeneralizedExternalForces.segment(7 * i, 7) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+        m_GeneralizedExternalForces.segment(7 * i, 7) << 0.0, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0;
 
         m_B.segment(0, 7 * b) = m_GeneralizedExternalForces - m_VelocityDependentTerm;
-        m_B.tail(b) = m_QuaternionNormSquared;
+        m_B.tail(b) = -m_QuaternionNormSquared;
     }
 
     m_A.topLeftCorner(7 * b, 7 * b) = m_SystemMassInertiaMatrix;
@@ -57,8 +70,8 @@ void Dynamics::step(double deltaTime) {
     m_GeneralizedAccelerations = m_X.head(7 * b);
 
     // Integration
-    m_GeneralizedVelocities += m_GeneralizedAccelerations * deltaTime;
-    m_GeneralizedCoordinates += m_GeneralizedVelocities * deltaTime;
+    m_GeneralizedVelocities.noalias() += m_GeneralizedAccelerations * deltaTime;
+    m_GeneralizedCoordinates.noalias() += m_GeneralizedVelocities * deltaTime;
 
     for (int i = 0; i < b; i++) {
 
