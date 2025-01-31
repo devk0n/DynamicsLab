@@ -26,11 +26,11 @@ void Dynamics::addBody(const std::shared_ptr<RigidBody>& body) {
 void Dynamics::initializeContent() {
     if (m_Bodies.empty()) return;
     int b = getBodyCount();
-    int m = 7 * b;
+    int m;
 
     for (int i = 0; i < b; i++) {
-
-        m_GeneralizedCoordinates.segment(m    , 3) = m_Bodies[i]->getPosition();
+        m = 7 * i;
+        m_GeneralizedCoordinates.segment(m, 3) = m_Bodies[i]->getPosition();
         m_GeneralizedCoordinates.segment(m + 3, 4) = m_Bodies[i]->getOrientation();
         m_GeneralizedVelocities.segment(m, 3) = m_Bodies[i]->getVelocity();
         m_GeneralizedVelocities.segment(m + 3, 4) = m_Bodies[i]->getAngularVelocity();
