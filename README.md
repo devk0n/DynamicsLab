@@ -81,6 +81,31 @@ DynamicsLab
         └───imgui_layer.cpp
 ```
 
+# Important Equations
+
+$ n_i^* = 2 \times L_i^T \times n_i' $ \
+$ n_i^* = 2 \times G_i^T \times n_i $ \
+$ J_i^* = 4 \times L_i^T \times J_i' \times L_i $ \
+$ H_i = 4 \times \dot L_i^T \times J_i' \times L_i $
+
+## Unconstrained Body
+
+$$
+    \begin{bmatrix} M^* & P^T \cr P & 0 \end{bmatrix} 
+    \begin{bmatrix} \ddot q \cr \sigma \end{bmatrix} +
+    \begin{bmatrix} b^* \cr c \end{bmatrix} =
+    \begin{bmatrix} g^* \cr 0 \end{bmatrix}
+$$
+
+## Constrained Body
+
+$$
+    \begin{bmatrix} M^* & P^T & B^T \cr P & 0 & 0 \cr B & 0 & 0 \end{bmatrix} 
+    \begin{bmatrix} \ddot q \cr \sigma \cr - \lambda \end{bmatrix} +
+    \begin{bmatrix} b^* \cr c \cr 0 \end{bmatrix} =
+    \begin{bmatrix} g^* \cr 0 \cr \gamma \end{bmatrix}
+$$
+
 # Variable Mapping Table
 
 | **Variable from Book**     | **Description**                                   | **Corresponding Name in Code**      | **Additional Notes**                       |
