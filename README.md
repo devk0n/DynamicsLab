@@ -51,42 +51,12 @@ The application enables camera navigation to explore the simulation from any vie
     - W/A/S/D keys for navigation along the axes.
     - Space/Shift for upward/downward movement.
 
-## Project Tree
-```bash
-DynamicsLab
-├───assets
-│   ├───images
-│   └───shaders
-│       ├───grid.frag.glsl
-│       └───grid.vert.glsl
-├───include
-│   ├───glad
-│   ├───KHR
-│   ├───application.h
-│   ├───dynamics.h
-│   ├───imgui_layer.h
-│   ├───renderer.h
-│   └───rigid_body.h
-└───src
-    ├───core
-    │   ├───main.cpp
-    │   └───application.cpp
-    ├───graphics
-    │   ├───glad.c
-    │   └───renderer.cpp
-    ├───simulation
-    │   ├───rigid_body.cpp
-    │   └───dynamics.cpp
-    └───ui
-        └───imgui_layer.cpp
-```
-
 # Important Equations
 
-$ n_i^* = 2 \times L_i^T \times n_i' $ \
-$ n_i^* = 2 \times G_i^T \times n_i $ \
-$ J_i^* = 4 \times L_i^T \times J_i' \times L_i $ \
-$ H_i = 4 \times \dot L_i^T \times J_i' \times L_i $
+$$ n_i^* = 2 L_i^T n_i' $$
+$$ n_i^* = 2 G_i^T n_i $$
+$$ J_i^* = 4 L_i^T J_i' L_i $$
+$$ H_i = 4 \dot L_i^T J_i' L_i $$
 
 ## Unconstrained Body
 
@@ -137,6 +107,38 @@ $$
 | **b\***                    | Velocity-dependent term                          | `VelocityDependentTerm`             | Represents effects dependent on the velocity, such as Coriolis or damping forces. |
 | **c**                      | Quaternion norm squared value                     | `QuaternionNormSquared`             | Constraint ensuring quaternions remain normalized. |
 | **g\***                    | Generalized external forces                       | `GeneralizedExternalForces`         | External forces acting on the system. |
+
+## Project Tree
+```bash
+DynamicsLab
+├───assets
+│   ├───images
+│   └───shaders
+│       ├───grid.frag.glsl
+│       └───grid.vert.glsl
+├───include
+│   ├───glad
+│   ├───KHR
+│   ├───application.h
+│   ├───dynamics.h
+│   ├───imgui_layer.h
+│   ├───renderer.h
+│   └───rigid_body.h
+└───src
+    ├───core
+    │   ├───main.cpp
+    │   └───application.cpp
+    ├───graphics
+    │   ├───glad.c
+    │   └───renderer.cpp
+    ├───simulation
+    │   ├───rigid_body.cpp
+    │   └───dynamics.cpp
+    └───ui
+        └───imgui_layer.cpp
+```
+
+
 ## References
 
 1. Nikravesh, Parviz E. *Computer-Aided Analysis of Mechanical Systems*. Prentice-Hall, Inc., USA, 1988. ISBN: 0131642200.
