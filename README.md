@@ -97,6 +97,34 @@ $$
     \begin{bmatrix} g^* \cr 0 \end{bmatrix}
 $$
 
+$$
+    M^* = \begin{bmatrix} N_1 \cr & J_1^* \cr & & N_b \cr & & & J_b^* \end{bmatrix}
+$$
+
+$$
+    P = \begin{bmatrix} 0^T & p_1^T \cr & & 0^T & p_b^T \end{bmatrix}
+$$
+
+$$
+    \ddot q = \begin{bmatrix} \ddot r_1 \cr \ddot p_1 \cr \ddot r_b \cr \ddot p_b \end{bmatrix}
+$$
+
+$$
+    \sigma = \begin{bmatrix} \sigma_1 \cr \sigma_b \end{bmatrix}
+$$
+
+$$
+    b^* = \begin{bmatrix} 0 \cr 2 H_1 \dot p_1 \cr 0 \cr 2 H_b \dot p_b \end{bmatrix}
+$$
+
+$$
+    c = \begin{bmatrix} \dot p_1^T \dot p_1 \cr \dot p_b^T p_b \end{bmatrix}
+$$
+
+$$
+    g^* = \begin{bmatrix} f_1 \cr n_1^* \cr f_b \cr n_b^* \end{bmatrix}
+$$
+
 ## Constrained Body
 
 $$
