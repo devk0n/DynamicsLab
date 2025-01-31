@@ -32,21 +32,21 @@ void Dynamics::initializeContent() {
 
         m_GeneralizedCoordinates.segment(m    , 3) = m_Bodies[i]->getPosition();
         m_GeneralizedCoordinates.segment(m + 3, 4) = m_Bodies[i]->getOrientation();
-        m_GeneralizedVelocities .segment(m    , 3) = m_Bodies[i]->getVelocity();
-        m_GeneralizedVelocities .segment(m + 3, 4) = m_Bodies[i]->getAngularVelocity();
+        m_GeneralizedVelocities.segment(m, 3) = m_Bodies[i]->getVelocity();
+        m_GeneralizedVelocities.segment(m + 3, 4) = m_Bodies[i]->getAngularVelocity();
         m_QuaternionNormSquared(i) = m_Bodies[i]->getQuaternionNormSquared();
 
         // Matrix A
-        m_SystemMassInertiaMatrix.block(m,  m,     3, 3   ) = m_Bodies[i]->getMassMatrix();
+        m_SystemMassInertiaMatrix.block(m, m, 3, 3) = m_Bodies[i]->getMassMatrix();
         m_SystemMassInertiaMatrix.block(m + 3, m + 3, 4, 4) = m_Bodies[i]->getInertiaTensor();
 
-        m_QuaternionConstraintMatrix.block(1 * i, 3 + (m), 1, 4) = m_Bodies[i]->getOrientation().transpose();
+        m_QuaternionConstraintMatrix.block(i, 3 + m, 1, 4) = m_Bodies[i]->getOrientation().transpose();
 
         // Matrix B
         auto Ld = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getAngularVelocity());
         auto Jm = m_Bodies[i]->getGlobalInertiaTensor();
-        auto L  = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getOrientation());
-        auto H  = 4 * Ld.transpose() * Jm * L;
+        auto L = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getOrientation());
+        auto H = 4 * Ld.transpose() * Jm * L;
 
         m_VelocityDependentTerm.middleRows(3, 4) = 2 * H * m_Bodies[i]->getAngularVelocity();
 
@@ -56,10 +56,9 @@ void Dynamics::initializeContent() {
         m_B.tail(b) = -m_QuaternionNormSquared;
     }
 
-    m_A.topLeftCorner   (7 * b, 7 * b) = m_SystemMassInertiaMatrix;
-    m_A.bottomLeftCorner(    b, 7 * b) = m_QuaternionConstraintMatrix;
-    m_A.topRightCorner  (7 * b,     b) = m_QuaternionConstraintMatrix.transpose();
-
+    m_A.topLeftCorner(7 * b, 7 * b) = m_SystemMassInertiaMatrix;
+    m_A.bottomLeftCorner(b, 7 * b) = m_QuaternionConstraintMatrix;
+    m_A.topRightCorner(7 * b, b) = m_QuaternionConstraintMatrix.transpose();
 }
 
 void Dynamics::step(double deltaTime) {

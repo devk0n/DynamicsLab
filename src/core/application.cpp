@@ -130,7 +130,7 @@ void Application::run() {
                 Matrix3d::Identity() * 60);
 
     m_dynamics->addBody(body1);
-    // m_dynamics->addBody(body2);
+    //m_dynamics->addBody(body2);
     //m_dynamics->addBody(body3);
     //m_dynamics->addBody(body4);
     //m_dynamics->addBody(body5);
