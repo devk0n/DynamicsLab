@@ -1,30 +1,6 @@
-# DynamicsLab
+# DynamicsLab Engine
 
 **DynamicsLab** is a real-time simulation tool for multibody dynamics systems. It is designed to help users visualize, analyze, and interact with complex system data efficiently. By combining powerful simulation capabilities with an intuitive interface, **DynamicsLab** supports researchers and engineers in better understanding dynamic systems.
-
-We are solving the system:
-
-$$
-\begin{bmatrix}
-M^* & P^T \\
-P & 0
-\end{bmatrix}
-\begin{bmatrix}
-\ddot{q} \\
-\sigma
-\end{bmatrix}
-\+\
-\begin{bmatrix}
-b^* \\
-c
-\end{bmatrix}
-\=\
-\begin{bmatrix}
-g^* \\
-0
-\end{bmatrix}
-$$
-
 
 ## Interface
 ![Alt text](./assets/images/screenshot_20250130_185815.png)
