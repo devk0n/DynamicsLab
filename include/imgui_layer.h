@@ -26,7 +26,7 @@ private:
     double m_CameraSpeed{};
 
     static void showMainMenu();
-    static void showSimulationControls();
+    void showSimulationControls();
     static void showRenderingOptions(Renderer*);
     void showDebugWindow() const;
 

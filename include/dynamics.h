@@ -51,6 +51,12 @@ public:
     int getBodyCount();
     std::shared_ptr<RigidBody> &getBody(int index);
 
+    void setExternalTorques(Vector3d externalTorques);
+
+    void startSimulation();
+    void stopSimulation();
+    void resetSimulation();
+
 private:
     std::vector<std::shared_ptr<RigidBody>> m_Bodies;
 
@@ -66,11 +72,14 @@ private:
     VectorXd m_QuaternionNormSquared;
     VectorXd m_GeneralizedExternalForces;
 
-    VectorXd m_ExternalForces;
+    Vector3d m_ExternalForces;
+    Vector3d m_ExternalTorques;
 
     MatrixXd m_A;
     VectorXd m_B;
     VectorXd m_X;
+
+    bool m_isSimulationRunning = true;
 
     void initializeSize();
     void initializeContent();

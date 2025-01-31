@@ -7,8 +7,16 @@
 
 #include <Eigen/Dense>
 
-Eigen::Vector4d eulerToQuaternion(double roll, double pitch, double yaw);
+using namespace Eigen;
 
-Eigen::Vector3d quaternionToEuler(const Eigen::Vector4d &quaternion);
+Matrix<double, 3, 4> transformationMatrixL(Vector4d transformationMatrix);
+
+Matrix<double, 3, 4> transformationMatrixG(Vector4d transformationMatrix);
+
+Vector4d eulerToQuaternion(double roll, double pitch, double yaw);
+
+Vector3d quaternionToEuler(const Vector4d &quaternion);
+
+
 
 #endif //DYNAMICSLAB_TOOLS_H

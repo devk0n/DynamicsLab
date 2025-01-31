@@ -13,44 +13,11 @@ RigidBody::RigidBody(Vector3d position, Vector4d orientation, Matrix3d massMatri
 
     m_Velocity = Vector3d::Zero();
     m_AngularVelocity = Vector4d::Zero();
-    m_AngularVelocity(1) = (std::rand() % 11) - 5;
-    m_AngularVelocity(2) = (std::rand() % 11) - 5;
-    m_AngularVelocity(3) = (std::rand() % 11) - 5;
 
-    m_Velocity(0) = (std::rand() % 11) - 5;
-    m_Velocity(1) = (std::rand() % 11) - 5;
-    m_Velocity(2) = (std::rand() % 11) - 5;
-}
-
-Matrix<double, 3, 4> RigidBody::getLTransformationMatrix(Vector4d transformationMatrix) {
-
-    double w = transformationMatrix(0);
-    double x = transformationMatrix(1);
-    double y = transformationMatrix(2);
-    double z = transformationMatrix(3);
-
-    Matrix<double, 3, 4> L;
-    L <<  -x,  w,  z, -y,
-          -y, -z,  w,  x,
-          -z,  y, -x,  w;
-
-    return L;
-}
-
-Matrix<double, 3, 4> RigidBody::getGTransformationMatrix(Vector4d transformationMatrix) {
-
-    double w = transformationMatrix(0);
-    double x = transformationMatrix(1);
-    double y = transformationMatrix(2);
-    double z = transformationMatrix(3);
-
-    Matrix<double, 3, 4> G;
-
-    G << -x,  w, -z,  y,
-         -y,  z,  w, -x,
-         -z, -y,  x,  w;
-
-    return G;
+    m_initialPosition = position;
+    m_initialOrientation = orientation;
+    m_initialAngularVelocity = m_AngularVelocity;
+    m_initialVelocity = m_Velocity;
 }
 
 Vector3d RigidBody::getPosition() {
@@ -70,7 +37,9 @@ Matrix3d RigidBody::getGlobalInertiaTensor() {
 }
 
 Vector4d RigidBody::getAngularVelocity() {
-    return m_AngularVelocity;
+    Vector4d angularVelocity = m_AngularVelocity;
+    // angularVelocity[0] = 0.0; // Ensure the first component is 0 when retrieved
+    return angularVelocity;
 }
 
 Vector3d RigidBody::getVelocity() {
@@ -82,6 +51,7 @@ void RigidBody::setPosition(Vector3d position) {
 }
 
 void RigidBody::setAngularVelocity(Vector4d angularVelocity) {
+    // angularVelocity[0] = 0.0;
     m_AngularVelocity = angularVelocity;
 }
 
@@ -102,7 +72,23 @@ double RigidBody::getQuaternionNormSquared() {
 }
 
 Matrix4d RigidBody::getInertiaTensor() {
-    return 4 * getLTransformationMatrix(m_Orientation).transpose() * m_GlobalInertiaTensor * getLTransformationMatrix(m_Orientation);
+    return 4 * transformationMatrixL(m_Orientation).transpose() * m_GlobalInertiaTensor * transformationMatrixL(m_Orientation);
+}
+
+Vector3d RigidBody::getInitialPosition() {
+    return m_initialPosition;
+}
+
+Vector4d RigidBody::getInitialOrientation() {
+    return m_initialOrientation;
+}
+
+Vector4d RigidBody::getInitialAngularVelocity() {
+    return m_initialAngularVelocity;
+}
+
+Vector3d RigidBody::getInitialVelocity() {
+    return m_initialVelocity;
 }
 
 // Matrix4d inertiaTensor = 4 * transformationMatrix.transpose() * globalInertiaTensor * transformationMatrix;

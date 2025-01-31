@@ -18,21 +18,27 @@ public:
 
     Vector3d getPosition();
     Vector4d getOrientation();
+
     Matrix3d getMassMatrix();
     Matrix3d getGlobalInertiaTensor();
     Matrix4d getInertiaTensor();
+
     Vector3d getVelocity();
     Vector4d getAngularVelocity();
 
-    void setPosition(Vector3d position);
-    void setOrientation(Vector4d orientation);
-    void setVelocity(Vector3d velocity);
-    void setAngularVelocity(Vector4d angularVelocity);
-
     double getQuaternionNormSquared();
 
-    Matrix<double, 3, 4> getLTransformationMatrix(Vector4d transformationMatrix);
-    Matrix<double, 3, 4> getGTransformationMatrix(Vector4d transformationMatrix);
+    Vector3d getInitialPosition();
+    Vector4d getInitialOrientation();
+
+    Vector3d getInitialVelocity();
+    Vector4d getInitialAngularVelocity();
+
+    void setPosition(Vector3d position);
+    void setOrientation(Vector4d orientation);
+
+    void setVelocity(Vector3d velocity);
+    void setAngularVelocity(Vector4d angularVelocity);
 
 private:
     Vector3d m_Position;
@@ -45,6 +51,12 @@ private:
 
     Matrix3d m_MassMatrix;
     Matrix4d m_InertiaTensor;
+
+    Vector3d m_initialPosition;
+    Vector3d m_initialVelocity;
+
+    Vector4d m_initialOrientation;
+    Vector4d m_initialAngularVelocity;
 
 };
 

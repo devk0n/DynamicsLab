@@ -1,5 +1,9 @@
 #include <iostream>
+#include <utility>
+
 #include "dynamics.h"
+#include "tools.h"
+
 /*
     SystemMassInertiaMatrix         (M*)
     QuaternionConstraintMatrix      (P)
@@ -43,17 +47,19 @@ void Dynamics::initializeContent() {
         m_QuaternionConstraintMatrix.block(i, 3 + m, 1, 4) = m_Bodies[i]->getOrientation().transpose();
 
         // Matrix B
-        auto Ld = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getAngularVelocity());
+        auto Ld = transformationMatrixL(m_Bodies[i]->getAngularVelocity());
         auto Jm = m_Bodies[i]->getGlobalInertiaTensor();
-        auto L = m_Bodies[i]->getLTransformationMatrix(m_Bodies[i]->getOrientation());
+        auto L = transformationMatrixL(m_Bodies[i]->getOrientation());
         auto H = 4 * Ld.transpose() * Jm * L;
 
         m_VelocityDependentTerm.middleRows(3, 4) = 2 * H * m_Bodies[i]->getAngularVelocity();
 
-        m_GeneralizedExternalForces.segment(m, 7) << 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0;
+        m_GeneralizedExternalForces.tail<4>() = 2 * transformationMatrixG(m_Bodies[i]->getOrientation()).transpose() * m_ExternalTorques;
 
         m_B.segment(0, 7 * b) = m_GeneralizedExternalForces - m_VelocityDependentTerm;
         m_B.tail(b) = -m_QuaternionNormSquared;
+
+        m_Bodies[i]->normalizeOrientation();
     }
 
     m_A.topLeftCorner(7 * b, 7 * b) = m_SystemMassInertiaMatrix;
@@ -62,6 +68,7 @@ void Dynamics::initializeContent() {
 }
 
 void Dynamics::step(double deltaTime) {
+    if (!m_isSimulationRunning) return;
     int b = getBodyCount();
 
     initializeContent();
@@ -74,7 +81,6 @@ void Dynamics::step(double deltaTime) {
     m_GeneralizedCoordinates += m_GeneralizedVelocities * deltaTime;
 
     for (int i = 0; i < b; i++) {
-
         m_Bodies[i]->setPosition(m_GeneralizedCoordinates.segment(7 * i, 3));
         m_Bodies[i]->setOrientation(m_GeneralizedCoordinates.segment(7 * i + 3, 4));
         m_Bodies[i]->setVelocity(m_GeneralizedVelocities.segment(7 * i, 3));
@@ -113,6 +119,9 @@ void Dynamics::initializeSize() {
     m_VelocityDependentTerm.setZero();
     m_QuaternionNormSquared.setZero();
     m_GeneralizedExternalForces.setZero();
+
+    m_ExternalForces.setZero();
+    m_ExternalTorques.setZero();
 
     m_A.setZero();
     m_B.setZero();
@@ -163,6 +172,10 @@ MatrixXd Dynamics::getMatrixA() {
     return m_A;
 }
 
+void Dynamics::setExternalTorques(Vector3d externalTorques) {
+    m_ExternalTorques = externalTorques;
+}
+
 MatrixXd Dynamics::getSystemMassInertiaMatrix() {
     return m_SystemMassInertiaMatrix;
 }
@@ -201,4 +214,24 @@ VectorXd Dynamics::getMatrixB() {
 
 VectorXd Dynamics::getMatrixX() {
     return m_X;
+}
+
+void Dynamics::startSimulation() {
+    m_isSimulationRunning = true;
+}
+
+void Dynamics::stopSimulation() {
+    m_isSimulationRunning = false;
+}
+
+void Dynamics::resetSimulation() {
+    m_isSimulationRunning = true;
+    for (auto &body : m_Bodies) {
+        body->setPosition(body->getInitialPosition());
+        body->setOrientation(body->getInitialOrientation());
+        body->setVelocity(body->getInitialVelocity());
+        body->setAngularVelocity(body->getInitialAngularVelocity());
+    }
+    initializeSize();
+    initializeContent();
 }

@@ -29,7 +29,6 @@ void ImGuiLayer::renderUI() {
     ImGui::NewFrame();
 
     // Call individual UI sections here
-    showMainMenu();
     showSimulationControls();
     showRenderingOptions(m_Renderer);
     showDebugWindow();
@@ -45,29 +44,73 @@ void ImGuiLayer::updateCameraData(const glm::dvec3& position, const glm::dvec3& 
     m_CameraSpeed = speed;
 }
 
-// Individual UI components
-void ImGuiLayer::showMainMenu() {
-    ImGui::Begin("Main Menu");
+void ImGuiLayer::showSimulationControls() {
+    ImGui::Begin("Simulation Controls");
+
     if (ImGui::Button("Start Simulation")) {
-        // Simulation start logic here
+        m_Dynamics->startSimulation();
     }
     ImGui::SameLine();
     if (ImGui::Button("Stop Simulation")) {
-        // Simulation stop logic here
+        m_Dynamics->stopSimulation();
     }
-    ImGui::End();
-}
 
-void ImGuiLayer::showSimulationControls() {
-    ImGui::Begin("Simulation Controls");
+    if (ImGui::Button("Reset Simulation")) {
+        m_Dynamics->resetSimulation();
+    }
 
     static double simulationSpeed = 1.0;
     static double minSpeed = 0.0;
     static double maxSpeed = 10.0;
     ImGui::SliderScalar("Speed", ImGuiDataType_Double, &simulationSpeed, &minSpeed, &maxSpeed);
 
-    static bool enablePhysics = true;
-    ImGui::Checkbox("Enable Physics", &enablePhysics);
+    // Static variables to store user-selected force values
+    static double forceX = 0.0;
+    static double forceY = 0.0;
+    static double forceZ = 0.0;
+    static double torqueX = 0.0;
+    static double torqueY = 0.0;
+    static double torqueZ = 0.0;
+
+    static double maxForce = 100.0;
+    static double minForce = -100.0;
+    static double maxTorque = 1000.0;
+    static double minTorque = -1000.0;
+
+
+    // Add sliders for each component of the force
+    ImGui::Text("Set External Forces:");
+    ImGui::SliderScalar("Force X", ImGuiDataType_Double, &forceX, &maxForce, &minForce, "%.1f");
+    ImGui::SliderScalar("Force Y", ImGuiDataType_Double, &forceY, &maxForce, &minForce, "%.1f");
+    ImGui::SliderScalar("Force Z", ImGuiDataType_Double, &forceZ, &maxForce, &minForce, "%.1f");
+
+    ImGui::SliderScalar("Torque Y", ImGuiDataType_Double, &torqueX, &maxTorque, &minTorque, "%.1f");
+    ImGui::SliderScalar("Torque Z", ImGuiDataType_Double, &torqueY, &maxTorque, &minTorque, "%.1f");
+    ImGui::SliderScalar("Torque X", ImGuiDataType_Double, &torqueZ, &maxTorque, &minTorque, "%.1f");
+
+    if (ImGui::Button("Reset Force & Torque")) {
+        forceX = 0.0;
+        forceY = 0.0;
+        forceZ = 0.0;
+        torqueX = 0.0;
+        torqueY = 0.0;
+        torqueZ = 0.0;
+    }
+
+    Eigen::Vector3d externalForces;
+    Eigen::Vector3d externalTorques;
+    externalForces;
+    externalForces.setZero();
+    externalForces[0] = forceX;
+    externalForces[1] = forceY;
+    externalForces[2] = forceZ;
+
+    externalTorques[0] = torqueX;
+    externalTorques[1] = torqueY;
+    externalTorques[2] = torqueZ;
+
+    m_Dynamics->setExternalTorques(externalTorques);
+
 
     ImGui::End();
 }
