@@ -44,7 +44,7 @@ void Dynamics::initializeContent() {
         m_SystemMassInertiaMatrix.block(m, m, 3, 3) = m_Bodies[i]->getMassMatrix();
         m_SystemMassInertiaMatrix.block(m + 3, m + 3, 4, 4) = m_Bodies[i]->getInertiaTensor();
 
-        m_QuaternionConstraintMatrix.block(i, 3 + m, 1, 4) = m_Bodies[i]->getOrientation().transpose();
+        m_QuaternionConstraintMatrix.block(i, m + 3, 1, 4) = m_Bodies[i]->getOrientation().transpose();
 
         // Matrix B
         auto Ld = transformationMatrixL(m_Bodies[i]->getAngularVelocity());
@@ -52,7 +52,9 @@ void Dynamics::initializeContent() {
         auto L = transformationMatrixL(m_Bodies[i]->getOrientation());
         auto H = 4 * Ld.transpose() * Jm * L;
 
-        m_VelocityDependentTerm.middleRows(3, 4) = 2 * H * m_Bodies[i]->getAngularVelocity();
+        //std::cout << 2 * H * m_Bodies[i]->getAngularVelocity() << std::endl;
+
+        m_VelocityDependentTerm.segment(m + 3, 4) = 2 * H * m_Bodies[i]->getAngularVelocity();
 
         m_GeneralizedExternalForces.segment(m, 3) = m_ExternalForces;
         m_GeneralizedExternalForces.segment(m + 3, 4) = 2 * L.transpose() * m_ExternalTorques;
@@ -87,9 +89,11 @@ void Dynamics::step() {
         m_Bodies[i]->setVelocity(m_GeneralizedVelocities.segment(7 * i, 3));
         m_Bodies[i]->setAngularVelocity(m_GeneralizedVelocities.segment(7 * i + 3, 4));
 
-        m_Bodies[i]->setInertiaTensor(4 * transformationMatrixL(m_GeneralizedCoordinates.segment(7 * i + 3, 4)).transpose() * m_Bodies[i]->getGlobalInertiaTensor() * transformationMatrixL(m_GeneralizedCoordinates.segment(7 * i + 3, 4)));
 
         m_Bodies[i]->normalizeOrientation();
+        // m_QuaternionNormSquared(i) = m_Bodies[i]->getQuaternionNormSquared();
+        m_Bodies[i]->setInertiaTensor(4 * transformationMatrixL(m_GeneralizedCoordinates.segment(7 * i + 3, 4)).transpose() * m_Bodies[i]->getGlobalInertiaTensor() * transformationMatrixL(m_GeneralizedCoordinates.segment(7 * i + 3, 4)));
+        // m_Bodies[i]->normalizeOrientation();
     }
 }
 

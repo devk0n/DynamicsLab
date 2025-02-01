@@ -72,7 +72,7 @@ void RigidBody::setInertiaTensor(Matrix4d inertiaTensor) {
 }
 
 void RigidBody::normalizeOrientation() {
-    m_orientation / m_orientation.norm();
+    m_orientation = m_orientation / m_orientation.norm();
 }
 
 double RigidBody::getQuaternionNormSquared() {
