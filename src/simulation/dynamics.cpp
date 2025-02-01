@@ -233,7 +233,6 @@ void Dynamics::stopSimulation() {
 }
 
 void Dynamics::resetSimulation() {
-    m_isSimulationRunning = true;
     for (auto &body : m_Bodies) {
         body->setPosition(body->getInitialPosition());
         body->setOrientation(body->getInitialOrientation());

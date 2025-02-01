@@ -16,6 +16,51 @@
 
 using namespace Eigen;
 
+// Each face of the cube has 4 vertices, each with 3 position and 3 normal values.
+std::vector<double> vertices = {
+    // Back face
+    -0.5, -0.5, -0.5,   0.0,  0.0, -1.0,
+     0.5, -0.5, -0.5,   0.0,  0.0, -1.0,
+     0.5,  0.5, -0.5,   0.0,  0.0, -1.0,
+    -0.5,  0.5, -0.5,   0.0,  0.0, -1.0,
+    // Front face
+    -0.5, -0.5,  0.5,   0.0,  0.0,  1.0,
+     0.5, -0.5,  0.5,   0.0,  0.0,  1.0,
+     0.5,  0.5,  0.5,   0.0,  0.0,  1.0,
+    -0.5,  0.5,  0.5,   0.0,  0.0,  1.0,
+    // Left face
+    -0.5, -0.5, -0.5,  -1.0,  0.0,  0.0,
+    -0.5,  0.5, -0.5,  -1.0,  0.0,  0.0,
+    -0.5,  0.5,  0.5,  -1.0,  0.0,  0.0,
+    -0.5, -0.5,  0.5,  -1.0,  0.0,  0.0,
+    // Right face
+     0.5, -0.5, -0.5,   1.0,  0.0,  0.0,
+     0.5,  0.5, -0.5,   1.0,  0.0,  0.0,
+     0.5,  0.5,  0.5,   1.0,  0.0,  0.0,
+     0.5, -0.5,  0.5,   1.0,  0.0,  0.0,
+    // Bottom face
+    -0.5, -0.5, -0.5,   0.0, -1.0,  0.0,
+     0.5, -0.5, -0.5,   0.0, -1.0,  0.0,
+     0.5, -0.5,  0.5,   0.0, -1.0,  0.0,
+    -0.5, -0.5,  0.5,   0.0, -1.0,  0.0,
+    // Top face
+    -0.5,  0.5, -0.5,   0.0,  1.0,  0.0,
+     0.5,  0.5, -0.5,   0.0,  1.0,  0.0,
+     0.5,  0.5,  0.5,   0.0,  1.0,  0.0,
+    -0.5,  0.5,  0.5,   0.0,  1.0,  0.0,
+};
+
+// Indices for the 12 triangles (6 faces)
+std::vector<GLuint> indices = {
+    0,  1,  2,  2,  3,  0,        // back face
+    4,  5,  6,  6,  7,  4,        // front face
+    8,  9, 10, 10, 11,  8,        // left face
+   12, 13, 14, 14, 15, 12,        // right face
+   16, 17, 18, 18, 19, 16,        // bottom face
+   20, 21, 22, 22, 23, 20         // top face
+};
+
+
 Renderer::Renderer(GLFWwindow* window)
     : m_Window(window) {
 
@@ -42,10 +87,16 @@ Renderer::Renderer(GLFWwindow* window)
     glfwSetWindowUserPointer(m_Window, this); // Bind this to the GLFW window pointer
 
 
-    std::string vertexShaderSource = loadShaderFromFile("C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/grid.vert.glsl");
-    std::string fragmentShaderSource = loadShaderFromFile("C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/grid.frag.glsl");
+    // Load grid shader (already in your code)
+std::string gridVertexShaderSource = loadShaderFromFile("C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/grid.vert.glsl");
+std::string gridFragmentShaderSource = loadShaderFromFile("C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/grid.frag.glsl");
+m_GridShaderProgram = createShaderProgram(gridVertexShaderSource.c_str(), gridFragmentShaderSource.c_str());
 
-    m_GridShaderProgram = createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
+// Load box shader (new)
+std::string boxVertexShaderSource = loadShaderFromFile("C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/box.vert.glsl");
+std::string boxFragmentShaderSource = loadShaderFromFile("C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/box.frag.glsl");
+m_BoxShaderProgram = createShaderProgram(boxVertexShaderSource.c_str(), boxFragmentShaderSource.c_str());
+
 
 }
 
@@ -115,80 +166,80 @@ void Renderer::draw(Dynamics* dynamics) {
         drawGrid(10.0, 20, glm::dvec3(1.0, 1.0, 1.0));
     }
 
+
+
     for (int i = 0; i < dynamics->getBodyCount(); i++) {
         drawBox(dynamics->getBody(i)->getPosition(), Vector3d(1.0, 1.0, 1.0), dynamics->getBody(i)->getOrientation(), Vector3d(1.0, 0.2, 0.8));
     }
 }
 
-void Renderer::drawBox(const Vector3d& position, const Vector3d& scale, const Vector4d& rotation, const Vector3d& color) const {
-    // Convert Vector4d quaternion to glm::dquat
+void Renderer::drawBox(const Vector3d& position, const Vector3d& scale,
+                         const Vector4d& rotation, const Vector3d& color) const {
+    // Convert Eigen types to glm types (using double precision)
     glm::dquat quat(rotation.w(), rotation.x(), rotation.y(), rotation.z());
-
-    // Convert Vector3d to glm::dvec3
     glm::dvec3 glmPosition(position.x(), position.y(), position.z());
     glm::dvec3 glmScale(scale.x(), scale.y(), scale.z());
     glm::dvec3 glmColor(color.x(), color.y(), color.z());
 
-    // Compute the model matrix
-    glm::dmat4 model = glm::dmat4(1.0); // Start with the identity matrix
-    model = glm::translate(model, glmPosition); // Translate to position
-    model *= glm::mat4_cast(quat); // Apply quaternion rotation
-    model = glm::scale(model, glmScale); // Scale the box
+    // Compute the model matrix in double precision.
+    glm::dmat4 model = glm::dmat4(1.0);
+    model = glm::translate(model, glmPosition);
+    model *= glm::mat4_cast(quat);  // Use the double-precision version!
+    model = glm::scale(model, glmScale);
 
-    // Pass the model matrix to the shader
-    glUseProgram(m_GridShaderProgram);
-    glUniformMatrix4dv(glGetUniformLocation(m_GridShaderProgram, "u_Model"), 1, GL_FALSE, glm::value_ptr(model));
+    // Use the box shader program.
+    glUseProgram(m_BoxShaderProgram);
+    glUniformMatrix4dv(glGetUniformLocation(m_BoxShaderProgram, "u_Model"), 1, GL_FALSE, glm::value_ptr(model));
 
-    // Define vertices for the box (centered at 0,0,0)
-    std::vector<double> vertices = {
-            -0.5, -0.5, -0.5,   // 0
-             0.5, -0.5, -0.5,   // 1
-            -0.5,  0.5, -0.5,   // 2
-             0.5,  0.5, -0.5,   // 3
-            -0.5, -0.5,  0.5,   // 4
-             0.5, -0.5,  0.5,   // 5
-            -0.5,  0.5,  0.5,   // 6
-             0.5,  0.5,  0.5    // 7
-    };
+    // Set view and projection matrices.
+    glm::dmat4 view = glm::lookAt(m_CameraPos, m_CameraPos + m_CameraFront, m_CameraUp);
+    glm::dmat4 projection = glm::perspective(glm::radians(45.0),
+                                              static_cast<double>(m_width) / static_cast<double>(m_height),
+                                              0.1, 100.0);
+    glUniformMatrix4dv(glGetUniformLocation(m_BoxShaderProgram, "u_View"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4dv(glGetUniformLocation(m_BoxShaderProgram, "u_Projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-    // Define indices for solid faces (triangles)
-    std::vector<GLuint> faceIndices = {
-            0, 1, 2,  2, 1, 3,
-            4, 5, 6,  6, 5, 7,
-            0, 1, 4,  4, 1, 5,
-            2, 3, 6,  6, 3, 7,
-            0, 2, 4,  4, 2, 6,
-            1, 3, 5,  5, 3, 7
-    };
+    // Set lighting uniforms (as floats).
+    glm::vec3 lightPos(2.0f, 4.0f, 2.0f);
+    glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
+    glm::vec3 objectColor = glm::vec3(glmColor);  // convert double to float
+    glm::vec3 viewPos = glm::vec3(m_CameraPos);     // convert double to float
 
+    glUniform3fv(glGetUniformLocation(m_BoxShaderProgram, "lightPos"), 1, glm::value_ptr(lightPos));
+    glUniform3fv(glGetUniformLocation(m_BoxShaderProgram, "lightColor"), 1, glm::value_ptr(lightColor));
+    glUniform3fv(glGetUniformLocation(m_BoxShaderProgram, "objectColor"), 1, glm::value_ptr(objectColor));
+    glUniform3fv(glGetUniformLocation(m_BoxShaderProgram, "viewPos"), 1, glm::value_ptr(viewPos));
+
+    // --- Setup the VAO/VBO/EBO for the box (vertex positions and normals) ---
     GLuint VAO, VBO, EBO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
-
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(double), vertices.data(), GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, faceIndices.size() * sizeof(GLuint), faceIndices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), nullptr);
+    // The vertex data has 6 doubles per vertex: 3 for position, 3 for normal.
+    glVertexAttribPointer(0, 3, GL_DOUBLE, GL_FALSE, 6 * sizeof(double), (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_DOUBLE, GL_FALSE, 6 * sizeof(double), (void*)(3 * sizeof(double)));
+    glEnableVertexAttribArray(1);
 
-    glEnable(GL_DEPTH_TEST);
+    // Draw the box.
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
 
-    // Draw solid faces
-    glUniform3dv(glGetUniformLocation(m_GridShaderProgram, "u_Color"), 1, glm::value_ptr(glmColor));
-    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(faceIndices.size()), GL_UNSIGNED_INT, nullptr);
-
-    // Cleanup
+    // Cleanup (for this example; in a production system you might reuse buffers)
     glBindVertexArray(0);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
     glDeleteVertexArrays(1, &VAO);
 }
+
+
 
 void Renderer::drawGrid(double size, int divisions, const glm::dvec3& color) const {
     // Set the model matrix to identity, so no transformations are applied to the grid
@@ -346,14 +397,26 @@ void Renderer::handleKeyboardInput(GLFWwindow *window, double deltaTime) {
 
 void Renderer::updateViewMatrix() {
     glm::dmat4 view = glm::lookAt(m_CameraPos, m_CameraPos + m_CameraFront, m_CameraUp);
+
+    // Update grid shader
     glUseProgram(m_GridShaderProgram);
     glUniformMatrix4dv(glGetUniformLocation(m_GridShaderProgram, "u_View"), 1, GL_FALSE, glm::value_ptr(view));
+
+    // Update box shader
+    glUseProgram(m_BoxShaderProgram);
+    glUniformMatrix4dv(glGetUniformLocation(m_BoxShaderProgram, "u_View"), 1, GL_FALSE, glm::value_ptr(view));
 }
 
 void Renderer::updateProjectionMatrix(double aspectRatio) const {
     glm::dmat4 projection = glm::perspective(glm::radians(45.0), aspectRatio, 0.1, 100.0);
+
+    // Update grid shader
     glUseProgram(m_GridShaderProgram);
     glUniformMatrix4dv(glGetUniformLocation(m_GridShaderProgram, "u_Projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+    // Update box shader
+    glUseProgram(m_BoxShaderProgram);
+    glUniformMatrix4dv(glGetUniformLocation(m_BoxShaderProgram, "u_Projection"), 1, GL_FALSE, glm::value_ptr(projection));
 }
 
 GLuint Renderer::compileShader(GLenum type, const char* source) {
