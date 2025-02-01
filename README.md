@@ -71,6 +71,30 @@ $$
     \begin{bmatrix} g^* \cr 0 \cr \gamma \end{bmatrix}
 $$
 
+## Unconstrained Demo Body
+
+### Initial Position, Orientation, Velocity & Angular Velocity
+
+1 x 1 x 1 m 10 kilogram box. 
+
+Mass: $ m = 10 kg $
+
+Moment of Inertia:  $ I = 60 kgm^2 $
+
+$$
+    r_1 = \begin{bmatrix} 0 \cr 0 \cr 0 \end{bmatrix} \quad
+    p_1 = \begin{bmatrix} 1 \cr 0 \cr 0 \cr 0 \end{bmatrix} \quad
+    \dot r_1 = \begin{bmatrix} 0 \cr 0 \cr 0 \end{bmatrix} \quad
+    \dot p_1 = \begin{bmatrix} 0 \cr 0 \cr 0 \cr 0 \end{bmatrix}
+$$
+
+### Mass & Inertia Matrix
+
+$$
+    N_1 = \begin{bmatrix} 10 & 0 & 0 \cr 0 & 10 & 0 \cr 0 & 0 & 10 \end{bmatrix} \quad
+    J_1^* = \begin{bmatrix} 0 & 0 & 0 & 0 \cr 0 & 60 & 0 & 0 \cr 0 & 0 & 60 & 0 \cr 0 & 0 & 0 & 60 \end{bmatrix} \quad
+$$
+
 # Variable Mapping Table
 
 | **Variable from Book**     | **Description**                                   | **Corresponding Name in Code**      | **Additional Notes**                       |

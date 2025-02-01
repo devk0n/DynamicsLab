@@ -8,11 +8,7 @@ using namespace Eigen;
 
 class RigidBody {
 public:
-    explicit RigidBody(
-            Vector3d position,
-            Vector4d orientation,
-            Matrix3d massMatrix,
-            Matrix3d globalInertiaTensor);
+    explicit RigidBody(double mass, Matrix3d globalInertiaTensor, Vector3d position, Vector4d orientation);
 
     void normalizeOrientation();
 
@@ -40,24 +36,27 @@ public:
     void setVelocity(Vector3d velocity);
     void setAngularVelocity(Vector4d angularVelocity);
 
+    void setInertiaTensor(Matrix4d inertiaTensor);
+
 private:
-    Vector3d m_Position;
-    Vector3d m_Velocity;
+    double m_mass;
 
-    Vector4d m_Orientation;
-    Vector4d m_AngularVelocity;
+    Vector3d m_position;
+    Vector3d m_velocity;
 
-    Matrix3d m_GlobalInertiaTensor;
+    Vector4d m_orientation;
+    Vector4d m_angularVelocity;
 
-    Matrix3d m_MassMatrix;
-    Matrix4d m_InertiaTensor;
+    Matrix3d m_globalInertiaTensor;
+
+    Matrix3d m_massMatrix;
+    Matrix4d m_inertiaTensor;
 
     Vector3d m_initialPosition;
     Vector3d m_initialVelocity;
 
     Vector4d m_initialOrientation;
     Vector4d m_initialAngularVelocity;
-
 };
 
 

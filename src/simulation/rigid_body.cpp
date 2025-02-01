@@ -1,78 +1,86 @@
 #include <utility>
+#include <iostream>
 
 #include "rigid_body.h"
 #include "tools.h"
 
 using namespace Eigen;
 
-RigidBody::RigidBody(Vector3d position, Vector4d orientation, Matrix3d massMatrix, Matrix3d globalInertiaTensor)
-    : m_MassMatrix(std::move(massMatrix)),
-      m_GlobalInertiaTensor(std::move(globalInertiaTensor)),
-      m_Position(std::move(position)),
-      m_Orientation(std::move(orientation)){
+RigidBody::RigidBody(double mass, Matrix3d globalInertiaTensor, Vector3d position, Vector4d orientation) {
 
-    m_Velocity = Vector3d::Zero();
-    m_AngularVelocity = Vector4d::Zero();
+    m_mass = mass;
+    m_massMatrix = Matrix3d::Identity() * m_mass;
+
+    m_position = position;
+    m_orientation = orientation;
+
+    m_globalInertiaTensor = globalInertiaTensor;
+
+    m_inertiaTensor = 4 * transformationMatrixL(m_orientation).transpose() * m_globalInertiaTensor * transformationMatrixL(m_orientation);
+
+    m_velocity = Vector3d::Zero();
+    m_angularVelocity = Vector4d::Zero();
 
     m_initialPosition = position;
     m_initialOrientation = orientation;
-    m_initialAngularVelocity = m_AngularVelocity;
-    m_initialVelocity = m_Velocity;
+    m_initialAngularVelocity = m_angularVelocity;
+    m_initialVelocity = m_velocity;
 }
 
 Vector3d RigidBody::getPosition() {
-    return m_Position;
+    return m_position;
 }
 
 Vector4d RigidBody::getOrientation() {
-    return m_Orientation;
+    return m_orientation;
 }
 
 Matrix3d RigidBody::getMassMatrix() {
-    return m_MassMatrix;
+    return m_massMatrix;
 }
 
 Matrix3d RigidBody::getGlobalInertiaTensor() {
-    return m_GlobalInertiaTensor;
+    return m_globalInertiaTensor;
 }
 
 Vector4d RigidBody::getAngularVelocity() {
-    Vector4d angularVelocity = m_AngularVelocity;
-    // angularVelocity[0] = 0.0; // Ensure the first component is 0 when retrieved
-    return angularVelocity;
+    return m_angularVelocity;
 }
 
 Vector3d RigidBody::getVelocity() {
-    return m_Velocity;
+    return m_velocity;
 }
 
 void RigidBody::setPosition(Vector3d position) {
-    m_Position = position;
+    m_position = position;
 }
 
 void RigidBody::setAngularVelocity(Vector4d angularVelocity) {
-    // angularVelocity[0] = 0.0;
-    m_AngularVelocity = angularVelocity;
+    m_angularVelocity = angularVelocity;
 }
 
 void RigidBody::setVelocity(Vector3d velocity) {
-    m_Velocity = velocity;
+    m_velocity = velocity;
 }
 
 void RigidBody::setOrientation(Vector4d orientation) {
-    m_Orientation = orientation;
+    m_orientation = orientation;
+}
+
+void RigidBody::setInertiaTensor(Matrix4d inertiaTensor) {
+    m_inertiaTensor = inertiaTensor;
 }
 
 void RigidBody::normalizeOrientation() {
-    m_Orientation / m_Orientation.norm();
+    m_orientation / m_orientation.norm();
 }
 
 double RigidBody::getQuaternionNormSquared() {
-    return m_AngularVelocity.transpose() * m_AngularVelocity;
+    return m_angularVelocity.transpose() * m_angularVelocity;
 }
 
 Matrix4d RigidBody::getInertiaTensor() {
-    return 4 * transformationMatrixL(m_Orientation).transpose() * m_GlobalInertiaTensor * transformationMatrixL(m_Orientation);
+    return m_inertiaTensor;
 }
 
 Vector3d RigidBody::getInitialPosition() {
@@ -90,6 +98,3 @@ Vector4d RigidBody::getInitialAngularVelocity() {
 Vector3d RigidBody::getInitialVelocity() {
     return m_initialVelocity;
 }
-
-// Matrix4d inertiaTensor = 4 * transformationMatrix.transpose() * globalInertiaTensor * transformationMatrix;
-

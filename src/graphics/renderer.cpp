@@ -98,7 +98,7 @@ void Renderer::draw(Dynamics* dynamics) {
 
     glm::vec3 lightPos = glm::vec3(2.0f, 4.0f, 2.0f);
     glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-    glm::vec3 objectColor = glm::vec3(1.0f, 0.4f, 0.8f);  // Your pinkish box
+    glm::vec3 objectColor = glm::vec3(0.9529f, 0.2941f, 0.4902f);  // Your pinkish box
 
     glUseProgram(m_GridShaderProgram);
     glUniform3fv(glGetUniformLocation(m_GridShaderProgram, "lightPos"), 1, glm::value_ptr(lightPos));
@@ -118,8 +118,6 @@ void Renderer::draw(Dynamics* dynamics) {
     for (int i = 0; i < dynamics->getBodyCount(); i++) {
         drawBox(dynamics->getBody(i)->getPosition(), Vector3d(1.0, 1.0, 1.0), dynamics->getBody(i)->getOrientation(), Vector3d(1.0, 0.2, 0.8));
     }
-
-
 }
 
 void Renderer::drawBox(const Vector3d& position, const Vector3d& scale, const Vector4d& rotation, const Vector3d& color) const {

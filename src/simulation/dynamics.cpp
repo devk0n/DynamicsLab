@@ -54,7 +54,8 @@ void Dynamics::initializeContent() {
 
         m_VelocityDependentTerm.middleRows(3, 4) = 2 * H * m_Bodies[i]->getAngularVelocity();
 
-        m_GeneralizedExternalForces.tail<4>() = 2 * transformationMatrixG(m_Bodies[i]->getOrientation()).transpose() * m_ExternalTorques;
+        m_GeneralizedExternalForces.segment(m, 3) = m_ExternalForces;
+        m_GeneralizedExternalForces.segment(m + 3, 4) = 2 * L.transpose() * m_ExternalTorques;
 
         m_B.segment(0, 7 * b) = m_GeneralizedExternalForces - m_VelocityDependentTerm;
         m_B.tail(b) = -m_QuaternionNormSquared;
@@ -67,7 +68,7 @@ void Dynamics::initializeContent() {
     m_A.topRightCorner(7 * b, b) = m_QuaternionConstraintMatrix.transpose();
 }
 
-void Dynamics::step(double deltaTime) {
+void Dynamics::step() {
     if (!m_isSimulationRunning) return;
     int b = getBodyCount();
 
@@ -77,14 +78,17 @@ void Dynamics::step(double deltaTime) {
     m_GeneralizedAccelerations = m_X.head(7 * b);
 
     // Integration
-    m_GeneralizedVelocities += m_GeneralizedAccelerations * deltaTime;
-    m_GeneralizedCoordinates += m_GeneralizedVelocities * deltaTime;
+    m_GeneralizedVelocities += m_GeneralizedAccelerations * m_stepTime;
+    m_GeneralizedCoordinates += m_GeneralizedVelocities * m_stepTime;
 
     for (int i = 0; i < b; i++) {
         m_Bodies[i]->setPosition(m_GeneralizedCoordinates.segment(7 * i, 3));
         m_Bodies[i]->setOrientation(m_GeneralizedCoordinates.segment(7 * i + 3, 4));
         m_Bodies[i]->setVelocity(m_GeneralizedVelocities.segment(7 * i, 3));
         m_Bodies[i]->setAngularVelocity(m_GeneralizedVelocities.segment(7 * i + 3, 4));
+
+        m_Bodies[i]->setInertiaTensor(4 * transformationMatrixL(m_GeneralizedCoordinates.segment(7 * i + 3, 4)).transpose() * m_Bodies[i]->getGlobalInertiaTensor() * transformationMatrixL(m_GeneralizedCoordinates.segment(7 * i + 3, 4)));
+
         m_Bodies[i]->normalizeOrientation();
     }
 }
@@ -234,4 +238,12 @@ void Dynamics::resetSimulation() {
     }
     initializeSize();
     initializeContent();
+}
+
+void Dynamics::setExternalForces(Vector3d externalForces) {
+    m_ExternalForces = externalForces;
+}
+
+void Dynamics::setStepTime(double stepTime) {
+    m_stepTime = stepTime;
 }

@@ -59,10 +59,21 @@ void ImGuiLayer::showSimulationControls() {
         m_Dynamics->resetSimulation();
     }
 
-    static double simulationSpeed = 1.0;
-    static double minSpeed = 0.0;
-    static double maxSpeed = 10.0;
-    ImGui::SliderScalar("Speed", ImGuiDataType_Double, &simulationSpeed, &minSpeed, &maxSpeed);
+    ImGui::Text("Total Bodies: %zu", m_Dynamics->getBodyCount());
+
+
+    static const double minStepSize = 0.0000001;
+    static const double maxStepSize = 0.0001;
+    static double stepSize = (minStepSize + maxStepSize) * 0.5;
+
+    if (ImGui::Button("Step Simulation")) {
+        m_Dynamics->step();
+    }
+
+    ImGui::SetNextItemWidth(150.0f);
+    if (ImGui::SliderScalar("##StepSizeSlider", ImGuiDataType_Double, &stepSize, &minStepSize, &maxStepSize, "Step Size: %.7f")) {
+        m_Dynamics->setStepTime(stepSize);
+    }
 
     // Static variables to store user-selected force values
     static double forceX = 0.0;
@@ -72,11 +83,10 @@ void ImGuiLayer::showSimulationControls() {
     static double torqueY = 0.0;
     static double torqueZ = 0.0;
 
-    static double maxForce = 100.0;
-    static double minForce = -100.0;
+    static double maxForce = 1000.0;
+    static double minForce = -1000.0;
     static double maxTorque = 1000.0;
     static double minTorque = -1000.0;
-
 
     // Add sliders for each component of the force
     ImGui::Text("Set External Forces:");
@@ -84,9 +94,9 @@ void ImGuiLayer::showSimulationControls() {
     ImGui::SliderScalar("Force Y", ImGuiDataType_Double, &forceY, &maxForce, &minForce, "%.1f");
     ImGui::SliderScalar("Force Z", ImGuiDataType_Double, &forceZ, &maxForce, &minForce, "%.1f");
 
-    ImGui::SliderScalar("Torque Y", ImGuiDataType_Double, &torqueX, &maxTorque, &minTorque, "%.1f");
-    ImGui::SliderScalar("Torque Z", ImGuiDataType_Double, &torqueY, &maxTorque, &minTorque, "%.1f");
-    ImGui::SliderScalar("Torque X", ImGuiDataType_Double, &torqueZ, &maxTorque, &minTorque, "%.1f");
+    ImGui::SliderScalar("Torque X", ImGuiDataType_Double, &torqueX, &maxTorque, &minTorque, "%.1f");
+    ImGui::SliderScalar("Torque Y", ImGuiDataType_Double, &torqueY, &maxTorque, &minTorque, "%.1f");
+    ImGui::SliderScalar("Torque Z", ImGuiDataType_Double, &torqueZ, &maxTorque, &minTorque, "%.1f");
 
     if (ImGui::Button("Reset Force & Torque")) {
         forceX = 0.0;
@@ -109,8 +119,8 @@ void ImGuiLayer::showSimulationControls() {
     externalTorques[1] = torqueY;
     externalTorques[2] = torqueZ;
 
+    m_Dynamics->setExternalForces(externalForces);
     m_Dynamics->setExternalTorques(externalTorques);
-
 
     ImGui::End();
 }
@@ -125,10 +135,6 @@ void ImGuiLayer::showRenderingOptions(Renderer* renderer) {
     } else {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
-
-    static float bgColor[3] = {0.1f, 0.1f, 0.1f};
-    ImGui::ColorEdit3("Background Color", bgColor);
-    glClearColor(bgColor[0], bgColor[1], bgColor[2], 1.0f);
 
     static bool m_DrawGrid = renderer->getDrawGrid();
     ImGui::Checkbox("Draw Grid", &m_DrawGrid);
@@ -162,40 +168,27 @@ void ImGuiLayer::showDynamicsData() {
     if (!m_Dynamics) return;
 
     if (ImGui::Begin("Dynamics Data")) {
-        ImGui::Text("Total Bodies: %zu", m_Dynamics->getBodyCount());
-
-        static double stepSize = 0.002;
-        static const double minStepSize = 0.0001;
-        static const double maxStepSize = 0.01;
-
-        if (ImGui::Button("Step Simulation")) {
-            m_Dynamics->step(stepSize);
-        }
-
-        ImGui::SameLine();
-        ImGui::SetNextItemWidth(150.0f);
-        ImGui::SliderScalar("##StepSizeSlider", ImGuiDataType_Double, &stepSize, &minStepSize, &maxStepSize, "Step Size: %.4f");
 
         if (ImGui::BeginTabBar("MatricesTabBar")) {
 
-            // Tab for Generalized Data (q, qd, qdd)
-            if (ImGui::BeginTabItem("(q) Generalized Data")) {
-                ImGui::Text("Showing (q), (qd), and (qdd) side by side");
+            if (ImGui::BeginTabItem("Generalized Data")) {
 
-                if (ImGui::BeginTable("GeneralizedDataTable", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+                if (ImGui::BeginTable("GeneralizedDataTable", 4, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
                     // Headers
                     ImGui::TableNextRow();
-                    ImGui::TableSetColumnIndex(0); ImGui::Text("(q) Coordinates");
-                    ImGui::TableSetColumnIndex(1); ImGui::Text("(qd) Velocities");
-                    ImGui::TableSetColumnIndex(2); ImGui::Text("(qdd) Accelerations");
+                    ImGui::TableSetColumnIndex(0); ImGui::Text("Positions (q)");
+                    ImGui::TableSetColumnIndex(1); ImGui::Text("Velocities (qd)");
+                    ImGui::TableSetColumnIndex(2); ImGui::Text("Accelerations (qdd)");
+                    ImGui::TableSetColumnIndex(3); ImGui::Text("External Forces (g*)");
 
                     // Get matrices
                     const MatrixXd& q   = m_Dynamics->getGeneralizedCoordinates();
                     const MatrixXd& qd  = m_Dynamics->getGeneralizedVelocities();
                     const MatrixXd& qdd = m_Dynamics->getGeneralizedAccelerations();
+                    const MatrixXd& g   = m_Dynamics->getGeneralizedExternalForces();
 
                     // Determine max rows
-                    int maxRows = std::max({q.rows(), qd.rows(), qdd.rows()});
+                    int maxRows = std::max({q.rows(), qd.rows(), qdd.rows(), g.rows()});
 
                     // Display row by row
                     for (int i = 0; i < maxRows; ++i) {
@@ -205,7 +198,7 @@ void ImGuiLayer::showDynamicsData() {
                         ImGui::TableSetColumnIndex(0);
                         if (i < q.rows()) {
                             for (int j = 0; j < q.cols(); ++j) {
-                                ImGui::Text("%.2f", q(i, j));
+                                ImGui::Text("%.4f", q(i, j));
                                 ImGui::SameLine();
                             }
                         }
@@ -214,7 +207,7 @@ void ImGuiLayer::showDynamicsData() {
                         ImGui::TableSetColumnIndex(1);
                         if (i < qd.rows()) {
                             for (int j = 0; j < qd.cols(); ++j) {
-                                ImGui::Text("%.2f", qd(i, j));
+                                ImGui::Text("%.4f", qd(i, j));
                                 ImGui::SameLine();
                             }
                         }
@@ -223,7 +216,16 @@ void ImGuiLayer::showDynamicsData() {
                         ImGui::TableSetColumnIndex(2);
                         if (i < qdd.rows()) {
                             for (int j = 0; j < qdd.cols(); ++j) {
-                                ImGui::Text("%.2f", qdd(i, j));
+                                ImGui::Text("%.4f", qdd(i, j));
+                                ImGui::SameLine();
+                            }
+                        }
+
+                        // G
+                        ImGui::TableSetColumnIndex(3);
+                        if (i < g.rows()) {
+                            for (int j = 0; j < g.cols(); ++j) {
+                                ImGui::Text("%.4f", g(i, j));
                                 ImGui::SameLine();
                             }
                         }
@@ -235,11 +237,10 @@ void ImGuiLayer::showDynamicsData() {
 
             // Instead of storing const MatrixXd&, store by value here:
             std::vector<std::pair<const char*, MatrixXd>> matrices = {
-                {"(b*) Velocity Dependent Term",       m_Dynamics->getVelocityDependentTerm()},
-                {"(M*) System Mass Inertia Matrix",    m_Dynamics->getSystemMassInertiaMatrix()},
-                {"(P) Quaternion Constraint Matrix",   m_Dynamics->getQuaternionConstraintMatrix()},
-                {"(c) Quaternion Norm Squared",        m_Dynamics->getQuaternionNormSquared()},
-                {"(g*) Generalized External Forces",    m_Dynamics->getGeneralizedExternalForces()},
+                // {"(b*) Velocity Dependent Term",       m_Dynamics->getVelocityDependentTerm()},
+                // {"(M*) System Mass Inertia Matrix",    m_Dynamics->getSystemMassInertiaMatrix()},
+                // {"(P) Quaternion Constraint Matrix",   m_Dynamics->getQuaternionConstraintMatrix()},
+                // {"(c) Quaternion Norm Squared",        m_Dynamics->getQuaternionNormSquared()},
                 {"Matrix A",                           m_Dynamics->getMatrixA()},
                 {"Matrix B",                           m_Dynamics->getMatrixB()},
                 {"Matrix X",                           m_Dynamics->getMatrixX()},

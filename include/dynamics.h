@@ -27,7 +27,7 @@ public:
     explicit Dynamics();
 
     void addBody(const std::shared_ptr<RigidBody>& body);
-    void step(double deltaTime);
+    void step();
 
     void debug();
 
@@ -57,7 +57,13 @@ public:
     void stopSimulation();
     void resetSimulation();
 
+    void setExternalForces(Vector3d matrix);
+
+    void setStepTime(double stepTime);
+
 private:
+    double m_stepTime = 0.0002;
+
     std::vector<std::shared_ptr<RigidBody>> m_Bodies;
 
     MatrixXd m_SystemMassInertiaMatrix;
@@ -79,7 +85,7 @@ private:
     VectorXd m_B;
     VectorXd m_X;
 
-    bool m_isSimulationRunning = true;
+    bool m_isSimulationRunning = false;
 
     void initializeSize();
     void initializeContent();
