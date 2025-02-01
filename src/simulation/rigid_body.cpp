@@ -1,5 +1,6 @@
 #include <utility>
 #include <iostream>
+#include <random>
 
 #include "rigid_body.h"
 #include "tools.h"
@@ -21,10 +22,27 @@ RigidBody::RigidBody(double mass, Matrix3d globalInertiaTensor, Vector3d positio
     m_velocity = Vector3d::Zero();
     m_angularVelocity = Vector4d::Zero();
 
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dist(-5.0, 5.0);
+
+    // Assign random values to m_velocity
+    m_velocity[0] = dist(gen);
+    m_velocity[1] = dist(gen);
+    m_velocity[2] = dist(gen);
+
+    m_angularVelocity[0] = dist(gen);
+    m_angularVelocity[1] = dist(gen);
+    m_angularVelocity[2] = dist(gen);
+    m_angularVelocity[3] = dist(gen);
+    normalizeOrientation();
+
     m_initialPosition = position;
     m_initialOrientation = orientation;
     m_initialAngularVelocity = m_angularVelocity;
     m_initialVelocity = m_velocity;
+
+
 }
 
 Vector3d RigidBody::getPosition() {
