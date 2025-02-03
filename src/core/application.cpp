@@ -77,31 +77,9 @@ void Application::run() {
 
     auto body1 = std::make_shared<RigidBody>(10.0, Matrix3d::Identity() * 60.0, Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0));
     auto body2 = std::make_shared<RigidBody>(10.0, Matrix3d::Identity() * 60.0, Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0));
-    auto body3 = std::make_shared<RigidBody>(10.0, Matrix3d::Identity() * 60.0, Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0));
-    auto body4 = std::make_shared<RigidBody>(10.0, Matrix3d::Identity() * 60.0, Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0));
-    auto body5 = std::make_shared<RigidBody>(10.0, Matrix3d::Identity() * 60.0, Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0));
-    auto body6 = std::make_shared<RigidBody>(10.0, Matrix3d::Identity() * 60.0, Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0));
-    auto body7 = std::make_shared<RigidBody>(10.0, Matrix3d::Identity() * 60.0, Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0));
-    auto body8 = std::make_shared<RigidBody>(10.0, Matrix3d::Identity() * 60.0, Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0));
-    auto body9 = std::make_shared<RigidBody>(10.0, Matrix3d::Identity() * 60.0, Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0));
-    auto body10 = std::make_shared<RigidBody>(10.0, Matrix3d::Identity() * 60.0, Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0));
-    auto body11 = std::make_shared<RigidBody>(10.0, Matrix3d::Identity() * 60.0, Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0));
-    auto body12 = std::make_shared<RigidBody>(10.0, Matrix3d::Identity() * 60.0, Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0));
-
 
     m_dynamics->addBody(body1);
     m_dynamics->addBody(body2);
-    m_dynamics->addBody(body3);
-    m_dynamics->addBody(body4);
-    m_dynamics->addBody(body5);
-    m_dynamics->addBody(body6);
-    m_dynamics->addBody(body7);
-    m_dynamics->addBody(body8);
-    m_dynamics->addBody(body9);
-    m_dynamics->addBody(body10);
-    m_dynamics->addBody(body11);
-    m_dynamics->addBody(body12);
-
 
     while (!glfwWindowShouldClose(m_window.get())) {
         double currentTime = glfwGetTime();
