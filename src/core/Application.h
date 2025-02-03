@@ -1,0 +1,31 @@
+#ifndef DYNAMICSLAB_APPLICATION_H
+#define DYNAMICSLAB_APPLICATION_H
+
+#include <memory>
+#include "GLFW/glfw3.h"
+#include "glm/glm.hpp"
+
+#include "../window/Window.h"
+#include "../graphics/Camera.h"
+#include "../graphics/Renderer.h"
+#include "../input/InputHandler.h"
+#include "../ui/UIManager.h"
+
+class Application {
+public:
+    Application(int width, int height, const char* title);
+    ~Application();
+
+    void run();
+
+private:
+    // Core Systems
+    std::unique_ptr<Window> m_window;
+    // std::unique_ptr<Camera> m_camera;
+    // std::unique_ptr<Renderer> m_renderer;
+    // std::unique_ptr<InputHandler> m_inputHandler;
+    // std::unique_ptr<UIManager> m_uiManager;
+
+};
+
+#endif // DYNAMICSLAB_APPLICATION_H

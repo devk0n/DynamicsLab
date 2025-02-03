@@ -122,7 +122,7 @@ DynamicsLab
 │   ├───application.h
 │   ├───dynamics.h
 │   ├───imgui_layer.h
-│   ├───renderer.h
+│   ├───graphics.h
 │   └───rigid_body.h
 └───src
     ├───core
@@ -130,7 +130,7 @@ DynamicsLab
     │   └───application.cpp
     ├───graphics
     │   ├───glad.c
-    │   └───renderer.cpp
+    │   └───graphics.cpp
     ├───simulation
     │   ├───rigid_body.cpp
     │   └───dynamics.cpp
