@@ -30,9 +30,9 @@ set(GLFW_BUILD_EXAMPLES OFF)
 set(GLFW_BUILD_TESTS OFF)
 FetchContent_MakeAvailable(glfw)
 
-# Add GLAD library (using the local glad.c file)
-add_library(glad STATIC src/graphics/glad.c)
-target_include_directories(glad PUBLIC include)
+# Add GLAD as a static library
+add_library(glad STATIC external/glad/src/glad.c)
+target_include_directories(glad PUBLIC external/glad/include)
 
 # Fetch ImGui
 FetchContent_Declare(
@@ -54,7 +54,7 @@ target_include_directories(imgui PUBLIC
     ${imgui_SOURCE_DIR}
     ${imgui_SOURCE_DIR}/backends
 )
-target_link_libraries(imgui glfw OpenGL::GL)
+target_link_libraries(imgui glfw OpenGL::GL glad)
 
 # Fetch GLM
 FetchContent_Declare(
@@ -83,13 +83,11 @@ find_package(OpenGL REQUIRED)
 
 # Source files
 set(SOURCES
-        src/core/main.cpp
-        src/core/application.cpp
-        src/graphics/renderer.cpp
-        src/ui/imgui_layer.cpp
-        src/simulation/dynamics.cpp
-        src/simulation/rigid_body.cpp
-        src/simulation/tools.cpp
+        src/main/main.cpp
+        src/application/Application.cpp
+        src/main/infrastructure/Window.cpp
+        src/main/input/InputHandler.cpp
+        src/main/renderer/Camera.cpp
 )
 
 # Add executable
