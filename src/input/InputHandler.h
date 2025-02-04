@@ -6,12 +6,8 @@
 
 class InputHandler {
 public:
-    static void processKeyboard(GLFWwindow* window, Camera& camera, double deltaTime);
-    static void mouseCallback(GLFWwindow* window, double xpos, double ypos);
 
 private:
-    static bool m_firstMouse;
-    static double m_lastX, m_lastY;
 
 };
 

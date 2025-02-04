@@ -4,23 +4,20 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-using namespace glm;
-
 class Camera {
 public:
-    dvec3 position;
-    dvec3 front;
-    dvec3 up;
+    Camera(float fov, float aspectRatio, float nearClip, float farClip);
 
-    double yaw, pitch;
-    double speed, sensitivity;
+    void setPosition(const glm::vec3& position);
+    void setRotation(float yaw, float pitch);
 
-    explicit Camera(dvec3 startPosition);
+    glm::mat4 getViewMatrix() const;
+    glm::mat4 getProjectionMatrix() const;
 
-    dmat4 getViewMatrix();
-    void move(const dvec3& direction, double deltaTime);
-    void rotate(double xOffset, double yOffset);
+private:
+    glm::vec3 m_position;
+    float m_yaw, m_pitch; // Rotation angles
+    glm::mat4 m_projection;
 };
 
-
-#endif //DYNAMICSLAB_CAMERA_H
+#endif // DYNAMICSLAB_CAMERA_H

@@ -1,31 +1,29 @@
 #include "Camera.h"
 
-Camera::Camera(glm::dvec3 startPosition)
-    : position(startPosition), front(glm::dvec3(0.0, 0.0, -1.0)), up(glm::dvec3(0.0, 1.0, 0.0)),
-      yaw(-90.0), pitch(0.0), speed(2.5), sensitivity(0.1) {}
-
-glm::dmat4 Camera::getViewMatrix() {
-    return glm::lookAt(position, position + front, up);
+Camera::Camera(float fov, float aspectRatio, float nearClip, float farClip)
+    : m_position(0.0f, 0.0f, 3.0f), m_yaw(0.0f), m_pitch(0.0f) {
+    m_projection = glm::perspective(glm::radians(fov), aspectRatio, nearClip, farClip);
 }
 
-void Camera::move(const glm::dvec3& direction, double deltaTime) {
-    double velocity = speed * deltaTime;
-    position += direction * velocity;
+void Camera::setPosition(const glm::vec3& position) {
+    m_position = position;
 }
 
-void Camera::rotate(double xOffset, double yOffset) {
-    xOffset *= sensitivity;
-    yOffset *= sensitivity;
+void Camera::setRotation(float yaw, float pitch) {
+    m_yaw = yaw;
+    m_pitch = pitch;
+}
 
-    yaw += xOffset;
-    pitch -= yOffset;
+glm::mat4 Camera::getViewMatrix() const {
+    glm::vec3 front;
+    front.x = cos(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+    front.y = sin(glm::radians(m_pitch));
+    front.z = sin(glm::radians(m_yaw)) * cos(glm::radians(m_pitch));
+    front = glm::normalize(front);
 
-    if (pitch > 89.0f) pitch = 89.0f;
-    if (pitch < -89.0f) pitch = -89.0f;
+    return glm::lookAt(m_position, m_position + front, glm::vec3(0.0f, 1.0f, 0.0f));
+}
 
-    glm::dvec3 direction;
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front = glm::normalize(direction);
+glm::mat4 Camera::getProjectionMatrix() const {
+    return m_projection;
 }
