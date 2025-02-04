@@ -6,7 +6,7 @@ Application::Application(int width, int height, const char* title) {
     m_renderer = std::make_unique<Renderer>();
     // m_camera = std::make_unique<Camera>();
     // m_inputHandler = std::make_unique<InputHandler>();
-    m_uiManager = std::make_unique<UIManager>(*m_window);
+    m_guiManager = std::make_unique<GuiManager>(*m_window);
 }
 
 void Application::run() {
@@ -15,9 +15,8 @@ void Application::run() {
 
         // TODO: Process input
 
-        // TODO: Add rendering logic here
         Renderer::clearScreen();
-        m_uiManager->renderUI();
+        m_guiManager->renderGui();
 
         m_window->swapBuffers();
     }

@@ -18,7 +18,7 @@ public:
     static void pollEvents();
     void swapBuffers();
 
-    [[nodiscard]] GLFWwindow* getGLFWwindow() const { return m_window.get(); }
+    [[nodiscard]] GLFWwindow* getWindow() const { return m_window.get(); }
 
 private:
     std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> m_window;

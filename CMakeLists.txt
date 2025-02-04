@@ -89,7 +89,7 @@ set(SOURCES
         src/graphics/Camera.cpp
         src/graphics/Renderer.cpp
         src/window/Window.cpp
-        src/ui/UIManager.cpp
+        src/gui/GuiManager.cpp
 )
 
 # Add executable

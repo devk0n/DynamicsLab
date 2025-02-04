@@ -7,7 +7,7 @@
 #include "../graphics/Camera.h"
 #include "../graphics/Renderer.h"
 #include "../input/InputHandler.h"
-#include "../ui/UIManager.h"
+#include "../gui/GuiManager.h"
 
 class Application {
 public:
@@ -21,7 +21,7 @@ private:
     // std::unique_ptr<Camera> m_camera;
     std::unique_ptr<Renderer> m_renderer;
     // std::unique_ptr<InputHandler> m_inputHandler;
-    std::unique_ptr<UIManager> m_uiManager;
+    std::unique_ptr<GuiManager> m_guiManager;
 
 };
 
