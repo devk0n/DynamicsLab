@@ -1,6 +1,5 @@
 #include "Window.h"
 
-#include "GLFW/glfw3.h"
 #include <stdexcept>
 
 Window::Window(int width, int height, const char* title)

@@ -21,7 +21,7 @@ private:
     // std::unique_ptr<Camera> m_camera;
     std::unique_ptr<Renderer> m_renderer;
     // std::unique_ptr<InputHandler> m_inputHandler;
-    // std::unique_ptr<UIManager> m_uiManager;
+    std::unique_ptr<UIManager> m_uiManager;
 
 };
 
