@@ -26,7 +26,7 @@ bool Application::initialize() {
     m_glfwInitialized = true;
     std::cout << "GLFW initialized successfully." << std::endl;
 
-    m_window.reset(glfwCreateWindow(1920, 1080, "DynamicsLab", nullptr, nullptr));
+    m_window.reset(glfwCreateWindow(1920, 1280, "DynamicsLab", nullptr, nullptr));
     if (!m_window) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         shutdown();
