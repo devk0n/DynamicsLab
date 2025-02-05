@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 
 #include "GLFW/glfw3.h"
+#include "../graphics/Camera.h"
 
 struct GLFWwindow;
 
@@ -22,7 +23,6 @@ public:
 
 private:
     std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> m_window;
-
 };
 
 

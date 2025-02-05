@@ -18,9 +18,9 @@ public:
 private:
     // Core Systems
     std::unique_ptr<Window> m_window;
-    // std::unique_ptr<Camera> m_camera;
+    std::unique_ptr<Camera> m_camera;
     std::unique_ptr<Renderer> m_renderer;
-    // std::unique_ptr<InputHandler> m_inputHandler;
+    std::unique_ptr<InputHandler> m_inputHandler;
     std::unique_ptr<GuiManager> m_guiManager;
 
 };
