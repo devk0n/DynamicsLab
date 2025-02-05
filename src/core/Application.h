@@ -6,6 +6,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include "../gui/ImGuiManager.h"
 
 class Application {
 public:
@@ -22,6 +23,7 @@ private:
     void shutdown();
 
     std::unique_ptr<GLFWwindow, void(*)(GLFWwindow*)> m_window;
+    ImGuiManager m_imGuiManager;
     bool isRunning{};
 };
 

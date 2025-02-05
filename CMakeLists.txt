@@ -85,11 +85,7 @@ find_package(OpenGL REQUIRED)
 set(SOURCES
         src/main.cpp
         src/core/Application.cpp
-        src/input/InputHandler.cpp
-        src/graphics/Camera.cpp
-        src/graphics/Renderer.cpp
-        src/graphics/Window.cpp
-        src/gui/GuiManager.cpp
+        src/gui/ImGuiManager.cpp
 )
 
 # Add executable

@@ -36,12 +36,11 @@ bool Application::initialize() {
         return false;
     }
 
-    /*
-    if (!imGuiManager.Initialize(m_window)) {
+    if (!ImGuiManager::initialize(m_window.get())) {
         std::cerr << "Failed to initialize ImGui" << std::endl;
         return false;
     }
-
+    /*
     if (!renderer.Initialize()) {
         std::cerr << "Failed to initialize Renderer" << std::endl;
         return false;
@@ -58,9 +57,7 @@ void Application::mainLoop() {
 
         // Update and render the scene
 
-        // imGuiManager.BeginFrame();
-        // Add ImGui widgets here
-        // imGuiManager.EndFrame();
+        m_imGuiManager.renderGui();
 
         glfwSwapBuffers(m_window.get());
         glfwPollEvents();
@@ -68,7 +65,8 @@ void Application::mainLoop() {
 }
 
 void Application::shutdown() {
-     m_window.reset();
+    ImGuiManager::shutdown();
+    m_window.reset();
     glfwTerminate();
 }
 
