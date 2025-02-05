@@ -114,8 +114,8 @@ DynamicsLab
 ├───assets
 │   ├───images
 │   └───shaders
-│       ├───grid.frag.glsl
-│       └───grid.vert.glsl
+│       ├───grid.frag
+│       └───grid.vert
 ├───include
 │   ├───glad
 │   ├───KHR

@@ -1,36 +1,40 @@
 #ifndef DYNAMICSLAB_APPLICATION_H
 #define DYNAMICSLAB_APPLICATION_H
 
-#include <iostream>
 #include <memory>
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <iostream>
+#include <stdexcept>
 #include "../gui/ImGuiManager.h"
-#include "../input/InputHandler.h"
 #include "../graphics/Renderer.h"
+#include "../graphics/Camera.h"
+#include <GLFW/glfw3.h>
 
 class Application {
 public:
-
-    explicit Application();
+    Application();
     ~Application();
 
     void run();
 
 private:
+    std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> m_window;
+    bool m_glfwInitialized;
+    bool m_running;
+
+    float m_lastFrameTime;
+
+    Camera m_camera;  // Our WASD + mouse-look camera
+
+    ImGuiManager m_imGuiManager;
+    Renderer m_renderer;
 
     bool initialize();
     void mainLoop();
     void shutdown();
 
-    std::unique_ptr<GLFWwindow, void(*)(GLFWwindow*)> m_window;
-    ImGuiManager m_imGuiManager;
-    std::unique_ptr<InputHandler> m_inputHandler;
-    Renderer m_renderer;
-
-    bool m_glfwInitialized;
-    bool m_running;
+    // --- New methods to keep mainLoop clean ---
+    void update(float deltaTime);
+    void renderFrame();
 };
 
 #endif // DYNAMICSLAB_APPLICATION_H

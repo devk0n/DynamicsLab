@@ -1,10 +1,11 @@
 #include "Application.h"
 
-Application::Application()
-    : m_window(nullptr, glfwDestroyWindow),
-      m_glfwInitialized(false),
-      m_running(false) {
 
+Application::Application()
+    : m_window(nullptr, glfwDestroyWindow)
+    , m_glfwInitialized(false)
+    , m_running(false)
+    , m_lastFrameTime(0.0f) {
     if (!initialize()) {
         throw std::runtime_error("Failed to initialize application");
     }
@@ -23,6 +24,14 @@ bool Application::initialize() {
         std::cerr << "Failed to initialize GLFW" << std::endl;
         return false;
     }
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    // Before glfwCreateWindow:
+    glfwWindowHint(GLFW_DEPTH_BITS, 24); // ensure we have a depth buffer
+
+
     m_glfwInitialized = true;
     std::cout << "GLFW initialized successfully." << std::endl;
 
@@ -57,28 +66,67 @@ bool Application::initialize() {
     }
     std::cout << "Renderer initialized successfully." << std::endl;
 
-    m_inputHandler = std::make_unique<InputHandler>(m_window.get());
-
+    // Start running
     m_running = true;
     return true;
 }
 
-
 void Application::mainLoop() {
     while (m_running && !glfwWindowShouldClose(m_window.get())) {
-        glfwPollEvents();
+        float currentFrameTime = static_cast<float>(glfwGetTime());
+        float deltaTime = currentFrameTime - m_lastFrameTime;
+        m_lastFrameTime = currentFrameTime;
 
-        m_renderer.clear();
-        m_imGuiManager.renderGui();
-        m_renderer.render();
+        glfwPollEvents(); // Pump window events
 
-        glfwSwapBuffers(m_window.get());
+        update(deltaTime);   // <--- Camera input, etc.
+        renderFrame();       // <--- Clear, ImGui, draw, swap
     }
+}
+
+void Application::update(float deltaTime) {
+    // 1) Keyboard (WASD)
+    bool wKey = (glfwGetKey(m_window.get(), GLFW_KEY_W) == GLFW_PRESS);
+    bool sKey = (glfwGetKey(m_window.get(), GLFW_KEY_S) == GLFW_PRESS);
+    bool aKey = (glfwGetKey(m_window.get(), GLFW_KEY_A) == GLFW_PRESS);
+    bool dKey = (glfwGetKey(m_window.get(), GLFW_KEY_D) == GLFW_PRESS);
+    m_camera.processKeyboard(wKey, sKey, aKey, dKey, deltaTime);
+
+    // 2) Mouse look if right button is held
+    bool rightMouseHeld = (glfwGetMouseButton(m_window.get(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);
+    double mouseX, mouseY;
+    glfwGetCursorPos(m_window.get(), &mouseX, &mouseY);
+    m_camera.processMouseMovement(static_cast<float>(mouseX),
+                                  static_cast<float>(mouseY),
+                                  rightMouseHeld);
+
+    // Optionally hide the cursor while right mouse is held
+    if (rightMouseHeld) {
+        glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    } else {
+        glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    // 3) Update renderer's view matrix from camera
+    m_renderer.setViewMatrix(m_camera.getViewMatrix());
+}
+
+void Application::renderFrame() {
+    // 1) Clear screen
+    m_renderer.clear();
+
+    // 2) ImGui pass
+    m_imGuiManager.renderGui();
+
+    // 3) Render 3D scene (grid floor, etc.)
+    m_renderer.render();
+
+    // 4) Present
+    glfwSwapBuffers(m_window.get());
 }
 
 void Application::shutdown() {
     m_imGuiManager.shutdown();
-    m_inputHandler.reset();
     m_window.reset();
 
     if (m_glfwInitialized) {
@@ -86,6 +134,3 @@ void Application::shutdown() {
         m_glfwInitialized = false;
     }
 }
-
-
-
