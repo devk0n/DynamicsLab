@@ -1,6 +1,7 @@
 #include "Camera.h"
 #include <cmath>
 
+
 Camera::Camera()
     : position(0.0f, 3.0f, 5.0f) // Start a bit away from origin
     , yaw(-90.0f)               // Point down -Z by default

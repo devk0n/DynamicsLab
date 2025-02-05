@@ -5,6 +5,7 @@
 
 #include "ImGuiManager.h"
 
+
 bool ImGuiManager::initialize(GLFWwindow *window) {
     // Check that ImGui version is correct and create a new ImGui context
     IMGUI_CHECKVERSION();

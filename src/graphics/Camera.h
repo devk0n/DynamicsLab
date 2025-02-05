@@ -20,7 +20,7 @@ public:
     void processKeyboard(bool wKey, bool sKey, bool aKey, bool dKey, float deltaTime);
 
     // Get the view matrix (use in your renderer)
-    glm::mat4 getViewMatrix() const;
+    [[nodiscard]] glm::mat4 getViewMatrix() const;
 
     // Position, orientation
     glm::vec3 position;
