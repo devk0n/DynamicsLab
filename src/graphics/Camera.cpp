@@ -2,9 +2,9 @@
 #include <cmath>
 
 Camera::Camera()
-    : position(0.0f, 0.0f, 5.0f) // Start a bit away from origin
+    : position(0.0f, 3.0f, 5.0f) // Start a bit away from origin
     , yaw(-90.0f)               // Point down -Z by default
-    , pitch(0.0f)
+    , pitch(-30.0f)
     , lastMouseX(0.0f)
     , lastMouseY(0.0f)
     , firstMouse(true)

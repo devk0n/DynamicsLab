@@ -6,9 +6,8 @@ Application::Application()
     , m_glfwInitialized(false)
     , m_running(false)
     , m_lastFrameTime(0.0f) {
-    if (!initialize()) {
-        throw std::runtime_error("Failed to initialize application");
-    }
+
+    initialize();
 }
 
 Application::~Application() {
@@ -20,56 +19,78 @@ void Application::run() {
 }
 
 bool Application::initialize() {
+    // Combine calls using short-circuit logic
+    if (!initializeGLFW()   ||
+        !createMainWindow() ||
+        !initializeGlad()   ||
+        !initializeImGui()  ||
+        !initializeRenderer()) {
+        shutdown();
+        return false;
+    }
+
+    m_running = true;
+    return true;
+}
+
+bool Application::initializeGLFW() {
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
         return false;
     }
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    // Before glfwCreateWindow:
-    glfwWindowHint(GLFW_DEPTH_BITS, 24); // ensure we have a depth buffer
-
-
     m_glfwInitialized = true;
     std::cout << "GLFW initialized successfully." << std::endl;
 
+    // Configure GLFW window properties
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_DEPTH_BITS, 24);
+
+    return true;
+}
+
+bool Application::createMainWindow() {
+    // Create window
     m_window.reset(glfwCreateWindow(1920, 1280, "DynamicsLab", nullptr, nullptr));
     if (!m_window) {
         std::cerr << "Failed to create GLFW window" << std::endl;
-        shutdown();
         return false;
     }
+    glfwMakeContextCurrent(m_window.get());
     std::cout << "Window created successfully." << std::endl;
 
-    glfwMakeContextCurrent(m_window.get());
+    return true;
+}
 
+bool Application::initializeGlad() {
+    // Load all OpenGL function pointers
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cerr << "Failed to initialize Glad" << std::endl;
-        shutdown();
         return false;
     }
     std::cout << "Glad initialized successfully." << std::endl;
+    return true;
+}
 
+bool Application::initializeImGui() {
     if (!m_imGuiManager.initialize(m_window.get())) {
         std::cerr << "Failed to initialize ImGui" << std::endl;
-        shutdown();
         return false;
     }
     std::cout << "ImGui initialized successfully." << std::endl;
+    return true;
+}
 
+bool Application::initializeRenderer() {
     if (!m_renderer.initialize()) {
         std::cerr << "Failed to initialize Renderer" << std::endl;
-        shutdown();
         return false;
     }
     std::cout << "Renderer initialized successfully." << std::endl;
-
-    // Start running
-    m_running = true;
     return true;
 }
+
 
 void Application::mainLoop() {
     while (m_running && !glfwWindowShouldClose(m_window.get())) {
