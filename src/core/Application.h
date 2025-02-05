@@ -7,6 +7,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "../gui/ImGuiManager.h"
+#include "../input/InputHandler.h"
+#include "../graphics/Renderer.h"
 
 class Application {
 public:
@@ -24,7 +26,11 @@ private:
 
     std::unique_ptr<GLFWwindow, void(*)(GLFWwindow*)> m_window;
     ImGuiManager m_imGuiManager;
-    bool isRunning{};
+    std::unique_ptr<InputHandler> m_inputHandler;
+    Renderer m_renderer;
+
+    bool m_glfwInitialized;
+    bool m_running;
 };
 
 #endif // DYNAMICSLAB_APPLICATION_H

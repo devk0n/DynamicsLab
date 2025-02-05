@@ -1,7 +1,9 @@
 #include "Application.h"
 
 Application::Application()
-    : m_window(nullptr, glfwDestroyWindow) {
+    : m_window(nullptr, glfwDestroyWindow),
+      m_glfwInitialized(false),
+      m_running(false) {
 
     if (!initialize()) {
         throw std::runtime_error("Failed to initialize application");
@@ -21,11 +23,13 @@ bool Application::initialize() {
         std::cerr << "Failed to initialize GLFW" << std::endl;
         return false;
     }
+    m_glfwInitialized = true;
 
     m_window.reset(glfwCreateWindow(1920, 1280, "DynamicsLab", nullptr, nullptr));
     if (!m_window) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
+        m_glfwInitialized = false;
         return false;
     }
 
@@ -36,28 +40,28 @@ bool Application::initialize() {
         return false;
     }
 
-    if (!ImGuiManager::initialize(m_window.get())) {
+    if (!m_imGuiManager.initialize(m_window.get())) {
         std::cerr << "Failed to initialize ImGui" << std::endl;
         return false;
     }
-    /*
-    if (!renderer.Initialize()) {
+
+    m_inputHandler = std::make_unique<InputHandler>(m_window.get());
+
+    if (!m_renderer.initialize()) {
         std::cerr << "Failed to initialize Renderer" << std::endl;
         return false;
     }
-    */
-    isRunning = true;
+
+    m_running = true;
     return true;
 }
 
 void Application::mainLoop() {
-    while (isRunning && !glfwWindowShouldClose(m_window.get())) {
-        // inputHandler.PollEvents();
-        // renderer.Clear();
+    while (m_running && !glfwWindowShouldClose(m_window.get())) {
 
-        // Update and render the scene
-
+        m_renderer.clear();
         m_imGuiManager.renderGui();
+        m_renderer.render();
 
         glfwSwapBuffers(m_window.get());
         glfwPollEvents();
@@ -65,9 +69,13 @@ void Application::mainLoop() {
 }
 
 void Application::shutdown() {
-    ImGuiManager::shutdown();
+    m_imGuiManager.shutdown();
     m_window.reset();
-    glfwTerminate();
+
+    if (m_glfwInitialized) {
+        glfwTerminate();
+        m_glfwInitialized = false;
+    }
 }
 
 

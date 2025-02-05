@@ -86,6 +86,8 @@ set(SOURCES
         src/main.cpp
         src/core/Application.cpp
         src/gui/ImGuiManager.cpp
+        src/input/InputHandler.cpp
+        src/graphics/Renderer.cpp
 )
 
 # Add executable

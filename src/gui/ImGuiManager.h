@@ -10,15 +10,15 @@
 class ImGuiManager {
 public:
     // Initialize ImGui with the provided GLFW window
-    static bool initialize(GLFWwindow* window);
+    bool initialize(GLFWwindow* window);
 
     void renderGui();
 
     // Shutdown ImGui and clean up resources
-    static void shutdown();
+    void shutdown();
 private:
-    static void beginFrame();
-    static void endFrame();
+    void beginFrame();
+    void endFrame();
 
     void performanceWindow() const;
 
