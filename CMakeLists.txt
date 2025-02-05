@@ -88,7 +88,7 @@ set(SOURCES
         src/input/InputHandler.cpp
         src/graphics/Camera.cpp
         src/graphics/Renderer.cpp
-        src/window/Window.cpp
+        src/graphics/Window.cpp
         src/gui/GuiManager.cpp
 )
 

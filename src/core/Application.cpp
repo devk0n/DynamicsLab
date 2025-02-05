@@ -1,32 +1,75 @@
 #include "Application.h"
 
-Application::Application(int width, int height, const char* title) {
+Application::Application()
+    : m_window(nullptr, glfwDestroyWindow) {
 
-    m_window = std::make_unique<Window>(width, height, title);
-    m_renderer = std::make_unique<Renderer>();
-    m_guiManager = std::make_unique<GuiManager>(*m_window);
+    if (!initialize()) {
+        throw std::runtime_error("Failed to initialize application");
+    }
+}
 
-    // Initialize camera (with your preferred aspect ratio)
-    float aspectRatio = 1920.0f / 1080.0f;
-    m_camera = std::make_unique<Camera>(glm::vec3(0.f, 0.f, 3.f), 45.0f, aspectRatio);
-
-    // Create the input handler, passing the GLFWwindow pointer and the camera
-    m_inputHandler = std::make_unique<InputHandler>(m_window->getWindow(), *m_camera);
-
+Application::~Application() {
+    shutdown();
 }
 
 void Application::run() {
-    float deltaTime = 0.01;
-    while (!m_window->shouldClose()) {
-        Window::pollEvents();
-        Renderer::clearScreen();
+    mainLoop();
+}
 
-        m_inputHandler->processInput(deltaTime);
+bool Application::initialize() {
+    if (!glfwInit()) {
+        std::cerr << "Failed to initialize GLFW" << std::endl;
+        return false;
+    }
 
-        m_renderer->draw();
-        m_guiManager->renderGui();
+    m_window.reset(glfwCreateWindow(1920, 1280, "DynamicsLab", nullptr, nullptr));
+    if (!m_window) {
+        std::cerr << "Failed to create GLFW window" << std::endl;
+        glfwTerminate();
+        return false;
+    }
 
-        m_window->swapBuffers();
+    glfwMakeContextCurrent(m_window.get());
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "Failed to initialize Glad" << std::endl;
+        return false;
+    }
+
+    /*
+    if (!imGuiManager.Initialize(m_window)) {
+        std::cerr << "Failed to initialize ImGui" << std::endl;
+        return false;
+    }
+
+    if (!renderer.Initialize()) {
+        std::cerr << "Failed to initialize Renderer" << std::endl;
+        return false;
+    }
+    */
+    isRunning = true;
+    return true;
+}
+
+void Application::mainLoop() {
+    while (isRunning && !glfwWindowShouldClose(m_window.get())) {
+        // inputHandler.PollEvents();
+        // renderer.Clear();
+
+        // Update and render the scene
+
+        // imGuiManager.BeginFrame();
+        // Add ImGui widgets here
+        // imGuiManager.EndFrame();
+
+        glfwSwapBuffers(m_window.get());
+        glfwPollEvents();
     }
 }
+
+void Application::shutdown() {
+     m_window.reset();
+    glfwTerminate();
+}
+
 

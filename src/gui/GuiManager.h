@@ -1,7 +1,7 @@
 #ifndef DYNAMICSLAB_GUIMANAGER_H
 #define DYNAMICSLAB_GUIMANAGER_H
 
-#include "../window/Window.h"
+#include "../graphics/Window.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_glfw.h>

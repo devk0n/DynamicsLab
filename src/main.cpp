@@ -5,7 +5,7 @@
 int main() {
 
     try {
-        Application app(1920, 1080, "DynamicsLab");
+        Application app;
         app.run();
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
