@@ -1,7 +1,6 @@
 #include "ImGuiManager.h"
 #include <iostream>
 
-
 bool ImGuiManager::initialize(GLFWwindow* window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -19,12 +18,6 @@ bool ImGuiManager::initialize(GLFWwindow* window) {
     }
 
     return true;
-}
-
-void ImGuiManager::renderGui() {
-    beginFrame();
-    performanceWindow();
-    endFrame();
 }
 
 void ImGuiManager::beginFrame() {

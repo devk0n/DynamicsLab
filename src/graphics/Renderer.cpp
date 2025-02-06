@@ -1,12 +1,11 @@
 #include "Renderer.h"   // Corresponding header
+
 #include <iostream>      // For std::cout, std::cerr
 
 Renderer::Renderer() :
     m_grid(5),
-    m_viewMatrix(1.0f) {
-
-    m_projectionMatrix = glm::perspective(glm::radians(45.0f), 1920.0f / 1280.0f, 0.1f, 100.0f);
-    m_viewMatrix = glm::lookAt(glm::vec3(0.0f, 5.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    m_viewMatrix(glm::lookAt(glm::vec3(0.0f, 5.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f))),
+    m_projectionMatrix(glm::perspective(glm::radians(45.0f), 1920.0f / 1280.0f, 0.1f, 100.0f)) {
 }
 
 Renderer::~Renderer() {
@@ -16,6 +15,7 @@ Renderer::~Renderer() {
 bool Renderer::initialize() {
     // Set basic GL state
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_MULTISAMPLE);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
     if (!m_grid.initialize()) {
@@ -32,11 +32,21 @@ void Renderer::clear() {
 }
 
 void Renderer::render() {
-    m_grid.render(m_projectionMatrix, m_viewMatrix); // This should use the grid shader
+    m_grid.render(m_projectionMatrix, m_viewMatrix);
+
+    for (const auto& cube : m_cubes) {  // Iterate using a reference to unique_ptr
+        cube->render(m_projectionMatrix, m_viewMatrix); // Dereference the unique_ptr to call render()
+    }
 }
+
+
 
 void Renderer::shutdown() {
     m_grid.shutdown();
+}
+
+void Renderer::addCube(std::unique_ptr<Cube> cube) {
+    m_cubes.push_back(std::move(cube));
 }
 
 void Renderer::setProjectionMatrix(const glm::mat4& projection) {

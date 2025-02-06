@@ -7,8 +7,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "objects/Grid.h"
+#include "objects/Cube.h"
 
 class Renderer {
 public:
@@ -20,14 +22,17 @@ public:
     void render();
     void shutdown();
 
+    void addCube(std::unique_ptr<Cube> cube);
+
     void setProjectionMatrix(const glm::mat4& projection);
     void setViewMatrix(const glm::mat4& view);
 
 private:
-    glm::mat4 m_projectionMatrix{};
+    glm::mat4 m_projectionMatrix;
     glm::mat4 m_viewMatrix;
     Grid      m_grid;
 
+    std::vector<std::unique_ptr<Cube>> m_cubes;
 };
 
 

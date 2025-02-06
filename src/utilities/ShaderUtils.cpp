@@ -39,10 +39,14 @@ GLuint ShaderUtils::compileShader(GLenum shaderType, const std::string& source) 
 
 GLuint ShaderUtils::createShaderProgram(const std::string& vertexPath, const std::string& fragmentPath) {
     GLuint vertexShader = compileShader(GL_VERTEX_SHADER, readFileContents(vertexPath));
-    if (!vertexShader) return 0;
+    if (!vertexShader) {
+        std::cerr << "[ShaderUtils] ERROR: Vertex shader failed to compile!\n";
+        return 0;
+    }
 
     GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, readFileContents(fragmentPath));
     if (!fragmentShader) {
+        std::cerr << "[ShaderUtils] ERROR: Fragment shader failed to compile!\n";
         glDeleteShader(vertexShader);
         return 0;
     }
@@ -52,6 +56,7 @@ GLuint ShaderUtils::createShaderProgram(const std::string& vertexPath, const std
     glAttachShader(program, fragmentShader);
     glLinkProgram(program);
 
+    // Check if linking was successful
     GLint success;
     glGetProgramiv(program, GL_LINK_STATUS, &success);
     if (!success) {
@@ -63,9 +68,6 @@ GLuint ShaderUtils::createShaderProgram(const std::string& vertexPath, const std
         glDeleteProgram(program);
         return 0;
     }
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
 
     std::cout << "[ShaderUtils] Shader compiled and linked successfully! Program ID: " << program << "\n";
     return program;

@@ -5,9 +5,7 @@ Application::Application() :
     m_window(nullptr, glfwDestroyWindow),
     m_glfwInitialized(false),
     m_running(false),
-    m_lastFrameTime(0.0) {
-
-}
+    m_lastFrameTime(0.0) {}
 
 Application::~Application() {
     shutdown();
@@ -30,6 +28,8 @@ bool Application::initialize() {
     }
 
     InputManager::initialize(m_window.get());
+
+
 
     m_running = true;
     return true;
@@ -95,32 +95,40 @@ bool Application::initializeRenderer() {
 
 
 void Application::mainLoop() {
+
+    m_renderer.addCube(std::make_unique<Cube>(glm::vec3(0, 0, 0), glm::vec3(1, 1, 1), glm::vec3(0.9529f, 0.2941f, 0.4902f)));
+    m_renderer.addCube(std::make_unique<Cube>(glm::vec3(2, 0, 0), glm::vec3(1, 1, 1), glm::vec3(0.9529f, 0.2941f, 0.4902f)));
+    m_renderer.addCube(std::make_unique<Cube>(glm::vec3(4, 0, 0), glm::vec3(1, 1, 1), glm::vec3(0.9529f, 0.2941f, 0.4902f)));
+    m_renderer.addCube(std::make_unique<Cube>(glm::vec3(6, 0, 0), glm::vec3(1, 1, 1), glm::vec3(0.9529f, 0.2941f, 0.4902f)));
+    m_renderer.addCube(std::make_unique<Cube>(glm::vec3(8, 0, 0), glm::vec3(1, 1, 1), glm::vec3(0.9529f, 0.2941f, 0.4902f)));
+    m_renderer.addCube(std::make_unique<Cube>(glm::vec3(10, 0, 0), glm::vec3(1, 1, 1), glm::vec3(0.9529f, 0.2941f, 0.4902f)));
+    m_renderer.addCube(std::make_unique<Cube>(glm::vec3(12, 0, 0), glm::vec3(1, 1, 1), glm::vec3(0.9529f, 0.2941f, 0.4902f)));
+
+
     while (m_running && !glfwWindowShouldClose(m_window.get())) {
         double currentFrameTime = glfwGetTime();
         double deltaTime = currentFrameTime - m_lastFrameTime;
         m_lastFrameTime = currentFrameTime;
 
-        glfwPollEvents(); // Pump window events
+        glfwPollEvents();
 
-        update(deltaTime);   // <--- Camera input, etc.
-        renderFrame();       // <--- Clear, ImGui, draw, swap
+        update(deltaTime);
+
+        m_renderer.clear();
+        m_renderer.render();
+
+        m_imGuiManager.beginFrame();
+        m_imGuiManager.performanceWindow();
+        m_imGuiManager.endFrame();
+
+        glfwSwapBuffers(m_window.get());
+
     }
 }
 
 void Application::update(double deltaTime) {
     InputManager::update(static_cast<float>(deltaTime), m_camera);
     m_renderer.setViewMatrix(m_camera.getViewMatrix());
-}
-
-void Application::renderFrame() {
-
-    m_renderer.clear();
-
-    m_renderer.render();
-
-    m_imGuiManager.renderGui();
-
-    glfwSwapBuffers(m_window.get());
 }
 
 void Application::shutdown() {

@@ -53,7 +53,6 @@ private:
 
     // Methods to keep mainLoop clean
     void update(double deltaTime);
-    void renderFrame();
 };
 
 

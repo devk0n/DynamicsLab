@@ -91,6 +91,7 @@ set(SOURCES
         src/graphics/Renderer.cpp
 
         src/graphics/objects/Grid.cpp
+        src/graphics/objects/Cube.cpp
 
         src/utilities/ShaderUtils.cpp
         src/Input/InputManager.cpp

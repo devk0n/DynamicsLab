@@ -11,13 +11,16 @@ public:
     ~ImGuiManager() { shutdown(); }
 
     bool initialize(GLFWwindow* window);
-    void renderGui();
+
+    void beginFrame();
+    void performanceWindow() const;
+    void endFrame();
+
     void shutdown();
 
 private:
-    void beginFrame();
-    void endFrame();
-    void performanceWindow() const;
+
+
 
     ImGuiWindowFlags m_windowFlags{
         ImGuiWindowFlags_NoResize |
