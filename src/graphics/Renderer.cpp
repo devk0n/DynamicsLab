@@ -7,7 +7,6 @@ Renderer::Renderer() :
 
     m_projectionMatrix = glm::perspective(glm::radians(45.0f), 1920.0f / 1280.0f, 0.1f, 100.0f);
     m_viewMatrix = glm::lookAt(glm::vec3(0.0f, 5.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
 }
 
 Renderer::~Renderer() {
@@ -33,11 +32,11 @@ void Renderer::clear() {
 }
 
 void Renderer::render() {
-    m_grid.render(m_projectionMatrix, m_viewMatrix);
+    m_grid.render(m_projectionMatrix, m_viewMatrix); // This should use the grid shader
 }
 
 void Renderer::shutdown() {
-    m_grid.shutdown();  // No need to delete anything
+    m_grid.shutdown();
 }
 
 void Renderer::setProjectionMatrix(const glm::mat4& projection) {

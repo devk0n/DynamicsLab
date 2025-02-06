@@ -10,6 +10,7 @@ Grid::Grid(int size)
     , m_VBO(0)
     , m_shaderProgram(0)
     , m_size(size) {
+
 }
 
 Grid::~Grid() {

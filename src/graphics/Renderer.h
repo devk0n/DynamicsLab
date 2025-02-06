@@ -2,17 +2,13 @@
 #define DYNAMICSLAB_RENDERER_H
 
 #include "glad/glad.h"
-#include "objects/Grid.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <string>
+#include <vector>
 
-
-#include "objects/Grid.h"               // We use Grid here
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "objects/Grid.h"
 
 class Renderer {
 public:
@@ -31,6 +27,7 @@ private:
     glm::mat4 m_projectionMatrix{};
     glm::mat4 m_viewMatrix;
     Grid      m_grid;
+
 };
 
 

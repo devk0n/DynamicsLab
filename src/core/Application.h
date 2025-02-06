@@ -10,7 +10,7 @@
 #include "../gui/ImGuiManager.h"
 #include "../graphics/Renderer.h"
 #include "../graphics/Camera.h"
-#include "../utilities/InputManager.h"
+#include "../Input/InputManager.h"
 
 
 class Application {

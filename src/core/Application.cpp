@@ -113,16 +113,13 @@ void Application::update(double deltaTime) {
 }
 
 void Application::renderFrame() {
-    // 1) Clear screen
+
     m_renderer.clear();
 
-    // 2) ImGui pass
-    m_imGuiManager.renderGui();
-
-    // 3) Render 3D scene (grid floor, etc.)
     m_renderer.render();
 
-    // 4) Present
+    m_imGuiManager.renderGui();
+
     glfwSwapBuffers(m_window.get());
 }
 

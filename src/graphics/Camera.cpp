@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include "../utilities/InputManager.h"
+#include "../Input/InputManager.h"
 
 #include <cmath>
 

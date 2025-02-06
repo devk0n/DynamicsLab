@@ -1,7 +1,7 @@
 #include "InputManager.h"
 
 GLFWwindow* InputManager::s_window = nullptr;
-KeyBindings InputManager::s_keyBindings; // Automatically initialized
+KeyBindings InputManager::s_keyBindings;
 
 void InputManager::initialize(GLFWwindow* window) {
     s_window = window;

@@ -93,7 +93,7 @@ set(SOURCES
         src/graphics/objects/Grid.cpp
 
         src/utilities/ShaderUtils.cpp
-        src/utilities/InputManager.cpp
+        src/Input/InputManager.cpp
 
 )
 

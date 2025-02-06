@@ -11,8 +11,13 @@ std::string ShaderUtils::readFileContents(const std::string& filePath) {
     }
     std::stringstream buffer;
     buffer << file.rdbuf();
+
+    // Print the loaded shader code
+    std::cout << "[ShaderUtils] Loaded Shader (" << filePath << "):\n" << buffer.str() << std::endl;
+
     return buffer.str();
 }
+
 
 GLuint ShaderUtils::compileShader(GLenum shaderType, const std::string& source) {
     GLuint shader = glCreateShader(shaderType);
@@ -33,22 +38,10 @@ GLuint ShaderUtils::compileShader(GLenum shaderType, const std::string& source) 
 }
 
 GLuint ShaderUtils::createShaderProgram(const std::string& vertexPath, const std::string& fragmentPath) {
-    std::cout << "[ShaderUtils] Loading shaders:\n"
-              << "  Vertex Shader: " << vertexPath << "\n"
-              << "  Fragment Shader: " << fragmentPath << "\n";
-
-    std::string vertexCode = readFileContents(vertexPath);
-    std::string fragmentCode = readFileContents(fragmentPath);
-
-    if (vertexCode.empty() || fragmentCode.empty()) {
-        std::cerr << "[ShaderUtils] ERROR: Shader file is empty or not found!\n";
-        return 0;
-    }
-
-    GLuint vertexShader = compileShader(GL_VERTEX_SHADER, vertexCode);
+    GLuint vertexShader = compileShader(GL_VERTEX_SHADER, readFileContents(vertexPath));
     if (!vertexShader) return 0;
 
-    GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentCode);
+    GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, readFileContents(fragmentPath));
     if (!fragmentShader) {
         glDeleteShader(vertexShader);
         return 0;
@@ -71,9 +64,10 @@ GLuint ShaderUtils::createShaderProgram(const std::string& vertexPath, const std
         return 0;
     }
 
-    std::cout << "[ShaderUtils] Shader compiled and linked successfully!\n";
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+    std::cout << "[ShaderUtils] Shader compiled and linked successfully! Program ID: " << program << "\n";
     return program;
 }
+
