@@ -86,8 +86,12 @@ set(SOURCES
         src/main.cpp
         src/core/Application.cpp
         src/gui/ImGuiManager.cpp
+
         src/graphics/Camera.cpp
         src/graphics/Renderer.cpp
+        src/graphics/ShaderUtils.cpp
+
+        src/graphics/objects/Grid.cpp
 )
 
 # Add executable
