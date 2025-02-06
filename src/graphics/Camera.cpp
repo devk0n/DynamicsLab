@@ -89,6 +89,12 @@ void Camera::processKeyboard(const KeyBindings& keys, float deltaTime) {
     if (InputManager::isKeyPressed(keys.moveRight)) {
         position += rightVec * speed;
     }
+    if (InputManager::isKeyPressed(keys.moveUp)) {
+        position += up * speed;
+    }
+    if (InputManager::isKeyPressed(keys.moveDown)) {
+        position -= up * speed;
+    }
 }
 
 

@@ -8,7 +8,7 @@ struct KeyBindings {
     int moveBackward = GLFW_KEY_S;
     int moveLeft     = GLFW_KEY_A;
     int moveRight    = GLFW_KEY_D;
-    int moveUp       = GLFW_KEY_SPACE;
+    int moveUp       = GLFW_KEY_LEFT_SHIFT;
     int moveDown     = GLFW_KEY_LEFT_CONTROL;
 };
 
