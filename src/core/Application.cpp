@@ -147,11 +147,19 @@ void Application::renderFrame() {
 }
 
 void Application::shutdown() {
-    m_imGuiManager.shutdown();
+    std::cout << "[Application] Shutting down...\n";
+
+    // Delete OpenGL objects (Renderer)
+    m_renderer.shutdown();
+
+    // Destroy the window and terminate GLFW
     m_window.reset();
 
     if (m_glfwInitialized) {
         glfwTerminate();
         m_glfwInitialized = false;
     }
+
+    std::cout << "[Application] Shutdown complete.\n";
 }
+

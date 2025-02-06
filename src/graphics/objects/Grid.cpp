@@ -66,7 +66,6 @@ bool Grid::setupGrid() {
     return true;
 }
 
-
 void Grid::render(const glm::mat4& projection, const glm::mat4& view) {
     if (m_shaderProgram == 0) {
         std::cerr << "[Grid] ERROR: Shader program is not set. Skipping rendering.\n";
