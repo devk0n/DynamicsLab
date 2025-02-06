@@ -7,23 +7,23 @@
 
 class ImGuiManager {
 public:
-    // Initialize ImGui with the provided GLFW window
+    ImGuiManager() = default;
+    ~ImGuiManager() { shutdown(); }
+
     bool initialize(GLFWwindow* window);
-
     void renderGui();
-
-    // Shutdown ImGui and clean up resources
     void shutdown();
+
 private:
     void beginFrame();
     void endFrame();
-
     void performanceWindow() const;
 
-    ImGuiWindowFlags m_windowFlags =
+    ImGuiWindowFlags m_windowFlags{
         ImGuiWindowFlags_NoResize |
         ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoCollapse;
+        ImGuiWindowFlags_NoCollapse
+    };
 };
 
 

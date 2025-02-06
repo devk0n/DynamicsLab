@@ -1,13 +1,12 @@
 #include "Application.h"
 
 
-Application::Application()
-    : m_window(nullptr, glfwDestroyWindow)
-    , m_glfwInitialized(false)
-    , m_running(false)
-    , m_lastFrameTime(0.0f) {
+Application::Application() :
+    m_window(nullptr, glfwDestroyWindow),
+    m_glfwInitialized(false),
+    m_running(false),
+    m_lastFrameTime(0.0f) {
 
-    initialize();
 }
 
 Application::~Application() {
@@ -25,6 +24,7 @@ bool Application::initialize() {
         !initializeGlad()   ||
         !initializeImGui()  ||
         !initializeRenderer()) {
+
         shutdown();
         return false;
     }
@@ -94,8 +94,8 @@ bool Application::initializeRenderer() {
 
 void Application::mainLoop() {
     while (m_running && !glfwWindowShouldClose(m_window.get())) {
-        float currentFrameTime = static_cast<float>(glfwGetTime());
-        float deltaTime = currentFrameTime - m_lastFrameTime;
+        double currentFrameTime = glfwGetTime();
+        double deltaTime = currentFrameTime - m_lastFrameTime;
         m_lastFrameTime = currentFrameTime;
 
         glfwPollEvents(); // Pump window events
@@ -105,13 +105,13 @@ void Application::mainLoop() {
     }
 }
 
-void Application::update(float deltaTime) {
+void Application::update(double deltaTime) {
     // 1) Keyboard (WASD)
     bool wKey = (glfwGetKey(m_window.get(), GLFW_KEY_W) == GLFW_PRESS);
     bool sKey = (glfwGetKey(m_window.get(), GLFW_KEY_S) == GLFW_PRESS);
     bool aKey = (glfwGetKey(m_window.get(), GLFW_KEY_A) == GLFW_PRESS);
     bool dKey = (glfwGetKey(m_window.get(), GLFW_KEY_D) == GLFW_PRESS);
-    m_camera.processKeyboard(wKey, sKey, aKey, dKey, deltaTime);
+    m_camera.processKeyboard(wKey, sKey, aKey, dKey, static_cast<float>(deltaTime));
 
     // 2) Mouse look if right button is held
     bool rightMouseHeld = (glfwGetMouseButton(m_window.get(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);

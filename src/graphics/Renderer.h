@@ -42,7 +42,6 @@ private:
                                         const std::string& fragmentFilePath);
     static std::string readFileContents(const std::string& filePath);
 
-
 };
 
 

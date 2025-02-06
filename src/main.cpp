@@ -1,16 +1,18 @@
 #include <iostream>
-
 #include "core/Application.h"
 
 int main() {
+    Application app;
 
-    try {
-        Application app;
-        app.run();
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+    // Initialize subsystems
+    if (!app.initialize()) {
+        std::cerr << "Failed to initialize application." << std::endl;
         return EXIT_FAILURE;
     }
 
+    // Run the main loop
+    app.run();
+
+    // Application destructor will call shutdown, or you can call it manually
     return EXIT_SUCCESS;
 }

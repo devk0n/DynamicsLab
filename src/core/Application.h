@@ -17,6 +17,7 @@ public:
     Application();
     ~Application();
 
+    bool initialize();
     void run();
 
 private:
@@ -32,33 +33,24 @@ private:
     bool m_glfwInitialized;
     bool m_running;
 
-    float m_lastFrameTime;
+    double m_lastFrameTime;
 
-    // The main game/application loop
+    // The main application loop
     void mainLoop();
 
     // Cleanup everything when shutting down
     void shutdown();
 
-    //
-    // 1. Orchestrate the entire initialization process
-    //
-    bool initialize();
-
-    //
-    // 2. Break down the initialization into smaller steps
-    //    so that `initialize()` doesn’t get too long and complicated.
-    //
+    // Break down the initialization into smaller steps
+    // so that `initialize()` doesn’t get too long and complicated.
     bool initializeGLFW();           // Step 1: Initialize GLFW
     bool createMainWindow();         // Step 2: Create the main window
-    bool initializeGlad();           // Step 3: Load OpenGL functions via GLAD
+    static bool initializeGlad();           // Step 3: Load OpenGL functions via GLAD
     bool initializeImGui();          // Step 4: Initialize ImGui
     bool initializeRenderer();       // Step 5: Initialize the renderer
 
-    //
-    // 3. Methods to keep mainLoop clean
-    //
-    void update(float deltaTime);
+    // Methods to keep mainLoop clean
+    void update(double deltaTime);
     void renderFrame();
 };
 

@@ -73,8 +73,8 @@ void Renderer::shutdown() {
 bool Renderer::setupGrid() {
     // Build a list of lines in the X-Z plane (y=0)
     std::vector<glm::vec3> gridVertices;
-    const int gridSize = 10;
-    const float step = 1.0f;
+    const int gridSize = 5;
+    const int step = 1;
 
     // Vertical lines
     for (int i = -gridSize; i <= gridSize; ++i) {
@@ -108,7 +108,7 @@ bool Renderer::setupGrid() {
         GL_FLOAT,
         GL_FALSE,
         sizeof(glm::vec3),
-        (void*)0
+        (void*)nullptr
     );
 
     glBindVertexArray(0);
@@ -149,7 +149,7 @@ static GLuint compileShader(GLenum shaderType, const std::string& source) {
         glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
         std::cerr << "[compileShader] Error:\n" << infoLog << std::endl;
         glDeleteShader(shader);
-        return 0;
+        return false;
     }
     return shader;
 }
@@ -162,17 +162,17 @@ GLuint Renderer::createShaderProgramFromFiles(const std::string& vertexFilePath,
 
     if (vertexCode.empty() || fragmentCode.empty()) {
         std::cerr << "[createShaderProgramFromFiles] Empty shader file.\n";
-        return 0;
+        return false;
     }
 
     // Compile each shader
     GLuint vertexShader   = compileShader(GL_VERTEX_SHADER, vertexCode);
-    if (!vertexShader) return 0;
+    if (!vertexShader) return false;
 
     GLuint fragmentShader = compileShader(GL_FRAGMENT_SHADER, fragmentCode);
     if (!fragmentShader) {
         glDeleteShader(vertexShader);
-        return 0;
+        return false;
     }
 
     // Link them into a program
@@ -191,7 +191,7 @@ GLuint Renderer::createShaderProgramFromFiles(const std::string& vertexFilePath,
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
         glDeleteProgram(program);
-        return 0;
+        return false;
     }
 
     // Cleanup the shader objects; the program has them now
