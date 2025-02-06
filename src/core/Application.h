@@ -45,7 +45,7 @@ private:
     // so that `initialize()` doesn’t get too long and complicated.
     bool initializeGLFW();           // Step 1: Initialize GLFW
     bool createMainWindow();         // Step 2: Create the main window
-    static bool initializeGlad();           // Step 3: Load OpenGL functions via GLAD
+    static bool initializeGlad();    // Step 3: Load OpenGL functions via GLAD
     bool initializeImGui();          // Step 4: Initialize ImGui
     bool initializeRenderer();       // Step 5: Initialize the renderer
 

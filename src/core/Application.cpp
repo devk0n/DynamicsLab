@@ -5,7 +5,7 @@ Application::Application() :
     m_window(nullptr, glfwDestroyWindow),
     m_glfwInitialized(false),
     m_running(false),
-    m_lastFrameTime(0.0f) {
+    m_lastFrameTime(0.0) {
 
 }
 
