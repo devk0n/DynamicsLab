@@ -2,7 +2,7 @@
 #include <iostream>      // For std::cout, std::cerr
 
 Renderer::Renderer() :
-    m_grid(10),
+    m_grid(5),
     m_viewMatrix(1.0f) {
 
     m_projectionMatrix = glm::perspective(glm::radians(45.0f), 1920.0f / 1280.0f, 0.1f, 100.0f);

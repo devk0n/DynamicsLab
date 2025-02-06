@@ -10,6 +10,7 @@
 #include "../gui/ImGuiManager.h"
 #include "../graphics/Renderer.h"
 #include "../graphics/Camera.h"
+#include "../utilities/InputManager.h"
 
 
 class Application {
@@ -28,6 +29,7 @@ private:
     Camera        m_camera;
     ImGuiManager  m_imGuiManager;
     Renderer      m_renderer;
+    InputManager  m_inputManager;
 
     // State flags
     bool m_glfwInitialized;

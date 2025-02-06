@@ -1,5 +1,5 @@
 #include "Grid.h"
-#include "../ShaderUtils.h"      // We use ShaderUtils here
+#include "../../utilities/ShaderUtils.h"      // We use ShaderUtils here
 #include <iostream>
 #include <vector>             // for std::vector
 

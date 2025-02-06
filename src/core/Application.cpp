@@ -29,6 +29,8 @@ bool Application::initialize() {
         return false;
     }
 
+    InputManager::initialize(m_window.get());
+
     m_running = true;
     return true;
 }
@@ -106,31 +108,30 @@ void Application::mainLoop() {
 }
 
 void Application::update(double deltaTime) {
-    // 1) Keyboard (WASD)
-    bool wKey = (glfwGetKey(m_window.get(), GLFW_KEY_W) == GLFW_PRESS);
-    bool sKey = (glfwGetKey(m_window.get(), GLFW_KEY_S) == GLFW_PRESS);
-    bool aKey = (glfwGetKey(m_window.get(), GLFW_KEY_A) == GLFW_PRESS);
-    bool dKey = (glfwGetKey(m_window.get(), GLFW_KEY_D) == GLFW_PRESS);
+    InputManager::update();
+    const KeyBindings& keys = InputManager::getKeyBindings();
+
+    // Use structured keybindings
+    bool wKey = InputManager::isKeyPressed(keys.moveForward);
+    bool sKey = InputManager::isKeyPressed(keys.moveBackward);
+    bool aKey = InputManager::isKeyPressed(keys.moveLeft);
+    bool dKey = InputManager::isKeyPressed(keys.moveRight);
+
     m_camera.processKeyboard(wKey, sKey, aKey, dKey, static_cast<float>(deltaTime));
 
-    // 2) Mouse look if right button is held
-    bool rightMouseHeld = (glfwGetMouseButton(m_window.get(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS);
+    // Mouse handling
+    bool rightMouseHeld = InputManager::isMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
     double mouseX, mouseY;
-    glfwGetCursorPos(m_window.get(), &mouseX, &mouseY);
-    m_camera.processMouseMovement(static_cast<float>(mouseX),
-                                  static_cast<float>(mouseY),
-                                  rightMouseHeld);
+    InputManager::getMousePosition(mouseX, mouseY);
+    m_camera.processMouseMovement(static_cast<float>(mouseX), static_cast<float>(mouseY), rightMouseHeld);
 
-    // Optionally hide the cursor while right mouse is held
-    if (rightMouseHeld) {
-        glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    } else {
-        glfwSetInputMode(m_window.get(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-    }
+    // Toggle cursor visibility
+    glfwSetInputMode(m_window.get(), GLFW_CURSOR, rightMouseHeld ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 
-    // 3) Update renderer's view matrix from camera
+    // Update renderer's view matrix from camera
     m_renderer.setViewMatrix(m_camera.getViewMatrix());
 }
+
 
 void Application::renderFrame() {
     // 1) Clear screen

@@ -1,12 +1,8 @@
-//
-// Created by devkon on 06/02/2025.
-//
-
 #ifndef DYNAMICSLAB_SHADERUTILS_H
 #define DYNAMICSLAB_SHADERUTILS_H
 
 
-#include <glad/glad.h>
+#include "glad/glad.h"
 #include <string>
 
 class ShaderUtils {

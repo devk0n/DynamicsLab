@@ -89,9 +89,12 @@ set(SOURCES
 
         src/graphics/Camera.cpp
         src/graphics/Renderer.cpp
-        src/graphics/ShaderUtils.cpp
 
         src/graphics/objects/Grid.cpp
+
+        src/utilities/ShaderUtils.cpp
+        src/utilities/InputManager.cpp
+
 )
 
 # Add executable
