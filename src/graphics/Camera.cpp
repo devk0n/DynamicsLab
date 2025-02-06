@@ -1,4 +1,6 @@
 #include "Camera.h"
+#include "../utilities/InputManager.h"
+
 #include <cmath>
 
 
@@ -72,24 +74,23 @@ void Camera::processMouseMovement(float mouseX, float mouseY, bool isRightMouseH
     updateCameraVectors();
 }
 
-// Keyboard WASD
-void Camera::processKeyboard(bool wKey, bool sKey, bool aKey, bool dKey, float deltaTime) {
-    float speed = 5.0f; // movement speed units per second, adjust to taste
-    float velocity = speed * deltaTime;
+void Camera::processKeyboard(const KeyBindings& keys, float deltaTime) {
+    float speed = 5.0f * deltaTime; // movement speed
 
-    if (wKey) {
-        position += front * velocity;
+    if (InputManager::isKeyPressed(keys.moveForward)) {
+        position += front * speed;
     }
-    if (sKey) {
-        position -= front * velocity;
+    if (InputManager::isKeyPressed(keys.moveBackward)) {
+        position -= front * speed;
     }
-    if (aKey) {
-        position -= rightVec * velocity;
+    if (InputManager::isKeyPressed(keys.moveLeft)) {
+        position -= rightVec * speed;
     }
-    if (dKey) {
-        position += rightVec * velocity;
+    if (InputManager::isKeyPressed(keys.moveRight)) {
+        position += rightVec * speed;
     }
 }
+
 
 // Return a lookAt matrix
 glm::mat4 Camera::getViewMatrix() const {

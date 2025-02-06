@@ -108,30 +108,9 @@ void Application::mainLoop() {
 }
 
 void Application::update(double deltaTime) {
-    InputManager::update();
-    const KeyBindings& keys = InputManager::getKeyBindings();
-
-    // Use structured keybindings
-    bool wKey = InputManager::isKeyPressed(keys.moveForward);
-    bool sKey = InputManager::isKeyPressed(keys.moveBackward);
-    bool aKey = InputManager::isKeyPressed(keys.moveLeft);
-    bool dKey = InputManager::isKeyPressed(keys.moveRight);
-
-    m_camera.processKeyboard(wKey, sKey, aKey, dKey, static_cast<float>(deltaTime));
-
-    // Mouse handling
-    bool rightMouseHeld = InputManager::isMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
-    double mouseX, mouseY;
-    InputManager::getMousePosition(mouseX, mouseY);
-    m_camera.processMouseMovement(static_cast<float>(mouseX), static_cast<float>(mouseY), rightMouseHeld);
-
-    // Toggle cursor visibility
-    glfwSetInputMode(m_window.get(), GLFW_CURSOR, rightMouseHeld ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
-
-    // Update renderer's view matrix from camera
+    InputManager::update(static_cast<float>(deltaTime), m_camera);
     m_renderer.setViewMatrix(m_camera.getViewMatrix());
 }
-
 
 void Application::renderFrame() {
     // 1) Clear screen

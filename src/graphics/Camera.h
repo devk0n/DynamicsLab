@@ -8,6 +8,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "../utilities/KeyBindings.h"
+
 
 class Camera {
 public:
@@ -17,7 +19,7 @@ public:
     void processMouseMovement(float mouseX, float mouseY, bool isRightMouseHeld);
 
     // Call once per frame to update the camera's position based on WASD input
-    void processKeyboard(bool wKey, bool sKey, bool aKey, bool dKey, float deltaTime);
+    void processKeyboard(const KeyBindings& keys, float deltaTime);
 
     // Get the view matrix (use in your renderer)
     [[nodiscard]] glm::mat4 getViewMatrix() const;

@@ -3,11 +3,12 @@
 
 #include <GLFW/glfw3.h>
 #include "KeyBindings.h"
+#include "../graphics/Camera.h"
 
 class InputManager {
 public:
     static void initialize(GLFWwindow* window);
-    static void update();
+    static void update(float deltaTime, Camera& camera);
 
     static bool isKeyPressed(int key);
     static bool isMouseButtonPressed(int button);
