@@ -12,9 +12,6 @@ std::string ShaderUtils::readFileContents(const std::string& filePath) {
     std::stringstream buffer;
     buffer << file.rdbuf();
 
-    // Print the loaded shader code
-    std::cout << "[ShaderUtils] Loaded Shader (" << filePath << "):\n" << buffer.str() << std::endl;
-
     return buffer.str();
 }
 
@@ -30,7 +27,7 @@ GLuint ShaderUtils::compileShader(GLenum shaderType, const std::string& source) 
     if (!success) {
         char infoLog[1024];
         glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
-        std::cerr << "[ShaderUtils::compileShader] Error:\n" << infoLog << std::endl;
+        std::cerr << "[ShaderUtils::compileShader] Error:\n" << infoLog << + "\n";
         glDeleteShader(shader);
         return 0;
     }
@@ -69,7 +66,6 @@ GLuint ShaderUtils::createShaderProgram(const std::string& vertexPath, const std
         return 0;
     }
 
-    std::cout << "[ShaderUtils] Shader compiled and linked successfully! Program ID: " << program << "\n";
     return program;
 }
 

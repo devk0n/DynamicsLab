@@ -12,15 +12,15 @@ public:
 
     bool initialize(GLFWwindow* window);
 
-    void beginFrame();
-    void performanceWindow() const;
-    void endFrame();
+    void renderGui();
 
     void shutdown();
 
 private:
 
-
+    void beginFrame();
+    void performanceWindow() const;
+    void endFrame();
 
     ImGuiWindowFlags m_windowFlags{
         ImGuiWindowFlags_NoResize |

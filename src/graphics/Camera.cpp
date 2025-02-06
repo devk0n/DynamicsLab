@@ -75,7 +75,7 @@ void Camera::processMouseMovement(float mouseX, float mouseY, bool isRightMouseH
 }
 
 void Camera::processKeyboard(const KeyBindings& keys, float deltaTime) {
-    float speed = 5.0f * deltaTime; // movement speed
+    float speed = 25.0f * deltaTime; // movement speed
 
     if (InputManager::isKeyPressed(keys.moveForward)) {
         position += front * speed;

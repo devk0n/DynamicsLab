@@ -5,7 +5,7 @@
 Renderer::Renderer() :
     m_grid(5),
     m_viewMatrix(glm::lookAt(glm::vec3(0.0f, 5.0f, 10.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f))),
-    m_projectionMatrix(glm::perspective(glm::radians(45.0f), 1920.0f / 1280.0f, 0.1f, 100.0f)) {
+    m_projectionMatrix(glm::perspective(glm::radians(45.0f), 1920.0f / 1280.0f, 0.1f, 10000.0f)) {
 }
 
 Renderer::~Renderer() {
@@ -15,7 +15,7 @@ Renderer::~Renderer() {
 bool Renderer::initialize() {
     // Set basic GL state
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_MULTISAMPLE);
+    // glEnable(GL_MULTISAMPLE);
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
     if (!m_grid.initialize()) {

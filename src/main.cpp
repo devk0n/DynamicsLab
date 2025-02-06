@@ -6,7 +6,7 @@ int main() {
 
     // Initialize subsystems
     if (!app.initialize()) {
-        std::cerr << "Failed to initialize application." << std::endl;
+        std::cerr << "Failed to initialize application. \n";
         return EXIT_FAILURE;
     }
 
