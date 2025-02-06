@@ -1,5 +1,5 @@
 #include "ImGuiManager.h"
-#include <iostream>
+
 
 bool ImGuiManager::initialize(GLFWwindow* window) {
     IMGUI_CHECKVERSION();

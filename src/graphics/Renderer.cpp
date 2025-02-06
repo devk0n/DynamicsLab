@@ -1,6 +1,5 @@
-#include "Renderer.h"   // Corresponding header
+#include "Renderer.h"
 
-#include <iostream>      // For std::cout, std::cerr
 
 Renderer::Renderer() :
     m_grid(5),
@@ -8,9 +7,7 @@ Renderer::Renderer() :
     m_projectionMatrix(glm::perspective(glm::radians(45.0f), 1920.0f / 1280.0f, 0.1f, 10000.0f)) {
 }
 
-Renderer::~Renderer() {
-    shutdown();
-}
+Renderer::~Renderer() { shutdown(); }
 
 bool Renderer::initialize() {
     // Set basic GL state
@@ -34,25 +31,15 @@ void Renderer::clear() {
 void Renderer::render() {
     m_grid.render(m_projectionMatrix, m_viewMatrix);
 
-    for (const auto& cube : m_cubes) {  // Iterate using a reference to unique_ptr
-        cube->render(m_projectionMatrix, m_viewMatrix); // Dereference the unique_ptr to call render()
+    for (const auto& cube : m_cubes) {
+        cube->render(m_projectionMatrix, m_viewMatrix);
     }
 }
 
+void Renderer::shutdown() { m_grid.shutdown(); }
 
+void Renderer::addCube(std::unique_ptr<Cube> cube) { m_cubes.push_back(std::move(cube)); }
 
-void Renderer::shutdown() {
-    m_grid.shutdown();
-}
+void Renderer::setProjectionMatrix(const glm::mat4& projection) { m_projectionMatrix = projection; }
 
-void Renderer::addCube(std::unique_ptr<Cube> cube) {
-    m_cubes.push_back(std::move(cube));
-}
-
-void Renderer::setProjectionMatrix(const glm::mat4& projection) {
-    m_projectionMatrix = projection;
-}
-
-void Renderer::setViewMatrix(const glm::mat4& view) {
-    m_viewMatrix = view;
-}
+void Renderer::setViewMatrix(const glm::mat4& view) { m_viewMatrix = view; }

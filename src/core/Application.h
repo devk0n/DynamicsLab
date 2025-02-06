@@ -4,13 +4,14 @@
 #include <memory>
 #include <iostream>
 #include <stdexcept>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "../gui/ImGuiManager.h"
-#include "../graphics/Renderer.h"
-#include "../graphics/Camera.h"
-#include "../Input/InputManager.h"
+#include "gui/ImGuiManager.h"
+#include "graphics/Renderer.h"
+#include "graphics/Camera.h"
+#include "input/InputManager.h"
 
 
 class Application {
@@ -29,7 +30,7 @@ private:
     Camera        m_camera;
     ImGuiManager  m_imGuiManager;
     Renderer      m_renderer;
-    InputManager  m_inputManager;
+    [[maybe_unused]] InputManager  m_inputManager;
 
     // State flags
     bool m_glfwInitialized;
@@ -53,9 +54,7 @@ private:
 
     // Methods to keep mainLoop clean
     void update(double deltaTime);
-
-    void addRandomCubes();
 };
 
 
-#endif // DYNAMICSLAB_APPLICATION_H
+#endif

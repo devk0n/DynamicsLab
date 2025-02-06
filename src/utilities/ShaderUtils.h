@@ -1,9 +1,12 @@
 #ifndef DYNAMICSLAB_SHADERUTILS_H
 #define DYNAMICSLAB_SHADERUTILS_H
 
-
 #include "glad/glad.h"
 #include <string>
+#include <fstream>
+#include <sstream>
+#include <iostream>
+
 
 class ShaderUtils {
 public:
@@ -13,4 +16,4 @@ public:
 };
 
 
-#endif //DYNAMICSLAB_SHADERUTILS_H
+#endif

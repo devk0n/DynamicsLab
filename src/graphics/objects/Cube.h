@@ -3,12 +3,14 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glad/glad.h>
 #include <string>
 #include <iostream>
 
-#include "../../utilities/ShaderUtils.h"
+#include "utilities/ShaderUtils.h"
+
 
 class Cube {
 public:
@@ -21,8 +23,6 @@ public:
     void render(const glm::mat4& projection,
                 const glm::mat4& view) const;
     void shutdown();
-
-    glm::vec3 getPosition();
 
 private:
     glm::vec3 m_position;
@@ -39,4 +39,4 @@ private:
 };
 
 
-#endif //DYNAMICSLAB_CUBE_H
+#endif

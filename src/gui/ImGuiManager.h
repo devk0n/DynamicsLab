@@ -5,6 +5,9 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
+#include <iostream>
+
+
 class ImGuiManager {
 public:
     ImGuiManager() = default;
@@ -17,7 +20,6 @@ public:
     void shutdown();
 
 private:
-
     void beginFrame();
     void performanceWindow() const;
     void endFrame();
@@ -30,4 +32,4 @@ private:
 };
 
 
-#endif //DYNAMICSLAB_IMGUIMANAGER_H
+#endif

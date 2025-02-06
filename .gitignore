@@ -4,6 +4,7 @@ cmake-build-release/
 
 # Ignore IDE configuration
 .idea/
+.clang-tidy
 
 # Ignore pdf
 *.pdf

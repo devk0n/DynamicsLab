@@ -1,7 +1,5 @@
 #include "Camera.h"
-#include "../Input/InputManager.h"
-
-#include <cmath>
+#include "input/InputManager.h"
 
 
 Camera::Camera()
@@ -97,8 +95,6 @@ void Camera::processKeyboard(const KeyBindings& keys, float deltaTime) {
     }
 }
 
-
-// Return a lookAt matrix
 glm::mat4 Camera::getViewMatrix() const {
     return glm::lookAt(position, position + front, up);
 }

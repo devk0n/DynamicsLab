@@ -3,7 +3,8 @@
 
 #include "GLFW/glfw3.h"
 #include "KeyBindings.h"
-#include "../graphics/Camera.h"
+#include "graphics/Camera.h"
+
 
 class InputManager {
 public:
@@ -22,4 +23,5 @@ private:
     static KeyBindings s_keyBindings;
 };
 
-#endif //DYNAMICSLAB_INPUTMANAGER_H
+
+#endif

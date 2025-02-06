@@ -5,6 +5,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <iostream>
+#include <vector>
+
+
 class Grid {
 public:
     Grid(int size = 5);
@@ -23,4 +27,5 @@ private:
     int    m_size;
 };
 
-#endif // GRID_H
+
+#endif

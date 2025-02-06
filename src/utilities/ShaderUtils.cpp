@@ -1,7 +1,5 @@
 #include "ShaderUtils.h"
-#include <fstream>
-#include <sstream>
-#include <iostream>
+
 
 std::string ShaderUtils::readFileContents(const std::string& filePath) {
     std::ifstream file(filePath, std::ios::in | std::ios::binary);
@@ -14,7 +12,6 @@ std::string ShaderUtils::readFileContents(const std::string& filePath) {
 
     return buffer.str();
 }
-
 
 GLuint ShaderUtils::compileShader(GLenum shaderType, const std::string& source) {
     GLuint shader = glCreateShader(shaderType);
@@ -68,4 +65,3 @@ GLuint ShaderUtils::createShaderProgram(const std::string& vertexPath, const std
 
     return program;
 }
-

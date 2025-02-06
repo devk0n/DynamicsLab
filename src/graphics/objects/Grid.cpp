@@ -1,9 +1,6 @@
 #include "Grid.h"
-#include "../../utilities/ShaderUtils.h"      // We use ShaderUtils here
-#include <iostream>
-#include <vector>             // for std::vector
+#include "utilities/ShaderUtils.h"
 
-#include <glm/gtc/type_ptr.hpp>  // glm::value_ptr
 
 Grid::Grid(int size)
     : m_VAO(0)
@@ -96,7 +93,6 @@ void Grid::render(const glm::mat4& projection, const glm::mat4& view) {
     glBindVertexArray(0);
     glUseProgram(0);
 }
-
 
 void Grid::shutdown() {
     if (m_VAO) {

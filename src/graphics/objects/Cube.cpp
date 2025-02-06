@@ -1,6 +1,5 @@
 #include "Cube.h"
 
-#include <glm/gtc/type_ptr.hpp>
 
 Cube::Cube(glm::vec3 position, glm::vec3 dimensions, glm::vec3 color, glm::quat orientation) :
     m_position(position),
@@ -141,8 +140,3 @@ glm::mat4 Cube::getModelMatrix() const {
     model = glm::scale(model, m_dimensions); // Scale to dimensions
     return model;
 }
-
-glm::vec3 Cube::getPosition() {
-    return m_position;
-}
-

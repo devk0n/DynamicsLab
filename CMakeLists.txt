@@ -94,7 +94,7 @@ set(SOURCES
         src/graphics/objects/Cube.cpp
 
         src/utilities/ShaderUtils.cpp
-        src/Input/InputManager.cpp
+        src/input/InputManager.cpp
 
 )
 
@@ -114,5 +114,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 # Include the current source directory in the project's include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )

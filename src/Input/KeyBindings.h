@@ -3,6 +3,7 @@
 
 #include "GLFW/glfw3.h"
 
+
 struct KeyBindings {
     // Camera movement bindings
     int moveForward     = GLFW_KEY_W;
@@ -16,5 +17,6 @@ struct KeyBindings {
     int reset           = GLFW_KEY_R;
     int pause           = GLFW_KEY_SPACE;
 };
+
 
 #endif

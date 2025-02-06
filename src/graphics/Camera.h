@@ -1,14 +1,11 @@
-//
-// Created by devkon on 05/02/2025.
-//
-
 #ifndef DYNAMICSLAB_CAMERA_H
 #define DYNAMICSLAB_CAMERA_H
 
+#include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "../Input/KeyBindings.h"
+#include "input/KeyBindings.h"
 
 
 class Camera {
