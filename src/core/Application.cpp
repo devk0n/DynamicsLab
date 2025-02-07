@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "physics/RigidBody.h"
 
 
 Application::Application() :
@@ -30,6 +31,8 @@ bool Application::initialize() {
 }
 
 void Application::mainLoop() {
+
+    RigidBody body(Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0), Matrix3d::Identity(), 10.0, Matrix3d::Identity() * 60.0);
 
     while (m_running && !glfwWindowShouldClose(m_window.get())) {
         double currentFrameTime = glfwGetTime();

@@ -94,7 +94,11 @@ set(SOURCES
         src/graphics/objects/Cube.cpp
 
         src/utilities/ShaderUtils.cpp
+        src/utilities/MatrixUtilities.cpp
         src/input/InputManager.cpp
+
+        src/physics/Dynamics.cpp
+        src/physics/RigidBody.cpp
 
 )
 
