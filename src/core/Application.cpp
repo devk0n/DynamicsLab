@@ -3,10 +3,12 @@
 
 
 Application::Application() :
-    m_window(nullptr, glfwDestroyWindow),
-    m_glfwInitialized(false),
-    m_running(false),
-    m_lastFrameTime(0) {}
+        m_window(nullptr, glfwDestroyWindow),
+        m_glfwInitialized(false),
+        m_running(false),
+        m_lastFrameTime(0),
+        m_dynamics(&m_renderer, 0.0001),
+        m_imGuiManager(&m_dynamics) {}
 
 Application::~Application() { shutdown(); }
 
@@ -32,7 +34,14 @@ bool Application::initialize() {
 
 void Application::mainLoop() {
 
-    RigidBody body(Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0), Matrix3d::Identity(), 10.0, Matrix3d::Identity() * 60.0);
+    RigidBody body0(Vector3d(0.0, 0.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0), Matrix3d::Identity() * 10.0, Matrix3d::Identity() * 60.0);
+    RigidBody body1(Vector3d(0.0, 1.0, 0.0), Vector4d(1.0, 0.0, 0.0, 0.0), Matrix3d::Identity() * 20.0, Matrix3d::Identity() * 120.0);
+
+    m_dynamics.setExternalForce(Vector3d(0.0, 0.0, 0.0));
+
+    m_dynamics.addRigidBody(std::make_unique<RigidBody>(body0));
+    m_dynamics.addRigidBody(std::make_unique<RigidBody>(body1));
+    m_dynamics.initialize();
 
     while (m_running && !glfwWindowShouldClose(m_window.get())) {
         double currentFrameTime = glfwGetTime();
@@ -56,6 +65,7 @@ void Application::mainLoop() {
 void Application::update(double deltaTime) {
     InputManager::update(static_cast<float>(deltaTime), m_camera);
     m_renderer.setViewMatrix(m_camera.getViewMatrix());
+    m_dynamics.step();
 }
 
 void Application::shutdown() {
@@ -116,6 +126,7 @@ bool Application::initializeGlad() {
 }
 
 bool Application::initializeImGui() {
+
     if (!m_imGuiManager.initialize(m_window.get())) {
         std::cerr << "[DynamicsLab] Failed to initialize ImGui \n";
         return false;

@@ -13,6 +13,7 @@
 
 #include "objects/Grid.h"
 #include "objects/Cube.h"
+#include "physics/RigidBody.h"
 
 
 class Renderer {
@@ -36,6 +37,7 @@ private:
     Grid      m_grid;
 
     std::vector<std::unique_ptr<Cube>> m_cubes;
+
 };
 
 

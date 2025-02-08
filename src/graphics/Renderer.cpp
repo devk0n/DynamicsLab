@@ -30,10 +30,6 @@ void Renderer::clear() {
 
 void Renderer::render() {
     m_grid.render(m_projectionMatrix, m_viewMatrix);
-
-    for (const auto& cube : m_cubes) {
-        cube->render(m_projectionMatrix, m_viewMatrix);
-    }
 }
 
 void Renderer::shutdown() { m_grid.shutdown(); }

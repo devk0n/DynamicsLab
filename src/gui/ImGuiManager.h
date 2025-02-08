@@ -7,10 +7,11 @@
 
 #include <iostream>
 
+#include "physics/Dynamics.h"
 
 class ImGuiManager {
 public:
-    ImGuiManager() = default;
+    ImGuiManager(Dynamics* dynamics);
     ~ImGuiManager() { shutdown(); }
 
     bool initialize(GLFWwindow* window);
@@ -20,7 +21,10 @@ public:
     void shutdown();
 
 private:
+    Dynamics* m_dynamics = nullptr;
+
     void beginFrame();
+    void dynamicsWindow();
     void performanceWindow() const;
     void endFrame();
 
@@ -29,6 +33,8 @@ private:
         ImGuiWindowFlags_NoMove |
         ImGuiWindowFlags_NoCollapse
     };
+
+    void controlWindow();
 };
 
 

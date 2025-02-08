@@ -1,7 +1,9 @@
 
 #include "MatrixUtilities.h"
 
-Eigen::Matrix<double, 3, 4> MatrixUtilities::transformationMatrixL(Eigen::Vector4d transformationMatrix) {
+
+
+Eigen::Matrix<double, 3, 4> transformationMatrixL(Eigen::Vector4d transformationMatrix) {
 
     double w = transformationMatrix(0);
     double x = transformationMatrix(1);
@@ -16,7 +18,7 @@ Eigen::Matrix<double, 3, 4> MatrixUtilities::transformationMatrixL(Eigen::Vector
     return L;
 }
 
-Eigen::Matrix<double, 3, 4> MatrixUtilities::transformationMatrixG(Eigen::Vector4d transformationMatrix) {
+Eigen::Matrix<double, 3, 4> transformationMatrixG(Eigen::Vector4d transformationMatrix) {
 
     double w = transformationMatrix(0);
     double x = transformationMatrix(1);

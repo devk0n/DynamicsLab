@@ -1,9 +1,20 @@
 #include "RigidBody.h"
 
+#include <utility>
 
+#include "utilities/MatrixUtilities.h"
 
-RigidBody::RigidBody(Vector3d position, Vector4d orientation, Matrix3d massMatrix, Matrix3d localInertiaTensor) {
-    m_inertiaTensor = Matrix4d::Identity();
+RigidBody::RigidBody(Vector3d position,
+                     Vector4d orientation,
+                     Matrix3d massMatrix,
+                     Matrix3d localInertiaTensor) :
+                     m_position(std::move(position)),
+                     m_orientation(std::move(orientation)),
+                     m_massMatrix(std::move(massMatrix)),
+                     m_localInertiaTensor(std::move(localInertiaTensor)) {
+
+    m_inertiaTensor = 4 * transformationMatrixL(m_orientation).transpose() * m_localInertiaTensor * transformationMatrixL(m_orientation);
+    
 }
 
 // Getters
@@ -23,11 +34,11 @@ Vector4d RigidBody::getOrientation() {
     return m_orientation;
 }
 
-Vector3d RigidBody::getAngularVelocity() {
+Vector4d RigidBody::getAngularVelocity() {
     return m_angularVelocity;
 }
 
-Vector3d RigidBody::getAngularAcceleration() {
+Vector4d RigidBody::getAngularAcceleration() {
     return m_angularAcceleration;
 }
 
@@ -37,6 +48,10 @@ Matrix3d RigidBody::getMassMatrix() {
 
 Matrix4d RigidBody::getInertiaTensor() {
     return m_inertiaTensor;
+}
+
+Matrix3d RigidBody::getLocalInertiaTensor() {
+    return m_localInertiaTensor;
 }
 
 // Setters
@@ -56,11 +71,11 @@ void RigidBody::setOrientation(Vector4d orientation) {
     m_orientation = orientation;
 }
 
-void RigidBody::setAngularVelocity(Vector3d angularVelocity) {
+void RigidBody::setAngularVelocity(Vector4d angularVelocity) {
     m_angularVelocity = angularVelocity;
 }
 
-void RigidBody::setAngularAcceleration(Vector3d angularAcceleration) {
+void RigidBody::setAngularAcceleration(Vector4d angularAcceleration) {
     m_angularAcceleration = angularAcceleration;
 }
 
@@ -70,4 +85,8 @@ void RigidBody::setMassMatrix(Matrix3d massMatrix) {
 
 void RigidBody::setInertiaTensor(Matrix4d inertiaTensor) {
     m_inertiaTensor = inertiaTensor;
+}
+
+double RigidBody::getMass() {
+    return m_massMatrix(0, 0);
 }

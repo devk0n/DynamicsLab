@@ -17,11 +17,15 @@ public:
     Vector3d getAcceleration();
 
     Vector4d getOrientation();
-    Vector3d getAngularVelocity();
-    Vector3d getAngularAcceleration();
+    Vector4d getAngularVelocity();
+    Vector4d getAngularAcceleration();
 
     Matrix3d getMassMatrix();
     Matrix4d getInertiaTensor();
+
+    Matrix3d getLocalInertiaTensor();
+
+    double getMass();
 
     // Setters
     void setPosition(Vector3d position);
@@ -29,8 +33,8 @@ public:
     void setAcceleration(Vector3d acceleration);
 
     void setOrientation(Vector4d orientation);
-    void setAngularVelocity(Vector3d angularVelocity);
-    void setAngularAcceleration(Vector3d angularAcceleration);
+    void setAngularVelocity(Vector4d angularVelocity);
+    void setAngularAcceleration(Vector4d angularAcceleration);
 
     void setMassMatrix(Matrix3d massMatrix);
     void setInertiaTensor(Matrix4d inertiaTensor);
@@ -41,13 +45,13 @@ private:
     Vector3d m_acceleration;                    // (rdd) acceleration in xa, ya, za.
 
     Vector4d m_orientation;                     // (p) orientation in quaternions w, x, y, z.
-    Vector3d m_angularVelocity;                 // (pd)
-    Vector3d m_angularAcceleration;             // (pdd)
+    Vector4d m_angularVelocity;                 // (pd)
+    Vector4d m_angularAcceleration;             // (pdd)
 
     Matrix4d m_inertiaTensor;                   // (J*) Generalized inertia tensor from quaternions.
 
-    const Matrix3d m_massMatrix;                // (N) Mass matrix
-    const Matrix3d m_localInertiaTensor;        // (Jm) Local inertia tensor kgm^2.
+    Matrix3d m_massMatrix;                      // (N) Mass matrix
+    Matrix3d m_localInertiaTensor;              // (Jm) Local inertia tensor kgm^2.
 };
 
 

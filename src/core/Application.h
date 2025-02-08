@@ -12,6 +12,7 @@
 #include "graphics/Renderer.h"
 #include "graphics/Camera.h"
 #include "input/InputManager.h"
+#include "physics/Dynamics.h"
 
 
 class Application {
@@ -23,6 +24,9 @@ public:
     void run();
 
 private:
+    // Dynamics
+    Dynamics m_dynamics;
+
     // Window-related
     std::unique_ptr<GLFWwindow, decltype(&glfwDestroyWindow)> m_window;
 
