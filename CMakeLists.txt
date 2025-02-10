@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(DynamicsLab)
 
 # Set C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Include FetchContent module
@@ -83,13 +83,21 @@ find_package(OpenGL REQUIRED)
 
 # Source files
 set(SOURCES
-        src/main.cpp
-        src/core/Application.cpp
-        src/input/InputHandler.cpp
-        src/graphics/Camera.cpp
-        src/graphics/Renderer.cpp
-        src/window/Window.cpp
-        src/gui/GuiManager.cpp
+        main.cpp
+
+        core/Application.cpp
+        core/InputManager.cpp
+        core/Camera.cpp
+        core/WindowManager.cpp
+
+        graphics/Renderer.cpp
+        #graphics/Shader.cpp
+        #graphics/Mesh.cpp
+
+        imgui/ImGuiManager.cpp
+
+        physics/PhysicsEngine.cpp
+        physics/RigidBody.cpp
 )
 
 # Add executable
@@ -108,5 +116,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 # Include the current source directory in the project's include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/resources
 )
