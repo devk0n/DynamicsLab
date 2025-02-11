@@ -35,6 +35,10 @@ FetchContent_MakeAvailable(glfw)
 add_library(glad STATIC external/glad/src/glad.c)
 target_include_directories(glad PUBLIC external/glad/include)
 
+# Include STB as a header-only library
+add_library(stb INTERFACE)
+target_include_directories(stb INTERFACE ${CMAKE_SOURCE_DIR}/external/stb)
+
 # Fetch ImGui
 FetchContent_Declare(
         imgui
@@ -122,6 +126,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         glm::glm
         OpenGL::GL
         Eigen3::Eigen
+        stb
 )
 
 # Include the current source directory in the project's include directories

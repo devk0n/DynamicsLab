@@ -55,4 +55,10 @@ void InputManager::update(float deltaTime, Camera &camera) {
     glfwSetInputMode(s_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     firstMouse = true; // Reset first-mouse state
   }
+
+  // -------------------------------------------------------------
+  // Utility keybindings
+  // -------------------------------------------------------------
+  if (glfwGetKey(s_window, GLFW_KEY_F12) == GLFW_PRESS)
+    Renderer::captureScreenshot();
 }

@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "ScreenshotUtils.h"
 
 bool Renderer::initialize(const std::string &vertexPath, const std::string &fragmentPath) {
   // Initialize the shader
@@ -6,7 +7,7 @@ bool Renderer::initialize(const std::string &vertexPath, const std::string &frag
     std::cerr << "Failed to initialize shader" << std::endl;
     return false;
   }
-  
+
   m_initialized = true;
   return true;
 }
@@ -62,5 +63,9 @@ void Renderer::endFrame() {
 void Renderer::shutdown() {
   // Clean up shaders and other resources
   // m_shader.cleanup();
+}
+
+void Renderer::captureScreenshot() {
+  saveScreenshot(glfwGetCurrentContext());
 }
 
