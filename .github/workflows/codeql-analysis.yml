@@ -20,7 +20,7 @@ jobs:
         uses: github/codeql-action/init@v2
         with:
           languages: cpp
-          autobuild: false # Disable automatic building
+          autobuild: true # Disable automatic building
 
       - name: Install dependencies
         run: |
