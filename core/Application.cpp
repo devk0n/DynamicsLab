@@ -29,7 +29,7 @@ bool Application::initialize() {
   );
 
   m_physicsEngine.addRigidBody(cube);
-  // m_physicsEngine.initialize();
+  m_physicsEngine.initialize();
 
   return true;
 }
@@ -40,7 +40,6 @@ void Application::update(float deltaTime) {
   if (m_physicsEngine.isInitialized() && m_physicsEngine.isRunning()) {
     m_physicsEngine.step();
   }
-
 }
 
 void Application::run() {

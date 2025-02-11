@@ -85,21 +85,23 @@ void ImGuiManager::showRendererControls(Renderer &renderer) {
 void ImGuiManager::controlWindow(PhysicsEngine &physicsEngine) {
   ImGui::Begin("Simulation Controls");
 
-  if (ImGui::Button("Initialize Simulation")) {
-    physicsEngine.initialize();
-  }
-  ImGui::SameLine();
+
   if (ImGui::Button("Start Simulation")) {
     physicsEngine.start();
   }
-
+  ImGui::SameLine();
   if (ImGui::Button("Stop Simulation")) {
     physicsEngine.stop();
   }
 
-  ImGui::SameLine();
+
   if (ImGui::Button("Step Simulation")) {
     physicsEngine.step();
+  }
+
+  ImGui::SameLine();
+  if (ImGui::Button("Reset Simulation")) {
+    // physicsEngine.reset();
   }
 
   // Static variables to store user-selected force values
@@ -107,14 +109,14 @@ void ImGuiManager::controlWindow(PhysicsEngine &physicsEngine) {
   static double forceY = 0.0;
   static double forceZ = 0.0;
 
-  static double maxForce = 100.0;
-  static double minForce = -100.0;
+  static double maxForce = 1000.0;
+  static double minForce = -1000.0;
 
   // Add sliders for each component of the force
   ImGui::Text("Set External Forces:");
-  ImGui::SliderScalar("Force X", ImGuiDataType_Double, &forceX, &maxForce, &minForce, "%.1f");
-  ImGui::SliderScalar("Force Y", ImGuiDataType_Double, &forceY, &maxForce, &minForce, "%.1f");
-  ImGui::SliderScalar("Force Z", ImGuiDataType_Double, &forceZ, &maxForce, &minForce, "%.1f");
+  ImGui::SliderScalar("Force X", ImGuiDataType_Double, &forceX, &minForce, &maxForce, "%.1f");
+  ImGui::SliderScalar("Force Y", ImGuiDataType_Double, &forceY, &minForce, &maxForce, "%.1f");
+  ImGui::SliderScalar("Force Z", ImGuiDataType_Double, &forceZ, &minForce, &maxForce, "%.1f");
 
   if (ImGui::Button("Reset Force & Torque")) {
     forceX = 0.0;
