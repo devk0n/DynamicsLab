@@ -32,6 +32,9 @@ public:
   // Mouse look
   void processMouseMovement(float xOffset, float yOffset, bool constrainPitch = true);
 
+  // Mouse scroll
+  void processMouseScroll();
+
   // Getters
   [[nodiscard]] glm::vec3 getPosition() const;
 

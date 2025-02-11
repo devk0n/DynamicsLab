@@ -103,6 +103,7 @@ set(SOURCES
 
         physics/PhysicsEngine.cpp
         physics/RigidBody.cpp
+        physics/Solver.cpp
 )
 
 # Add executable
