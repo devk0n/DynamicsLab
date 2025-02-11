@@ -9,7 +9,7 @@ public:
   // Constructor
   explicit Camera(glm::vec3 position = glm::vec3(0.0f, 3.0f, 0.0f),
                   glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f),
-                  float yaw = -90.0f, float pitch = 0.0f);
+                  float yaw = -90.0f, float pitch = -10.0f);
 
   // Get view and projection matrices
   [[nodiscard]] glm::mat4 getViewMatrix() const;
