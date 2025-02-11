@@ -71,27 +71,39 @@ void ImGuiManager::showRendererControls(Renderer& renderer) {
 void ImGuiManager::showPhysicsControls(PhysicsEngine& physicsEngine) {
     ImGui::Begin("Physics Controls");
 
-    // Add UI elements for physics controls
-    if (ImGui::Button("Reset Simulation")) {
-        // Reset physics simulation (if needed)
-    }
-
-    // Add controls for cube position and orientation
     auto& rigidBodies = physicsEngine.getRigidBodies();
-    if (!rigidBodies.empty()) {
-        // Assume we're modifying the first rigid body (the cube)
-        auto& cube = rigidBodies[0];
+    for (size_t i = 0; i < rigidBodies.size(); ++i) {
+        auto& body = rigidBodies[i];
+        std::string label = "RigidBody " + std::to_string(i);
 
-        // Position control
-        Eigen::Vector3d position = cube.getPosition();
-        float pos[3] = { static_cast<float>(position.x()), static_cast<float>(position.y()), static_cast<float>(position.z()) };
-        if (ImGui::DragFloat3("Cube Position", pos, 0.1f)) {
-            cube.setPosition(Eigen::Vector3d(pos[0], pos[1], pos[2]));
+        if (ImGui::CollapsingHeader(label.c_str())) {
+            // Position controls
+            Eigen::Vector3d position = body.getPosition();
+            float pos[3] = { static_cast<float>(position.x()), static_cast<float>(position.y()), static_cast<float>(position.z()) };
+            if (ImGui::DragFloat3((label + " Position").c_str(), pos, 0.1f)) {
+                body.setPosition(Eigen::Vector3d(pos[0], pos[1], pos[2]));
+            }
+
+            // Rotation controls (Convert stored Quaternion to Euler angles for UI)
+            Eigen::Vector4d quatVector = body.getOrientation();
+            Eigen::Quaterniond quaternion(quatVector[0], quatVector[1], quatVector[2], quatVector[3]);
+            Eigen::Vector3d eulerRotation = quaternion.toRotationMatrix().eulerAngles(0, 1, 2);
+
+            float euler[3] = { static_cast<float>(eulerRotation.x()), static_cast<float>(eulerRotation.y()), static_cast<float>(eulerRotation.z()) };
+            if (ImGui::DragFloat3((label + " Rotation").c_str(), euler, 0.01f)) {
+                Eigen::Quaterniond newQuaternion = Eigen::AngleAxisd(euler[0], Eigen::Vector3d::UnitX()) *
+                                                   Eigen::AngleAxisd(euler[1], Eigen::Vector3d::UnitY()) *
+                                                   Eigen::AngleAxisd(euler[2], Eigen::Vector3d::UnitZ());
+                Eigen::Vector4d newQuatVector(newQuaternion.w(), newQuaternion.x(), newQuaternion.y(), newQuaternion.z());
+                body.setOrientation(newQuatVector);
+            }
         }
     }
 
     ImGui::End();
 }
+
+
 
 void ImGuiManager::showDebugWindow(Camera& camera, PhysicsEngine& physicsEngine, GLFWwindow* window) {
     ImGui::Begin("Debug");

@@ -13,7 +13,7 @@ public:
 
     // Get view and projection matrices
     glm::mat4 getViewMatrix() const;
-    glm::mat4 getProjectionMatrix(float aspectRatio, float near = 0.1f, float far = 100.0f) const;
+    glm::mat4 getProjectionMatrix(float aspectRatio, float near = 0.1f, float far = 1000.0f) const;
 
     // Camera movement
     void moveForward(float deltaTime);
