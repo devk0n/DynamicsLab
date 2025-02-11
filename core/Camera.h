@@ -41,8 +41,8 @@ private:
   // Camera attributes
   glm::vec3 m_position;
   glm::vec3 m_front;
-  glm::vec3 m_up;
-  glm::vec3 m_right;
+  glm::vec3 m_up{};
+  glm::vec3 m_right{};
   glm::vec3 m_worldUp;
 
   // Euler angles

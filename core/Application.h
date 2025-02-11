@@ -18,7 +18,6 @@ public:
 
   void run();
 
-
 private:
   void update(float deltaTime);
 

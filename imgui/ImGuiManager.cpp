@@ -20,7 +20,7 @@ bool ImGuiManager::initialize(GLFWwindow *window) {
     return false;
   }
 
-  ImGuiStyle &style = ImGui::GetStyle();
+  // ImGuiStyle &style = ImGui::GetStyle();
 
   return true;
 }
@@ -80,24 +80,47 @@ void ImGuiManager::showPhysicsControls(PhysicsEngine &physicsEngine) {
     if (ImGui::CollapsingHeader(label.c_str())) {
       // Position controls
       Eigen::Vector3d position = body.getPosition();
-      float pos[3] = {static_cast<float>(position.x()), static_cast<float>(position.y()),
+      float pos[3] = {static_cast<float>(position.x()),
+                      static_cast<float>(position.y()),
                       static_cast<float>(position.z())};
       if (ImGui::DragFloat3((label + " Position").c_str(), pos, 0.1f)) {
         body.setPosition(Eigen::Vector3d(pos[0], pos[1], pos[2]));
       }
 
-      // Rotation controls (Convert stored Quaternion to Euler angles for UI)
+      // Rotation controls - Convert Quaternion to Roll, Pitch, Yaw
       Eigen::Vector4d quatVector = body.getOrientation();
       Eigen::Quaterniond quaternion(quatVector[0], quatVector[1], quatVector[2], quatVector[3]);
-      Eigen::Vector3d eulerRotation = quaternion.toRotationMatrix().eulerAngles(0, 1, 2);
 
-      float euler[3] = {static_cast<float>(eulerRotation.x()), static_cast<float>(eulerRotation.y()),
-                        static_cast<float>(eulerRotation.z())};
+      // Extract Euler Angles from Quaternion
+      double roll, pitch, yaw;
+      Eigen::Matrix3d rotMatrix = quaternion.toRotationMatrix();
+
+      // Extract roll (X), pitch (Y), yaw (Z) correctly from rotation matrix
+      pitch = asin(-rotMatrix(2, 0));
+      if (std::abs(rotMatrix(2, 0)) < 0.9999) { // Avoid Gimbal Lock
+        roll = atan2(rotMatrix(2, 1), rotMatrix(2, 2));
+        yaw = atan2(rotMatrix(1, 0), rotMatrix(0, 0));
+      } else {
+        // Gimbal lock case: We force roll = 0
+        roll = 0;
+        yaw = atan2(-rotMatrix(0, 1), rotMatrix(1, 1));
+      }
+
+      float euler[3] = {static_cast<float>(roll),
+                        static_cast<float>(pitch),
+                        static_cast<float>(yaw)};
+
       if (ImGui::DragFloat3((label + " Rotation").c_str(), euler, 0.01f)) {
-        Eigen::Quaterniond newQuaternion = Eigen::AngleAxisd(euler[0], Eigen::Vector3d::UnitX()) *
-                                           Eigen::AngleAxisd(euler[1], Eigen::Vector3d::UnitY()) *
-                                           Eigen::AngleAxisd(euler[2], Eigen::Vector3d::UnitZ());
-        Eigen::Vector4d newQuatVector(newQuaternion.w(), newQuaternion.x(), newQuaternion.y(), newQuaternion.z());
+        // Convert Euler angles back to a Quaternion
+        Eigen::Quaterniond newQuaternion =
+            Eigen::AngleAxisd(euler[2], Eigen::Vector3d::UnitZ()) *  // Yaw
+            Eigen::AngleAxisd(euler[1], Eigen::Vector3d::UnitY()) *  // Pitch
+            Eigen::AngleAxisd(euler[0], Eigen::Vector3d::UnitX());   // Roll
+
+        Eigen::Vector4d newQuatVector(newQuaternion.w(),
+                                      newQuaternion.x(),
+                                      newQuaternion.y(),
+                                      newQuaternion.z());
         body.setOrientation(newQuatVector);
       }
     }
