@@ -6,11 +6,12 @@
 
 class InputManager {
 public:
-    static bool initialize(GLFWwindow* window);
-    static void update(float deltaTime, Camera& camera);
+  static bool initialize(GLFWwindow *window);
+
+  static void update(float deltaTime, Camera &camera);
 
 private:
-    static GLFWwindow* s_window;
+  static GLFWwindow *s_window;
 };
 
 

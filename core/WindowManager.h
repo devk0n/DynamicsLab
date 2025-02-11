@@ -8,21 +8,28 @@
 
 class WindowManager {
 public:
-    WindowManager();
-    ~WindowManager();
+  WindowManager();
 
-    bool initialize(int width = 1920, int height = 1280, const std::string& title = "DynamicsLab");
-    void pollEvents();
-    void swapBuffers();
-    bool shouldClose() const;
-    void shutdown();
+  ~WindowManager();
 
-    GLFWwindow* getWindow() const;
-    float getAspectRatio() const;
+  bool initialize(int width = 1920, int height = 1280, const std::string &title = "DynamicsLab");
+
+  void pollEvents();
+
+  void swapBuffers();
+
+  [[nodiscard]] bool shouldClose() const;
+
+  void shutdown();
+
+  [[nodiscard]] GLFWwindow *getWindow() const;
+
+  [[nodiscard]] float getAspectRatio() const;
+
 private:
-    GLFWwindow* m_window;
-    int m_width;
-    int m_height;
+  GLFWwindow *m_window;
+  int m_width;
+  int m_height;
 };
 
 

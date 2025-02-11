@@ -13,16 +13,21 @@
 
 class ImGuiManager {
 public:
-    bool initialize(GLFWwindow* window);
-    void renderGui(GLFWwindow* window, Renderer& renderer, Camera& camera, PhysicsEngine& physicsEngine);
+  bool initialize(GLFWwindow *window);
+
+  void renderGui(GLFWwindow *window, Renderer &renderer, Camera &camera, PhysicsEngine &physicsEngine);
 
 private:
-    // ImGui context and state
-    static void showRendererControls(Renderer &renderer);
-    static void showCameraControls(Camera &camera);
-    static void showPhysicsControls(PhysicsEngine &physicsEngine);
-    static void showDebugWindow(Camera &camera, PhysicsEngine &physicsEngine, GLFWwindow *window);
-    void shutdown();
+  // ImGui context and state
+  static void showRendererControls(Renderer &renderer);
+
+  static void showCameraControls(Camera &camera);
+
+  static void showPhysicsControls(PhysicsEngine &physicsEngine);
+
+  static void showDebugWindow(Camera &camera, PhysicsEngine &physicsEngine, GLFWwindow *window);
+
+  void shutdown();
 
 
 };

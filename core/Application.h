@@ -12,20 +12,22 @@
 
 class Application {
 public:
-    Application();
+  Application();
 
-    bool initialize();
-    void run();
+  bool initialize();
+
+  void run();
+
 
 private:
-    void update(float deltaTime);
+  void update(float deltaTime);
 
-    WindowManager m_windowManager;
-    Renderer m_renderer;
-    PhysicsEngine m_physicsEngine;
-    ImGuiManager m_imGuiManager;
-    Camera m_camera;
-    float m_lastFrameTime;
+  WindowManager m_windowManager;
+  Renderer m_renderer;
+  PhysicsEngine m_physicsEngine;
+  ImGuiManager m_imGuiManager;
+  Camera m_camera;
+  float m_lastFrameTime;
 };
 
 #endif // APPLICATION_H

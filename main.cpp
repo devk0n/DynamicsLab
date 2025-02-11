@@ -4,12 +4,12 @@
 
 int main() {
 
-    Application app;
-    if(!app.initialize()) {
-        return EXIT_FAILURE;
-    }
+  Application app;
+  if (!app.initialize()) {
+    return EXIT_FAILURE;
+  }
 
-    app.run();
+  app.run();
 
-    return EXIT_SUCCESS;
+  return EXIT_SUCCESS;
 }

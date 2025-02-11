@@ -8,23 +8,25 @@
 
 // Vertex structure without texture coordinates
 struct Vertex {
-    glm::vec3 Position; // Vertex position
-    glm::vec3 Normal;   // Vertex normal (for lighting)
+  glm::vec3 Position; // Vertex position
+  glm::vec3 Normal;   // Vertex normal (for lighting)
 };
 
 class Mesh {
 public:
-    Mesh(const std::vector<Vertex>& vertices, const std::vector<GLuint>& indices);
-    void draw(const Shader& shader) const;
-    void cleanup();
+  Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices);
+
+  void draw(const Shader &shader) const;
+
+  void cleanup();
 
 private:
-    std::vector<Vertex> vertices;
-    std::vector<GLuint> indices;
+  std::vector<Vertex> vertices;
+  std::vector<GLuint> indices;
 
-    GLuint VAO, VBO, EBO;
+  GLuint VAO, VBO, EBO;
 
-    void setupMesh();
+  void setupMesh();
 };
 
 #endif // MESH_H

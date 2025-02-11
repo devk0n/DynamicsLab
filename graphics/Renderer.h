@@ -10,18 +10,22 @@
 
 class Renderer {
 public:
-    bool initialize(const std::string& vertexPath, const std::string& fragmentPath);
-    void beginFrame();
-    void render(const std::vector<RigidBody>& rigidBodies, const glm::mat4& view, const glm::mat4& projection);
-    void endFrame();
-    void shutdown();
+  bool initialize(const std::string &vertexPath, const std::string &fragmentPath);
 
-    void setClearColor(float r, float g, float b, float a);
+  void beginFrame();
+
+  void render(const std::vector<RigidBody> &rigidBodies, const glm::mat4 &view, const glm::mat4 &projection);
+
+  void endFrame();
+
+  void shutdown();
+
+  void setClearColor(float r, float g, float b, float a);
 
 private:
-    Shader m_shader;
-    float m_clearColor[4] = {0.1f, 0.1f, 0.1f, 1.0f};
-    bool m_initialized = false;
+  Shader m_shader;
+  float m_clearColor[4] = {0.1f, 0.1f, 0.1f, 1.0f};
+  bool m_initialized = false;
 };
 
 

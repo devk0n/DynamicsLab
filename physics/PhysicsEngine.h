@@ -6,12 +6,12 @@
 
 class PhysicsEngine {
 public:
-    std::vector<RigidBody>& getRigidBodies();
+  std::vector<RigidBody> &getRigidBodies();
 
-    void addRigidBody(const RigidBody& rigidBody);
+  void addRigidBody(const RigidBody &rigidBody);
 
 private:
-    std::vector<RigidBody> m_rigidBodies;
+  std::vector<RigidBody> m_rigidBodies;
 };
 
 #endif // PHYSICSENGINE_H
