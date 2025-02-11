@@ -38,6 +38,9 @@ private:
   Eigen::Vector3d m_position;
   Eigen::Vector4d m_orientation;
   Mesh m_mesh;
+
+  Eigen::Matrix3d m_massMatrix;
+  Eigen::Matrix3d m_inertiaTensor;
 };
 
 

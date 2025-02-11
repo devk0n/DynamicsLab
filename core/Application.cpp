@@ -17,7 +17,7 @@ bool Application::initialize() {
     std::cerr << "Failed to initialize renderer" << std::endl;
     return false;
   }
-
+  
   // Create a cube
   RigidBody cube(
       Eigen::Vector3d(0.0, 0.0, 0.0),
