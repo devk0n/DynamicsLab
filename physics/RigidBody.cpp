@@ -5,9 +5,15 @@
 
 RigidBody::RigidBody(Eigen::Vector3d position,
                      Eigen::Vector4d orientation,
+                     Eigen::Matrix3d massMatrix,
+                     Eigen::Matrix3d localInertiaTensor,
                      const std::vector<Vertex> &vertices,
                      const std::vector<GLuint> &indices)
-    : m_position(std::move(position)), m_orientation(std::move(orientation)), m_mesh(vertices, indices) {}
+    : m_position(std::move(position)),
+      m_orientation(std::move(orientation)),
+      m_mesh(vertices, indices),
+      m_massMatrix(std::move(massMatrix)),
+      m_localInertiaTensor(std::move(localInertiaTensor)) {}
 
 const Mesh &RigidBody::getMesh() const {
   return m_mesh;

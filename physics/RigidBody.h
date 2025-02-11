@@ -11,6 +11,8 @@ class RigidBody {
 public:
   RigidBody(Eigen::Vector3d position,
             Eigen::Vector4d orientation,
+            Eigen::Matrix3d massMatrix,
+            Eigen::Matrix3d localInertiaTensor,
             const std::vector<Vertex> &vertices,
             const std::vector<GLuint> &indices);
 
@@ -40,7 +42,7 @@ private:
   Mesh m_mesh;
 
   Eigen::Matrix3d m_massMatrix;
-  Eigen::Matrix3d m_inertiaTensor;
+  Eigen::Matrix3d m_localInertiaTensor;
 };
 
 

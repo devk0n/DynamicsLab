@@ -17,11 +17,13 @@ bool Application::initialize() {
     std::cerr << "Failed to initialize renderer" << std::endl;
     return false;
   }
-  
+
   // Create a cube
   RigidBody cube(
       Eigen::Vector3d(0.0, 0.0, 0.0),
       Eigen::Vector4d(1.0, 0.0, 0.0, 0.0),
+      Eigen::Matrix3d::Identity() * 10.0,
+      Eigen::Matrix3d::Identity() * 60.0,
       MeshData::cubeVertices,
       MeshData::cubeIndices
   );
@@ -31,6 +33,8 @@ bool Application::initialize() {
   RigidBody cube1(
       Eigen::Vector3d(10.0, 0.0, 0.0),
       Eigen::Vector4d(1.0, 0.0, 0.0, 0.0),
+      Eigen::Matrix3d::Identity() * 20.0,
+      Eigen::Matrix3d::Identity() * 120.0,
       MeshData::cubeVertices,
       MeshData::cubeIndices
   );
