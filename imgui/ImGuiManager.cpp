@@ -192,7 +192,6 @@ void ImGuiManager::showPhysicsControls(PhysicsEngine &physicsEngine) {
       }
     }
   }
-
   ImGui::End();
 }
 
