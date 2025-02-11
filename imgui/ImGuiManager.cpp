@@ -107,16 +107,16 @@ void ImGuiManager::controlWindow(PhysicsEngine &physicsEngine) {
   // Static variables to store user-selected force values
   static double forceX = 0.0;
   static double forceY = 0.0;
-  static double forceZ = 0.0;
+  static double forceZ = -9.81;
 
   static double maxForce = 1000.0;
   static double minForce = -1000.0;
 
   // Add sliders for each component of the force
-  ImGui::Text("Set External Forces:");
-  ImGui::SliderScalar("Force X", ImGuiDataType_Double, &forceX, &minForce, &maxForce, "%.1f");
-  ImGui::SliderScalar("Force Y", ImGuiDataType_Double, &forceY, &minForce, &maxForce, "%.1f");
-  ImGui::SliderScalar("Force Z", ImGuiDataType_Double, &forceZ, &minForce, &maxForce, "%.1f");
+  ImGui::Text("Set External Acceleration:");
+  ImGui::SliderScalar("X m/s^2", ImGuiDataType_Double, &forceX, &minForce, &maxForce, "%.1f");
+  ImGui::SliderScalar("Y m/s^2", ImGuiDataType_Double, &forceY, &minForce, &maxForce, "%.1f");
+  ImGui::SliderScalar("Z m/s^2", ImGuiDataType_Double, &forceZ, &minForce, &maxForce, "%.1f");
 
   if (ImGui::Button("Reset Force & Torque")) {
     forceX = 0.0;
