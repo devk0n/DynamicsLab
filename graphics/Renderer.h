@@ -7,7 +7,7 @@
 #include "Shader.h"
 #include "physics/RigidBody.h"
 #include "graphics/Mesh.h"
-
+ 
 class Renderer {
 public:
   bool initialize(const std::string &vertexPath, const std::string &fragmentPath);
