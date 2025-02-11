@@ -89,3 +89,47 @@ void Camera::updateCameraVectors() {
   m_right = glm::normalize(glm::cross(m_front, m_worldUp));
   m_up = glm::normalize(glm::cross(m_right, m_front));
 }
+
+float Camera::getYaw() const {
+  return m_yaw;
+}
+
+float Camera::getPitch() const {
+  return m_pitch;
+}
+
+float Camera::getMovementSpeed() const {
+  return m_movementSpeed;
+}
+
+float Camera::getMouseSensitivity() const {
+  return m_mouseSensitivity;
+}
+
+// Setters implementation
+void Camera::setPosition(const glm::vec3 &position) {
+  m_position = position;
+}
+
+void Camera::setFront(const glm::vec3 &front) {
+  m_front = front;
+}
+
+void Camera::setYaw(float yaw) {
+  m_yaw = yaw;
+  updateCameraVectors(); // Ensure the camera updates its direction based on the new yaw
+}
+
+void Camera::setPitch(float pitch) {
+  m_pitch = pitch;
+  updateCameraVectors(); // Ensure the camera updates its direction based on the new pitch
+}
+
+void Camera::setMovementSpeed(float movementSpeed) {
+  m_movementSpeed = movementSpeed;
+}
+
+void Camera::setMouseSensitivity(float mouseSensitivity) {
+  m_mouseSensitivity = mouseSensitivity;
+}
+

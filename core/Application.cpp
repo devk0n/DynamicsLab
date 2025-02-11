@@ -30,16 +30,6 @@ bool Application::initialize() {
 
   m_physicsEngine.addRigidBody(cube);
 
-  RigidBody cube1(
-      Eigen::Vector3d(10.0, 0.0, 0.0),
-      Eigen::Vector4d(1.0, 0.0, 0.0, 0.0),
-      Eigen::Matrix3d::Identity() * 20.0,
-      Eigen::Matrix3d::Identity() * 120.0,
-      MeshData::cubeVertices,
-      MeshData::cubeIndices
-  );
-  m_physicsEngine.addRigidBody(cube1);
-
   return true;
 }
 

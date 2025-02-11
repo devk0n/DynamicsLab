@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "RigidBody.h"
+#include "Solver.h"
 
 class PhysicsEngine {
 public:
@@ -10,11 +11,29 @@ public:
 
   explicit PhysicsEngine(double timeStep);
 
-  std::vector<RigidBody> &getRigidBodies();
+  void initialize();
 
+  void step();
+
+  Eigen::VectorXd computeStateDerivatives(const Eigen::VectorXd &state);
+
+  // Adders
   void addRigidBody(const RigidBody &rigidBody);
 
+  // Getters
+  std::vector<RigidBody> &getRigidBodies();
+
+  // Setters
+  void setExternalForces(Eigen::Vector3d externalForces);
+
 private:
+
+  Solver m_solver;
+
+  Eigen::MatrixXd m_matrixA;
+  Eigen::VectorXd m_vectorX;
+  Eigen::VectorXd m_externalForces;
+
   double m_timeStep;
 
   std::vector<RigidBody> m_rigidBodies;

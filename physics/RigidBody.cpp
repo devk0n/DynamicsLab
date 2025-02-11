@@ -38,3 +38,27 @@ glm::mat4 RigidBody::getModelMatrix() const {
   glmModel = glm::scale(glmModel, glm::vec3(1.0f, 1.0f, 1.0f));
   return glmModel;
 }
+
+Eigen::Matrix3d RigidBody::getMassMatrix() {
+  return m_massMatrix;
+}
+
+double RigidBody::getMass() {
+  return m_massMatrix.trace() / 3.0;
+}
+
+void RigidBody::setLinearVelocity(Eigen::Vector3d linearVelocity) {
+  m_linearVelocity = linearVelocity;
+}
+
+void RigidBody::setAngularVelocity(Eigen::Vector4d angularVelocity) {
+  m_angularVelocity = angularVelocity;
+}
+
+const Eigen::Vector3d &RigidBody::getLinearVelocity() const {
+  return m_linearVelocity;
+}
+
+const Eigen::Vector4d &RigidBody::getAngularVelocity() const {
+  return m_angularVelocity;
+}

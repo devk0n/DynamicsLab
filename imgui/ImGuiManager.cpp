@@ -39,6 +39,7 @@ void ImGuiManager::renderGui(GLFWwindow *window, Renderer &renderer, Camera &cam
   showRendererControls(renderer);
   showCameraControls(camera);
   showPhysicsControls(physicsEngine);
+  controlWindow(physicsEngine);
 
   // Render ImGui
   ImGui::Render();
@@ -47,9 +48,16 @@ void ImGuiManager::renderGui(GLFWwindow *window, Renderer &renderer, Camera &cam
 
 void ImGuiManager::showCameraControls(Camera &camera) {
   ImGui::Begin("Camera Controls");
-  ImGui::Text("Camera Position: (%.2f, %.2f, %.2f)", camera.getPosition().x, camera.getPosition().y,
-              camera.getPosition().z);
-  ImGui::Text("Camera Front: (%.2f, %.2f, %.2f)", camera.getFront().x, camera.getFront().y, camera.getFront().z);
+  ImGui::Text("Camera Position");
+  ImGui::Text("%.2f, %.2f, %.2f", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
+
+  ImGui::Text("Camera Front");
+  ImGui::Text("%.2f, %.2f, %.2f", camera.getFront().x, camera.getFront().y, camera.getFront().z);
+  // ImGui::Text("Camera Up: (%.2f, %.2f, %.2f)", camera.getUp().x, camera.getUp().y, camera.getUp().z);
+  ImGui::Text("Camera Yaw: %.2f degrees", camera.getYaw());
+  ImGui::Text("Camera Pitch: %.2f degrees", camera.getPitch());
+  ImGui::Text("Camera Movement Speed: %.2f", camera.getMovementSpeed());
+  ImGui::Text("Camera Mouse Sensitivity: %.2f", camera.getMouseSensitivity());
   ImGui::End();
 }
 
@@ -70,6 +78,58 @@ void ImGuiManager::showRendererControls(Renderer &renderer) {
   if (ImGui::Checkbox("Wireframe Mode", &wireframeMode)) {
     renderer.setWireframeMode(wireframeMode);
   }
+
+  ImGui::End();
+}
+
+void ImGuiManager::controlWindow(PhysicsEngine &physicsEngine) {
+  ImGui::Begin("Simulation Controls");
+
+  if (ImGui::Button("Initialize Simulation")) {
+    physicsEngine.initialize();
+  }
+  ImGui::SameLine();
+  if (ImGui::Button("Stop Simulation")) {
+    // m_dynamics->stop();
+  }
+
+  if (ImGui::Button("Reset Simulation")) {
+    // m_dynamics->reset();
+  }
+
+  ImGui::SameLine();
+  if (ImGui::Button("Step Simulation")) {
+    physicsEngine.step();
+  }
+
+  // Static variables to store user-selected force values
+  static double forceX = 0.0;
+  static double forceY = 0.0;
+  static double forceZ = 0.0;
+
+  static double maxForce = 100.0;
+  static double minForce = -100.0;
+
+  // Add sliders for each component of the force
+  ImGui::Text("Set External Forces:");
+  ImGui::SliderScalar("Force X", ImGuiDataType_Double, &forceX, &maxForce, &minForce, "%.1f");
+  ImGui::SliderScalar("Force Y", ImGuiDataType_Double, &forceY, &maxForce, &minForce, "%.1f");
+  ImGui::SliderScalar("Force Z", ImGuiDataType_Double, &forceZ, &maxForce, &minForce, "%.1f");
+
+  if (ImGui::Button("Reset Force & Torque")) {
+    forceX = 0.0;
+    forceY = 0.0;
+    forceZ = 0.0;
+  }
+
+  Eigen::Vector3d externalForces;
+
+  externalForces.setZero();
+  externalForces[0] = forceX;
+  externalForces[1] = forceY;
+  externalForces[2] = forceZ;
+
+  physicsEngine.setExternalForces(externalForces);
 
   ImGui::End();
 }

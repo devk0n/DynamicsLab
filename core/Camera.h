@@ -7,9 +7,9 @@
 class Camera {
 public:
   // Constructor
-  explicit Camera(glm::vec3 position = glm::vec3(0.0f, 3.0f, 0.0f),
+  explicit Camera(glm::vec3 position = glm::vec3(0.0f, 10.0f, 4.0f),
                   glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f),
-                  float yaw = -90.0f, float pitch = -10.0f);
+                  float yaw = -90.0f, float pitch = -24.0f);
 
   // Get view and projection matrices
   [[nodiscard]] glm::mat4 getViewMatrix() const;
@@ -32,13 +32,32 @@ public:
   // Mouse look
   void processMouseMovement(float xOffset, float yOffset, bool constrainPitch = true);
 
-  // Mouse scroll
-  void processMouseScroll();
-
   // Getters
   [[nodiscard]] glm::vec3 getPosition() const;
 
   [[nodiscard]] glm::vec3 getFront() const;
+
+  [[nodiscard]] float getYaw() const;
+
+  [[nodiscard]] float getPitch() const;
+
+  [[nodiscard]] float getMovementSpeed() const;
+
+  [[nodiscard]] float getMouseSensitivity() const;
+
+  // Setters
+  void setPosition(const glm::vec3 &position);
+
+  void setFront(const glm::vec3 &front);
+
+  void setYaw(float yaw);
+
+  void setPitch(float pitch);
+
+  void setMovementSpeed(float movementSpeed);
+
+  void setMouseSensitivity(float mouseSensitivity);
+
 
 private:
   // Camera attributes

@@ -28,8 +28,8 @@ private:
   static void showDebugWindow(Camera &camera, PhysicsEngine &physicsEngine, GLFWwindow *window);
 
   void shutdown();
-
-
+  
+  void controlWindow(PhysicsEngine &physicsEngine);
 };
 
 

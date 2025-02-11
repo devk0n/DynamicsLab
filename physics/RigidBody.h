@@ -16,17 +16,10 @@ public:
             const std::vector<Vertex> &vertices,
             const std::vector<GLuint> &indices);
 
+  // Getters
   [[nodiscard]] glm::mat4 getModelMatrix() const;
 
   [[nodiscard]] const Mesh &getMesh() const;
-
-  void setPosition(const Eigen::Vector3d &position) {
-    m_position = position;
-  }
-
-  void setOrientation(const Eigen::Vector4d &orientation) {
-    m_orientation = orientation;
-  }
 
   [[nodiscard]] const Eigen::Vector3d &getPosition() const {
     return m_position;
@@ -36,9 +29,34 @@ public:
     return m_orientation;
   }
 
+  [[nodiscard]] const Eigen::Vector3d &getLinearVelocity() const;
+
+  [[nodiscard]] const Eigen::Vector4d &getAngularVelocity() const;
+
+  Eigen::Matrix3d getMassMatrix();
+
+  double getMass();
+
+  // Setters
+  void setPosition(const Eigen::Vector3d &position) {
+    m_position = position;
+  }
+
+  void setOrientation(const Eigen::Vector4d &orientation) {
+    m_orientation = orientation;
+  }
+
+  void setLinearVelocity(Eigen::Vector3d linearVelocity);
+
+  void setAngularVelocity(Eigen::Vector4d angularVelocity);
+
 private:
   Eigen::Vector3d m_position;
   Eigen::Vector4d m_orientation;
+
+  Eigen::Vector3d m_linearVelocity;
+  Eigen::Vector4d m_angularVelocity;
+
   Mesh m_mesh;
 
   Eigen::Matrix3d m_massMatrix;
