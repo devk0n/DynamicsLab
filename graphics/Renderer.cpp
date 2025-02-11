@@ -34,6 +34,9 @@ void Renderer::render(const std::vector<RigidBody> &rigidBodies, const glm::mat4
     return;
   }
 
+  // Enable or disable wireframe mode
+  glPolygonMode(GL_FRONT_AND_BACK, m_wireframeMode ? GL_LINE : GL_FILL);
+
   m_shader.use();
   m_shader.setMat4("view", view);
   m_shader.setMat4("projection", projection);
@@ -53,6 +56,9 @@ void Renderer::render(const std::vector<RigidBody> &rigidBodies, const glm::mat4
 
     body.getMesh().draw(m_shader);
   }
+
+  // Restore default mode to prevent affecting UI elements
+  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 
@@ -67,5 +73,13 @@ void Renderer::shutdown() {
 
 void Renderer::captureScreenshot() {
   saveScreenshot(glfwGetCurrentContext());
+}
+
+void Renderer::setWireframeMode(bool enable) {
+  m_wireframeMode = enable;
+}
+
+bool Renderer::getWireframeMode() const {
+  return m_wireframeMode;
 }
 
