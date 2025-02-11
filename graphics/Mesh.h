@@ -21,10 +21,10 @@ public:
   void cleanup();
 
 private:
-  std::vector<Vertex> vertices;
-  std::vector<GLuint> indices;
+  std::vector<Vertex> m_vertices;
+  std::vector<GLuint> m_indices;
 
-  GLuint VAO, VBO, EBO;
+  GLuint m_VAO, m_VBO, m_EBO;
 
   void setupMesh();
 };

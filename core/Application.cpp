@@ -1,54 +1,6 @@
 #include "Application.h"
 #include "physics/PhysicsEngine.h"
-
-// Define cube vertices with correct normals
-std::vector<Vertex> cubeVertices = {
-    // Front face
-    {{-0.5f, -0.5f, 0.5f},  {0.0f,  0.0f,  1.0f}},
-    {{0.5f,  -0.5f, 0.5f},  {0.0f,  0.0f,  1.0f}},
-    {{0.5f,  0.5f,  0.5f},  {0.0f,  0.0f,  1.0f}},
-    {{-0.5f, 0.5f,  0.5f},  {0.0f,  0.0f,  1.0f}},
-
-    // Back face
-    {{-0.5f, -0.5f, -0.5f}, {0.0f,  0.0f,  -1.0f}},
-    {{0.5f,  -0.5f, -0.5f}, {0.0f,  0.0f,  -1.0f}},
-    {{0.5f,  0.5f,  -0.5f}, {0.0f,  0.0f,  -1.0f}},
-    {{-0.5f, 0.5f,  -0.5f}, {0.0f,  0.0f,  -1.0f}},
-
-    // Left face
-    {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f,  0.0f}},
-    {{-0.5f, -0.5f, 0.5f},  {-1.0f, 0.0f,  0.0f}},
-    {{-0.5f, 0.5f,  0.5f},  {-1.0f, 0.0f,  0.0f}},
-    {{-0.5f, 0.5f,  -0.5f}, {-1.0f, 0.0f,  0.0f}},
-
-    // Right face
-    {{0.5f,  -0.5f, -0.5f}, {1.0f,  0.0f,  0.0f}},
-    {{0.5f,  -0.5f, 0.5f},  {1.0f,  0.0f,  0.0f}},
-    {{0.5f,  0.5f,  0.5f},  {1.0f,  0.0f,  0.0f}},
-    {{0.5f,  0.5f,  -0.5f}, {1.0f,  0.0f,  0.0f}},
-
-    // Top face
-    {{-0.5f, 0.5f,  -0.5f}, {0.0f,  1.0f,  0.0f}},
-    {{-0.5f, 0.5f,  0.5f},  {0.0f,  1.0f,  0.0f}},
-    {{0.5f,  0.5f,  0.5f},  {0.0f,  1.0f,  0.0f}},
-    {{0.5f,  0.5f,  -0.5f}, {0.0f,  1.0f,  0.0f}},
-
-    // Bottom face
-    {{-0.5f, -0.5f, -0.5f}, {0.0f,  -1.0f, 0.0f}},
-    {{-0.5f, -0.5f, 0.5f},  {0.0f,  -1.0f, 0.0f}},
-    {{0.5f,  -0.5f, 0.5f},  {0.0f,  -1.0f, 0.0f}},
-    {{0.5f,  -0.5f, -0.5f}, {0.0f,  -1.0f, 0.0f}}
-};
-
-// Indices for drawing the cube using element buffer
-std::vector<unsigned int> cubeIndices = {
-    0, 1, 2, 2, 3, 0,  // Front
-    4, 5, 6, 6, 7, 4,  // Back
-    8, 9, 10, 10, 11, 8,  // Left
-    12, 13, 14, 14, 15, 12,  // Right
-    16, 17, 18, 18, 19, 16,  // Top
-    20, 21, 22, 22, 23, 20   // Bottom
-};
+#include "graphics/MeshData.h"
 
 Application::Application() : m_lastFrameTime(0.0f) {}
 
@@ -67,8 +19,8 @@ bool Application::initialize() {
   RigidBody cube(
       Eigen::Vector3d(0.0, 0.0, 0.0),
       Eigen::Vector4d(1.0, 0.0, 0.0, 0.0),
-      cubeVertices,
-      cubeIndices
+      MeshData::cubeVertices,
+      MeshData::cubeIndices
   );
 
   m_physicsEngine.addRigidBody(cube);
@@ -76,8 +28,8 @@ bool Application::initialize() {
   RigidBody cube1(
       Eigen::Vector3d(10.0, 0.0, 0.0),
       Eigen::Vector4d(1.0, 0.0, 0.0, 0.0),
-      cubeVertices,
-      cubeIndices
+      MeshData::cubeVertices,
+      MeshData::cubeIndices
   );
   m_physicsEngine.addRigidBody(cube1);
 
