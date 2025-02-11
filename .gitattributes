@@ -45,10 +45,5 @@ build/* binary
 *.log text -diff
 
 # Mark vendored files and directories
-include/glad/* linguist-vendored
-include/KHR/* linguist-vendored
-src/graphics/glad.c linguist-vendored
+external/* linguist-vendored
 
-include/main.m linguist-vendored
-
-include/stb_image_write.h linguist-vendored
