@@ -22,14 +22,26 @@ jobs:
           languages: cpp
           autobuild: false # Disable automatic building
 
+      - name: Print environment
+        run: |
+          printenv
+
+      - name: Check CMake version
+        run: |
+          cmake --version
+
+      - name: List files
+        run: |
+          ls -R
+
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake build-essential libgl1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+          sudo apt-get install -y cmake build-essential libgl1-mesa-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libwayland-dev libxkbcommon-dev libx11-dev
 
       - name: Build
         run: |
-          mkdir build
+          mkdir -p build
           cd build
           cmake ..
           make
