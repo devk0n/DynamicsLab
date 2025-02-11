@@ -4,6 +4,7 @@ project(DynamicsLab)
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
 
 # Include FetchContent module
 include(FetchContent)
@@ -102,6 +103,12 @@ set(SOURCES
 
 # Add executable
 add_executable(${PROJECT_NAME} ${SOURCES})
+
+add_custom_target(copy_assets ALL
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets
+)
+add_dependencies(${PROJECT_NAME} copy_assets)
 
 # Apply Warning Flags Only to Your Own Project Code
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -Wpedantic)

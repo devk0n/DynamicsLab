@@ -1,3 +1,4 @@
+#include <filesystem>
 #include "Application.h"
 #include "physics/PhysicsEngine.h"
 #include "graphics/MeshData.h"
@@ -9,8 +10,10 @@ bool Application::initialize() {
   if (!m_imGuiManager.initialize(m_windowManager.getWindow())) return false;
   if (!InputManager::initialize(m_windowManager.getWindow())) return false;
 
-  if (!m_renderer.initialize("C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/cube.vert.glsl",
-                             "C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/cube.frag.glsl")) {
+  std::cout << "Current path: " << std::filesystem::current_path().string() << std::endl;
+
+  if (!m_renderer.initialize("assets/shaders/cube.vert.glsl",
+                             "assets/shaders/cube.frag.glsl")) {
     std::cerr << "Failed to initialize renderer" << std::endl;
     return false;
   }
