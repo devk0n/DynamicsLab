@@ -89,12 +89,12 @@ void ImGuiManager::controlWindow(PhysicsEngine &physicsEngine) {
     physicsEngine.initialize();
   }
   ImGui::SameLine();
-  if (ImGui::Button("Stop Simulation")) {
-    // m_dynamics->stop();
+  if (ImGui::Button("Start Simulation")) {
+    physicsEngine.start();
   }
 
-  if (ImGui::Button("Reset Simulation")) {
-    // m_dynamics->reset();
+  if (ImGui::Button("Stop Simulation")) {
+    physicsEngine.stop();
   }
 
   ImGui::SameLine();

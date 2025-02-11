@@ -1,7 +1,7 @@
 #include "PhysicsEngine.h"
 
 PhysicsEngine::PhysicsEngine(double timeStep)
-    : m_solver(timeStep), m_timeStep(timeStep) {}
+    : m_solver(timeStep), m_timeStep(timeStep), m_initialized(false), m_running(false) {}
 
 void PhysicsEngine::addRigidBody(const RigidBody &rigidBody) {
   m_rigidBodies.push_back(rigidBody);
@@ -31,6 +31,7 @@ void PhysicsEngine::initialize() {
     int n = 7 * i;
     m_matrixA.block(n, n, 3, 3) = m_rigidBodies[i].getMassMatrix();
   }
+  m_initialized = true;
 }
 
 void PhysicsEngine::step() {
@@ -88,4 +89,20 @@ Eigen::VectorXd PhysicsEngine::computeStateDerivatives(const Eigen::VectorXd &st
   }
 
   return derivatives;
+}
+
+void PhysicsEngine::start() {
+  m_running = true;
+}
+
+void PhysicsEngine::stop() {
+  m_running = false;
+}
+
+bool PhysicsEngine::isInitialized() const {
+  return m_initialized;
+}
+
+bool PhysicsEngine::isRunning() const {
+  return m_running;
 }

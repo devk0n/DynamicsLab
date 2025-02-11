@@ -15,6 +15,10 @@ public:
 
   void step();
 
+  void start();
+
+  void stop();
+
   Eigen::VectorXd computeStateDerivatives(const Eigen::VectorXd &state);
 
   // Adders
@@ -26,6 +30,10 @@ public:
   // Setters
   void setExternalForces(Eigen::Vector3d externalForces);
 
+  bool isInitialized() const;
+
+  bool isRunning() const;
+
 private:
 
   Solver m_solver;
@@ -35,6 +43,9 @@ private:
   Eigen::VectorXd m_externalForces;
 
   double m_timeStep;
+
+  bool m_initialized;
+  bool m_running;
 
   std::vector<RigidBody> m_rigidBodies;
 };

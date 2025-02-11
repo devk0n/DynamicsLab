@@ -29,14 +29,18 @@ bool Application::initialize() {
   );
 
   m_physicsEngine.addRigidBody(cube);
+  // m_physicsEngine.initialize();
 
   return true;
 }
 
 void Application::update(float deltaTime) {
   InputManager::update(deltaTime, m_camera);
-  // m_renderer.setViewMatrix(m_camera.getViewMatrix());
-  // m_physicsManager.step(deltaTime);
+
+  if (m_physicsEngine.isInitialized() && m_physicsEngine.isRunning()) {
+    m_physicsEngine.step();
+  }
+
 }
 
 void Application::run() {
