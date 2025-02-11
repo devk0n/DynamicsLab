@@ -69,19 +69,25 @@ void ImGuiManager::showRendererControls(Renderer& renderer) {
 }
 
 void ImGuiManager::showPhysicsControls(PhysicsEngine& physicsEngine) {
-    // Create a window for physics controls
     ImGui::Begin("Physics Controls");
 
     // Add UI elements for physics controls
     if (ImGui::Button("Reset Simulation")) {
-        // Reset physics simulation
-        // physicsEngine.reset();
+        // Reset physics simulation (if needed)
     }
 
-    // Add more controls as needed
-    static float gravity = -9.81f;
-    if (ImGui::SliderFloat("Gravity", &gravity, -20.0f, 20.0f)) {
-        // physicsEngine.setGravity(glm::vec3(0.0f, 0.0f, gravity)); // +Z is up
+    // Add controls for cube position and orientation
+    auto& rigidBodies = physicsEngine.getRigidBodies();
+    if (!rigidBodies.empty()) {
+        // Assume we're modifying the first rigid body (the cube)
+        auto& cube = rigidBodies[0];
+
+        // Position control
+        Eigen::Vector3d position = cube.getPosition();
+        float pos[3] = { static_cast<float>(position.x()), static_cast<float>(position.y()), static_cast<float>(position.z()) };
+        if (ImGui::DragFloat3("Cube Position", pos, 0.1f)) {
+            cube.setPosition(Eigen::Vector3d(pos[0], pos[1], pos[2]));
+        }
     }
 
     ImGui::End();

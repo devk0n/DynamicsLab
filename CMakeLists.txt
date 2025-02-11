@@ -91,8 +91,8 @@ set(SOURCES
         core/WindowManager.cpp
 
         graphics/Renderer.cpp
-        #graphics/Shader.cpp
-        #graphics/Mesh.cpp
+        graphics/Shader.cpp
+        graphics/Mesh.cpp
 
         imgui/ImGuiManager.cpp
 

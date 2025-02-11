@@ -3,43 +3,42 @@
 
 #include <Eigen/Dense>
 #include "graphics/Mesh.h"
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 class RigidBody {
 public:
-    RigidBody(const Mesh& mesh, const Eigen::Vector3f& position, const Eigen::Vector3f& velocity, float mass)
-        : m_mesh(mesh), m_position(position), m_velocity(velocity), m_mass(mass) {}
+    RigidBody(Eigen::Vector3d  position,
+              Eigen::Vector4d  orientation,
+              const std::vector<Vertex>& vertices,
+              const std::vector<GLuint>& indices);
 
-    void update(float deltaTime) {
-        // Update position based on velocity
-        m_position += m_velocity * deltaTime;
+    [[nodiscard]] glm::mat4 getModelMatrix() const;
+
+    [[nodiscard]] const Mesh& getMesh() const;
+
+    void setPosition(const Eigen::Vector3d& position) {
+        m_position = position;
     }
 
-    Eigen::Matrix4f getModelMatrix() const {
-        // Create a 4x4 transformation matrix for rendering
-        Eigen::Matrix4f model = Eigen::Matrix4f::Identity();
-        model.block<3, 1>(0, 3) = m_position; // Set translation
-        return model;
+    void setOrientation(const Eigen::Vector4d& orientation) {
+        m_orientation = orientation;
     }
 
-    const Mesh& getMesh() const {
-        return m_mesh;
-    }
-
-    Eigen::Vector3f getPosition() const {
+    [[nodiscard]] const Eigen::Vector3d& getPosition() const {
         return m_position;
     }
 
-    void applyForce(const Eigen::Vector3f& force, float deltaTime) {
-        // F = ma => a = F / m
-        Eigen::Vector3f acceleration = force / m_mass;
-        m_velocity += acceleration * deltaTime;
+    [[nodiscard]] const Eigen::Vector4d& getOrientation() const {
+        return m_orientation;
     }
 
 private:
+    Eigen::Vector3d m_position;
+    Eigen::Vector4d m_orientation;
     Mesh m_mesh;
-    Eigen::Vector3f m_position; // Position in 3D space
-    Eigen::Vector3f m_velocity; // Velocity in 3D space
-    float m_mass;               // Mass of the rigid body
 };
 
-#endif
+
+#endif // RIGIDBODY_H

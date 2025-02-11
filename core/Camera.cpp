@@ -50,7 +50,7 @@ void Camera::moveDown(float deltaTime) {
 
 // Process mouse movement
 void Camera::processMouseMovement(float xOffset, float yOffset, bool constrainPitch) {
-    xOffset *= m_mouseSensitivity;
+    xOffset *= -m_mouseSensitivity;
     yOffset *= m_mouseSensitivity;
 
     m_yaw += xOffset;

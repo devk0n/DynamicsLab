@@ -1,28 +1,64 @@
 #include "Application.h"
+#include "physics/PhysicsEngine.h"
 
-Application::Application() {}
+std::vector<Vertex> cubeVertices = {
+    // Front face
+    {{-0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}}, // Bottom-left
+    {{0.5f, -0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}},  // Bottom-right
+    {{0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}},  // Top-right
+    {{-0.5f,  0.5f,  0.5f}, {0.0f, 0.0f, 1.0f}}, // Top-left
+
+    // Back face
+    {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}}, // Bottom-left
+    {{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},  // Bottom-right
+    {{0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}},  // Top-right
+    {{-0.5f,  0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}}  // Top-left
+};
+
+std::vector<GLuint> cubeIndices = {
+    // Front face
+    0, 1, 2,
+    2, 3, 0,
+
+    // Back face
+    4, 5, 6,
+    6, 7, 4,
+
+    // Left face
+    4, 0, 3,
+    3, 7, 4,
+
+    // Right face
+    1, 5, 6,
+    6, 2, 1,
+
+    // Top face
+    3, 2, 6,
+    6, 7, 3,
+
+    // Bottom face
+    4, 5, 1,
+    1, 0, 4
+};
+
+Application::Application() : m_lastFrameTime(0.0f) {}
 
 bool Application::initialize() {
-    // 1) Initialize window, GLFW, GLAD
     if (!m_windowManager.initialize()) return false;
-
-    // 2) Initialize Renderer (requires a valid OpenGL context)
-    m_renderer.initialize();
-
-    // 3) Ensure OpenGL context is active before ImGui initialization
-    if (!m_windowManager.getWindow()) return false;
-
-    // 4) Initialize ImGui
     if (!m_imGuiManager.initialize(m_windowManager.getWindow())) return false;
-
-    // 5) Initialize InputManager
     if (!InputManager::initialize(m_windowManager.getWindow())) return false;
 
-    // 6) Set initial time for deltaTime calculations
-    m_lastFrameTime = static_cast<float>(glfwGetTime());
+    if (!m_renderer.initialize("C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/vertex.glsl", "C:/Users/devkon/CLionProjects/DynamicsLab/assets/shaders/fragment.glsl")) {
+        std::cerr << "Failed to initialize renderer" << std::endl;
+        return false;
+    }
 
+    // Create a cube
+    RigidBody cube(Eigen::Vector3d(0.0, 0.0, 0.0), Eigen::Vector4d(1.0, 0.0, 0.0, 0.0), cubeVertices, cubeIndices);
+    m_physicsEngine.addRigidBody(cube);
 
-
+    RigidBody cube1(Eigen::Vector3d(10.0, 0.0, 0.0), Eigen::Vector4d(1.0, 0.0, 0.0, 0.0), cubeVertices, cubeIndices);
+    m_physicsEngine.addRigidBody(cube1);
 
     return true;
 }
@@ -35,17 +71,21 @@ void Application::update(float deltaTime) {
 
 void Application::run() {
     while (!m_windowManager.shouldClose()) {
-        auto currentFrameTime = static_cast<float>(glfwGetTime());
-        float deltaTime = currentFrameTime - m_lastFrameTime;
-        m_lastFrameTime = currentFrameTime;
+        float deltaTime = static_cast<float>(glfwGetTime()) - m_lastFrameTime;
+        m_lastFrameTime = static_cast<float>(glfwGetTime());
 
         m_windowManager.pollEvents();
-        update(deltaTime);
+        InputManager::update(deltaTime, m_camera);
 
         m_renderer.beginFrame();
-        // m_renderer.render(m_physicsManager.getRigidBodies(), m_camera.getViewMatrix(), m_camera.getProjectionMatrix(m_windowManager.getAspectRatio()));
-        m_imGuiManager.renderGui(m_windowManager.getWindow(), m_renderer, m_camera, m_physicsEngine);
+        m_renderer.render(
+            m_physicsEngine.getRigidBodies(),
+            m_camera.getViewMatrix(),
+            m_camera.getProjectionMatrix(m_windowManager.getAspectRatio())
+        );
 
+        // Render ImGui controls
+        m_imGuiManager.renderGui(m_windowManager.getWindow(), m_renderer, m_camera, m_physicsEngine);
 
         m_renderer.endFrame();
         m_windowManager.swapBuffers();
