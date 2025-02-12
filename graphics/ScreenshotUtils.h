@@ -28,7 +28,6 @@ std::string generateTimestampedFilename() {
   return oss.str();
 }
 
-
 void saveScreenshot(GLFWwindow *window) {
   int width, height;
   glfwGetFramebufferSize(window, &width, &height);

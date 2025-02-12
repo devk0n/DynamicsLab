@@ -20,8 +20,6 @@ bool ImGuiManager::initialize(GLFWwindow *window) {
     return false;
   }
 
-  // ImGuiStyle &style = ImGui::GetStyle();
-
   return true;
 }
 
@@ -30,9 +28,6 @@ void ImGuiManager::renderGui(GLFWwindow *window, Renderer &renderer, Camera &cam
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplGlfw_NewFrame();
   ImGui::NewFrame();
-
-  // Show a demo window (optional)
-  // ImGui::ShowDemoWindow();
 
   // Show custom UI elements
   showDebugWindow(camera, physicsEngine, window);
@@ -85,7 +80,6 @@ void ImGuiManager::showRendererControls(Renderer &renderer) {
 void ImGuiManager::controlWindow(PhysicsEngine &physicsEngine) {
   ImGui::Begin("Simulation Controls");
 
-
   if (ImGui::Button("Start Simulation")) {
     physicsEngine.start();
   }
@@ -93,7 +87,6 @@ void ImGuiManager::controlWindow(PhysicsEngine &physicsEngine) {
   if (ImGui::Button("Stop Simulation")) {
     physicsEngine.stop();
   }
-
 
   if (ImGui::Button("Step Simulation")) {
     physicsEngine.step();
@@ -195,7 +188,6 @@ void ImGuiManager::showPhysicsControls(PhysicsEngine &physicsEngine) {
   ImGui::End();
 }
 
-
 void ImGuiManager::showDebugWindow(Camera &camera, PhysicsEngine &physicsEngine, GLFWwindow *window) {
   ImGui::Begin("Debug");
 
@@ -258,7 +250,6 @@ void ImGuiManager::showDebugWindow(Camera &camera, PhysicsEngine &physicsEngine,
 
   ImGui::End();
 }
-
 
 void ImGuiManager::shutdown() {
   // Cleanup ImGui

@@ -2,7 +2,7 @@
 #include "Shader.h"
 
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices)
-    : m_vertices(vertices), m_indices(indices) {
+    : m_vertices(vertices), m_indices(indices), m_VAO(0), m_VBO(0), m_EBO(0) {
   setupMesh();
 }
 

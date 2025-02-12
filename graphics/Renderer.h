@@ -38,7 +38,6 @@ private:
   bool m_wireframeMode = false;
 
   bool m_initialized = false;
-
 };
 
 

@@ -43,10 +43,6 @@ Eigen::Matrix3d RigidBody::getMassMatrix() {
   return m_massMatrix;
 }
 
-double RigidBody::getMass() {
-  return m_massMatrix.trace() / 3.0;
-}
-
 void RigidBody::setLinearVelocity(Eigen::Vector3d linearVelocity) {
   m_linearVelocity = linearVelocity;
 }

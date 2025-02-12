@@ -32,7 +32,7 @@ public:
   bool loadShader(const std::string &vertexPath, const std::string &fragmentPath);
 
   // Cleanup
-  void cleanup();
+  void cleanup() const;
 
 private:
   GLuint ID; // Program ID

@@ -59,7 +59,7 @@ void Renderer::render(const std::vector<RigidBody> &rigidBodies, const glm::mat4
   for (const auto &body: rigidBodies) {
     glm::mat4 modelMatrix = body.getModelMatrix();
     m_cubeShader.setMat4("model", modelMatrix);
-    m_cubeShader.setVec3("objectColor", glm::vec3(0.2, 0.7, 0.4));  // Assuming each body has a color
+    m_cubeShader.setVec3("objectColor", glm::vec3(0.2, 0.7, 0.4));
 
     body.getMesh().draw(m_cubeShader);
   }
@@ -67,7 +67,6 @@ void Renderer::render(const std::vector<RigidBody> &rigidBodies, const glm::mat4
   // Restore default mode to prevent affecting UI elements
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
-
 
 void Renderer::endFrame() {
   // Post-draw cleanup

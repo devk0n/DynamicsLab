@@ -58,7 +58,6 @@ public:
 
   void setMouseSensitivity(float mouseSensitivity);
 
-
 private:
   // Camera attributes
   glm::vec3 m_position;
