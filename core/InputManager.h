@@ -13,6 +13,18 @@ public:
 
 private:
   static GLFWwindow *s_window;
+
+  static float s_scrollOffset;
+
+  static void scrollCallback(GLFWwindow *window, double xOffset, double yOffset);
+
+  static void handleKeyboardInput(float time, Camera &camera);
+
+  static void handleMouseLook(Camera &camera);
+
+  static void handleScrollInput(Camera &camera);
+
+  static void handleUtilityKeybindings();
 };
 
 

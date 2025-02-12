@@ -30,11 +30,11 @@ position and orientation via:
 
 - **Mouse Input**:
     - Movement: Adjusts the camera's rotation.
-    - Scrolling: Typically configured for zoom functionality.
+    - Scrolling: Camera movement speed.
 
 - **Keyboard Input**:
-    - W/A/S/D keys for navigation along the axes.
-    - Space/Shift for upward/downward movement.
+    - W/A/S/D keys for navigation.
+    - Left Shift/Control for upward/downward movement.
 
 # Important Equations
 
