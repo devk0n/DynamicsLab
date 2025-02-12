@@ -14,18 +14,15 @@ bool Application::initialize() {
     std::cerr << "Failed to initialize renderer" << std::endl;
     return false;
   }
-
-  auto sphereVertices = MeshData::generateSphereVertices(1.0f, 36, 18);
-  auto sphereIndices = MeshData::generateSphereIndices(36, 18);
-
+  
   // Create a cube
   RigidBody cube(
       Eigen::Vector3d(0.0, 0.0, 0.0),
       Eigen::Vector4d(1.0, 0.0, 0.0, 0.0),
       Eigen::Matrix3d::Identity() * 10.0,
       Eigen::Matrix3d::Identity() * 60.0,
-      sphereVertices,
-      sphereIndices
+      MeshData::cubeVertices,
+      MeshData::cubeIndices
   );
 
   m_physicsEngine.addRigidBody(cube);
