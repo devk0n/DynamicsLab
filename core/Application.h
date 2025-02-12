@@ -19,14 +19,16 @@ public:
   void run();
 
 private:
-  void update(float deltaTime);
-
   WindowManager m_windowManager;
   Renderer m_renderer;
   PhysicsEngine m_physicsEngine;
   ImGuiManager m_imGuiManager;
   Camera m_camera;
+
   float m_lastFrameTime;
+
+  void update(float deltaTime);
+
 };
 
 #endif // APPLICATION_H

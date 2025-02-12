@@ -15,9 +15,6 @@ RigidBody::RigidBody(Eigen::Vector3d position,
       m_massMatrix(std::move(massMatrix)),
       m_localInertiaTensor(std::move(localInertiaTensor)) {}
 
-const Mesh &RigidBody::getMesh() const {
-  return m_mesh;
-}
 
 glm::mat4 RigidBody::getModelMatrix() const {
   // Convert Eigen::Vector4d orientation to a rotation matrix
@@ -57,4 +54,8 @@ const Eigen::Vector3d &RigidBody::getLinearVelocity() const {
 
 const Eigen::Vector4d &RigidBody::getAngularVelocity() const {
   return m_angularVelocity;
+}
+
+const Mesh &RigidBody::getMesh() const {
+  return m_mesh;
 }

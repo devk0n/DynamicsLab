@@ -29,15 +29,14 @@ public:
   [[nodiscard]] bool getWireframeMode() const;
 
 private:
-  Shader m_gridShader;
-  Shader m_cubeShader;
-  Shader m_axisShader;
+  Shader m_bodyShader;
 
   float m_clearColor[4] = {0.1f, 0.1f, 0.1f, 1.0f};
 
   bool m_wireframeMode = false;
 
   bool m_initialized = false;
+
 };
 
 

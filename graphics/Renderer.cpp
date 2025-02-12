@@ -3,21 +3,14 @@
 #include "MeshData.h"
 
 // FIXME: Maybe not to good to have these here.
-const std::string cubeVertexPath = "assets/shaders/cube.vert.glsl";
-const std::string cubeFragmentPath = "assets/shaders/cube.frag.glsl";
-
-const std::string axisVertexPath = "assets/shaders/axis.vert.glsl";
-const std::string axisFragmentPath = "assets/shaders/axis.frag.glsl";
+const std::string bodyVertexPath = "assets/shaders/body.vert.glsl";
+const std::string bodyFragmentPath = "assets/shaders/body.frag.glsl";
 
 bool Renderer::initialize() {
 
   // Initialize the shader
-  if (!m_cubeShader.loadShader(cubeVertexPath, cubeFragmentPath)) {
-    std::cerr << "Failed to initialize cube shader" << std::endl;
-    return false;
-  }
-  if (!m_axisShader.loadShader(axisVertexPath, axisFragmentPath)) {
-    std::cerr << "Failed to initialize axis shader" << std::endl;
+  if (!m_bodyShader.loadShader(bodyVertexPath, bodyFragmentPath)) {
+    std::cerr << "Failed to initialize body shader" << std::endl;
     return false;
   }
 
@@ -43,27 +36,26 @@ void Renderer::render(const std::vector<RigidBody> &rigidBodies, const glm::mat4
   // Enable or disable wireframe mode
   glPolygonMode(GL_FRONT_AND_BACK, m_wireframeMode ? GL_LINE : GL_FILL);
 
-  m_cubeShader.use();
-  m_cubeShader.setMat4("view", view);
-  m_cubeShader.setMat4("projection", projection);
+  m_bodyShader.use();
+  m_bodyShader.setMat4("view", view);
+  m_bodyShader.setMat4("projection", projection);
 
   // Set lighting uniforms
   glm::vec3 lightPos(20.0f, 40.0f, 20.0f);
   glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
   auto viewPos = glm::vec3(view[3]);  // Extract camera position from view matrix
 
-  m_cubeShader.setVec3("lightPos", lightPos);
-  m_cubeShader.setVec3("lightColor", lightColor);
-  m_cubeShader.setVec3("viewPos", viewPos);
+  m_bodyShader.setVec3("lightPos", lightPos);
+  m_bodyShader.setVec3("lightColor", lightColor);
+  m_bodyShader.setVec3("viewPos", viewPos);
 
   for (const auto &body: rigidBodies) {
     glm::mat4 modelMatrix = body.getModelMatrix();
-    m_cubeShader.setMat4("model", modelMatrix);
-    m_cubeShader.setVec3("objectColor", glm::vec3(0.2, 0.7, 0.4));
+    m_bodyShader.setMat4("model", modelMatrix);
+    m_bodyShader.setVec3("objectColor", glm::vec3(0.2, 0.7, 0.4));
 
-    body.getMesh().draw(m_cubeShader);
+    body.getMesh().draw(m_bodyShader);
   }
-
   // Restore default mode to prevent affecting UI elements
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
@@ -74,8 +66,7 @@ void Renderer::endFrame() {
 
 void Renderer::shutdown() {
   // Clean up shaders and other resources
-  m_cubeShader.cleanup();
-  m_axisShader.cleanup();
+  m_bodyShader.cleanup();
 }
 
 void Renderer::captureScreenshot() {
@@ -89,7 +80,6 @@ void Renderer::setWireframeMode(bool enable) {
 bool Renderer::getWireframeMode() const {
   return m_wireframeMode;
 }
-
 
 void Renderer::setClearColor(float r, float g, float b, float a) {
   m_clearColor[0] = r;

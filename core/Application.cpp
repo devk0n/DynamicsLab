@@ -10,21 +10,22 @@ bool Application::initialize() {
   if (!m_imGuiManager.initialize(m_windowManager.getWindow())) return false;
   if (!InputManager::initialize(m_windowManager.getWindow())) return false;
 
-  std::cout << "Current path: " << std::filesystem::current_path().string() << std::endl;
-
   if (!m_renderer.initialize()) {
     std::cerr << "Failed to initialize renderer" << std::endl;
     return false;
   }
 
+  auto sphereVertices = MeshData::generateSphereVertices(1.0f, 36, 18);
+  auto sphereIndices = MeshData::generateSphereIndices(36, 18);
+
   // Create a cube
   RigidBody cube(
       Eigen::Vector3d(0.0, 0.0, 0.0),
       Eigen::Vector4d(1.0, 0.0, 0.0, 0.0),
-      Eigen::Matrix3d::Identity() * 50.0,
+      Eigen::Matrix3d::Identity() * 10.0,
       Eigen::Matrix3d::Identity() * 60.0,
-      MeshData::cubeVertices,
-      MeshData::cubeIndices
+      sphereVertices,
+      sphereIndices
   );
 
   m_physicsEngine.addRigidBody(cube);
@@ -57,7 +58,12 @@ void Application::run() {
         m_camera.getProjectionMatrix(m_windowManager.getAspectRatio())
     );
 
-    m_imGuiManager.renderGui(m_windowManager.getWindow(), m_renderer, m_camera, m_physicsEngine);
+    m_imGuiManager.renderGui(
+        m_windowManager.getWindow(),
+        m_renderer,
+        m_camera,
+        m_physicsEngine
+    );
 
     m_renderer.endFrame();
     m_windowManager.swapBuffers();
