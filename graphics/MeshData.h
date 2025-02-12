@@ -48,5 +48,20 @@ namespace MeshData {
         16, 17, 18, 18, 19, 16,  // Top
         20, 21, 22, 22, 23, 20   // Bottom
     };
+    
+    constexpr float axisVertices[] = {
+        // X Axis
+        0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // Red
+        1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // Red
+
+        // Y Axis
+        0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // Green
+        0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,  // Green
+
+        // Z Axis
+        0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,  // Blue
+        0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f   // Blue
+    };
+
 }
 #endif // MESHDATA_H

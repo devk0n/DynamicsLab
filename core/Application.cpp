@@ -12,8 +12,7 @@ bool Application::initialize() {
 
   std::cout << "Current path: " << std::filesystem::current_path().string() << std::endl;
 
-  if (!m_renderer.initialize("assets/shaders/cube.vert.glsl",
-                             "assets/shaders/cube.frag.glsl")) {
+  if (!m_renderer.initialize()) {
     std::cerr << "Failed to initialize renderer" << std::endl;
     return false;
   }
@@ -22,7 +21,7 @@ bool Application::initialize() {
   RigidBody cube(
       Eigen::Vector3d(0.0, 0.0, 0.0),
       Eigen::Vector4d(1.0, 0.0, 0.0, 0.0),
-      Eigen::Matrix3d::Identity() * 10.0,
+      Eigen::Matrix3d::Identity() * 50.0,
       Eigen::Matrix3d::Identity() * 60.0,
       MeshData::cubeVertices,
       MeshData::cubeIndices

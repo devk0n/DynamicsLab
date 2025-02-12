@@ -10,7 +10,7 @@
 
 class Renderer {
 public:
-  bool initialize(const std::string &vertexPath, const std::string &fragmentPath);
+  bool initialize();
 
   void beginFrame();
 
@@ -26,10 +26,13 @@ public:
 
   void setWireframeMode(bool enable);
 
-  bool getWireframeMode() const;
+  [[nodiscard]] bool getWireframeMode() const;
 
 private:
-  Shader m_shader;
+  Shader m_gridShader;
+  Shader m_cubeShader;
+  Shader m_axisShader;
+
   float m_clearColor[4] = {0.1f, 0.1f, 0.1f, 1.0f};
 
   bool m_wireframeMode = false;
