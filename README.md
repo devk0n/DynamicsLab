@@ -1,6 +1,6 @@
 # DynamicsLab Engine
 
-**DynamicsLab** is a work in porgress real-time simulation tool for multibody dynamics systems. It is designed to help
+**DynamicsLab** is a work in progress real-time simulation tool for multibody dynamics systems. It is designed to help
 users visualize, analyze, and interact with complex system data efficiently. By combining powerful simulation
 capabilities with an intuitive interface.
 
