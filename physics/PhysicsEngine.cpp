@@ -78,7 +78,7 @@ Eigen::VectorXd PhysicsEngine::computeStateDerivatives(const Eigen::VectorXd &st
     Eigen::Vector4d angularVelocity = state.segment(n + 10, 4);
 
     // Compute accelerations (linear and angular)
-    Eigen::Vector3d linearAcceleration = m_externalForces / m_rigidBodies[i].getMass();
+    Eigen::Vector3d linearAcceleration = m_externalForces;
     Eigen::Vector4d angularAcceleration = Eigen::Vector4d::Zero(); // Simplified for now
 
     // Update the derivatives

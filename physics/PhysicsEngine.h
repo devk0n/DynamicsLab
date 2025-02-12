@@ -7,7 +7,7 @@
 
 class PhysicsEngine {
 public:
-  PhysicsEngine() : PhysicsEngine(0.005) {}
+  PhysicsEngine() : PhysicsEngine(0.004166666) {}
 
   explicit PhysicsEngine(double timeStep);
 
@@ -30,9 +30,9 @@ public:
   // Setters
   void setExternalForces(Eigen::Vector3d externalForces);
 
-  bool isInitialized() const;
+  [[nodiscard]] bool isInitialized() const;
 
-  bool isRunning() const;
+  [[nodiscard]] bool isRunning() const;
 
 private:
 

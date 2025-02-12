@@ -54,20 +54,20 @@ $$
 
 $$
 M^* = \begin{bmatrix} N_1 \cr & J_1^* \cr & & N_b \cr & & & J_b^* \end{bmatrix}
-\space
+\quad
 P = \begin{bmatrix} 0^T & p_1^T \cr & & 0^T & p_b^T \end{bmatrix}
 $$
 
 $$
 \ddot q = \begin{bmatrix} \ddot r_1 \cr \ddot p_1 \cr \ddot r_b \cr \ddot p_b \end{bmatrix}
-\space
+\quad
 \sigma = \begin{bmatrix} \sigma_1 \cr \sigma_b \end{bmatrix}
 $$
 
 $$
 b^* = \begin{bmatrix} 0 \cr 2 H_1 \dot p_1 \cr 0 \cr 2 H_b \dot p_b \end{bmatrix}
-\space
-c = \begin{bmatrix} \dot p_1^T \dot p_1 \cr \dot p_b^T p_b \end{bmatrix} \space
+\quad
+c = \begin{bmatrix} \dot p_1^T \dot p_1 \cr \dot p_b^T p_b \end{bmatrix} \quad
 g^* = \begin{bmatrix} f_1 \cr n_1^* \cr f_b \cr n_b^* \end{bmatrix}
 $$
 
@@ -84,7 +84,7 @@ $$
 
 ### Initial Position, Orientation, Velocity & Angular Velocity
 
-1 x 1 x 1 m 10 kilogram box.
+1 x 1 x 1 m 10 kilogram cube.
 
 Mass: $ m = 10 kg $
 
@@ -116,37 +116,6 @@ $$
 |        **b\***         |            Velocity-dependent term             |    `VelocityDependentTerm`     | Represents effects dependent on the velocity, such as Coriolis or damping forces. |
 |         **c**          |         Quaternion norm squared value          |    `QuaternionNormSquared`     |                Constraint ensuring quaternions remain normalized.                 |
 |        **g\***         |          Generalized external forces           |  `GeneralizedExternalForces`   |                       External forces acting on the system.                       |
-
-## Project Tree
-
-```bash
-DynamicsLab
-├───assets
-│   ├───images
-│   └───shaders
-│       ├───grid.frag.glsl
-│       └───grid.vert.glsl
-├───include
-│   ├───glad
-│   ├───KHR
-│   ├───application.h
-│   ├───dynamics.h
-│   ├───imgui_layer.h
-│   ├───graphics.h
-│   └───rigid_body.h
-└───src
-    ├───core
-    │   ├───main.cpp
-    │   └───application.cpp
-    ├───graphics
-    │   ├───glad.c
-    │   └───graphics.cpp
-    ├───simulation
-    │   ├───rigid_body.cpp
-    │   └───dynamics.cpp
-    └───ui
-        └───imgui_layer.cpp
-```
 
 ## References
 
