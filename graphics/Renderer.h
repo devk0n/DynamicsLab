@@ -24,16 +24,12 @@ public:
 
   static void captureScreenshot();
 
-  void setWireframeMode(bool enable);
-
-  [[nodiscard]] bool getWireframeMode() const;
+  bool wireframeMode = false;
 
 private:
   Shader m_bodyShader;
 
   float m_clearColor[4] = {0.1f, 0.1f, 0.1f, 1.0f};
-
-  bool m_wireframeMode = false;
 
   bool m_initialized = false;
 

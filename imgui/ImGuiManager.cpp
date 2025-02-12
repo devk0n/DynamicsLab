@@ -69,10 +69,7 @@ void ImGuiManager::showRendererControls(Renderer &renderer) {
     renderer.setClearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
   }
 
-  static bool wireframeMode = renderer.getWireframeMode();
-  if (ImGui::Checkbox("Wireframe Mode", &wireframeMode)) {
-    renderer.setWireframeMode(wireframeMode);
-  }
+  ImGui::Checkbox("Wireframe Mode", &renderer.wireframeMode);
 
   ImGui::End();
 }
@@ -161,7 +158,7 @@ void ImGuiManager::showPhysicsControls(PhysicsEngine &physicsEngine) {
           3.14f,
           "%.2f rad"
       )) {
-        
+
         // Get the current orientation (w, x, y, z)
         Eigen::Vector4d currentOrientation = body.getOrientation();
 
