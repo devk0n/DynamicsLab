@@ -25,13 +25,6 @@ bool Renderer::initialize() {
   return true;
 }
 
-void Renderer::setClearColor(float r, float g, float b, float a) {
-  m_clearColor[0] = r;
-  m_clearColor[1] = g;
-  m_clearColor[2] = b;
-  m_clearColor[3] = a;
-}
-
 void Renderer::beginFrame() {
   // Tell OpenGL what color to clear the screen with
   glClearColor(m_clearColor[0], m_clearColor[1], m_clearColor[2], m_clearColor[3]);
