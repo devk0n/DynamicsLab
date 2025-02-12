@@ -19,9 +19,7 @@ void InputManager::update(float deltaTime, Camera &camera) {
   handleUtilityKeybindings();
 }
 
-// -------------------------------------------------------------
 // Keyboard input handling
-// -------------------------------------------------------------
 void InputManager::handleKeyboardInput(float deltaTime, Camera &camera) {
   if (glfwGetKey(s_window, GLFW_KEY_W) == GLFW_PRESS)
     camera.moveForward(deltaTime);
@@ -37,9 +35,7 @@ void InputManager::handleKeyboardInput(float deltaTime, Camera &camera) {
     camera.moveDown(deltaTime);
 }
 
-// -------------------------------------------------------------
 // Mouse look (only when right mouse button is pressed)
-// -------------------------------------------------------------
 void InputManager::handleMouseLook(Camera &camera) {
   static bool firstMouse = true;
   static float lastX = 0.0f, lastY = 0.0f;
@@ -71,9 +67,7 @@ void InputManager::handleMouseLook(Camera &camera) {
   }
 }
 
-// -------------------------------------------------------------
 // Scroll wheel => adjust camera speed
-// -------------------------------------------------------------
 void InputManager::handleScrollInput(Camera &camera) {
   if (s_scrollOffset != 0.0f) {
     float currentSpeed = camera.getMovementSpeed();
@@ -89,9 +83,7 @@ void InputManager::handleScrollInput(Camera &camera) {
   }
 }
 
-// -------------------------------------------------------------
 // Utility keybindings
-// -------------------------------------------------------------
 void InputManager::handleUtilityKeybindings() {
   if (glfwGetKey(s_window, GLFW_KEY_F12) == GLFW_PRESS) {
     Renderer::captureScreenshot();
