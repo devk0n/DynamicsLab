@@ -29,7 +29,7 @@ void ImGuiManager::renderGui(
   showDebugWindow(camera, physicsEngine, window);
   showRendererControls(renderer);
   showCameraControls(camera);
-  // showBodyControls(physicsEngine);
+  showBodyControls(physicsEngine);
   controlWindow(physicsEngine);
 
   // Render ImGui

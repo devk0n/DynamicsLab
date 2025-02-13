@@ -37,6 +37,10 @@ public:
 
 	double getMass() const;
 
+	Eigen::Vector3d getAppliedForce();
+
+	Eigen::Vector3d getAppliedTorque();
+
 	// Setters
 	void setPosition(const Eigen::Vector3d &position);
 

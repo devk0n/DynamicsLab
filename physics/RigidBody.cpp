@@ -109,3 +109,11 @@ Eigen::Matrix<double, 3, 4> RigidBody::transformationMatrixL(Eigen::Vector4d tra
 
   return L;
 }
+
+Eigen::Vector3d RigidBody::getAppliedForce() {
+  return m_linearVelocity;
+}
+
+Eigen::Vector3d RigidBody::getAppliedTorque() {
+  return m_linearVelocity;
+}

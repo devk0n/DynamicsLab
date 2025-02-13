@@ -7,7 +7,7 @@ Application::Application() : m_lastFrameTime(0.0f) {
 
 bool Application::initialize() {
   if (!m_windowManager.initialize()) return false;
-  if (!m_imGuiManager.initialize(m_windowManager.getWindow())) return false;
+  if (!ImGuiManager::initialize(m_windowManager.getWindow())) return false;
   if (!InputManager::initialize(m_windowManager.getWindow())) return false;
 
   if (!m_renderer.initialize()) {
