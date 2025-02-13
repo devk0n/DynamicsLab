@@ -47,6 +47,8 @@ public:
 
   void setAngularVelocity(const Eigen::Vector4d &angularVelocity);
 
+  Eigen::Matrix<double, 3, 4> transformationMatrixL(Eigen::Vector4d transformationMatrix);
+
 private:
   Eigen::Vector3d m_position;
   Eigen::Vector4d m_orientation;
@@ -57,8 +59,9 @@ private:
   Eigen::Matrix3d m_massMatrix;
   Eigen::Matrix3d m_localInertiaTensor;
 
-  Mesh m_mesh;
+  Eigen::Matrix4d m_inertiaTensor;
 
+  Mesh m_mesh;
 };
 
 

@@ -11,9 +11,11 @@ RigidBody::RigidBody(Eigen::Vector3d position,
                      const std::vector<GLuint> &indices)
   : m_position(std::move(position)),
     m_orientation(std::move(orientation)),
-    m_mesh(vertices, indices),
     m_massMatrix(std::move(massMatrix)),
-    m_localInertiaTensor(std::move(localInertiaTensor)) {
+    m_localInertiaTensor(std::move(localInertiaTensor)),
+    m_mesh(vertices, indices) {
+  m_inertiaTensor = 4 * transformationMatrixL(m_orientation).transpose() * m_localInertiaTensor *
+                    transformationMatrixL(m_orientation);
 }
 
 glm::mat4 RigidBody::getModelMatrix() const {
@@ -58,4 +60,18 @@ const Eigen::Vector4d &RigidBody::getAngularVelocity() const {
 
 const Mesh &RigidBody::getMesh() const {
   return m_mesh;
+}
+
+Eigen::Matrix<double, 3, 4> RigidBody::transformationMatrixL(Eigen::Vector4d transformationMatrix) {
+  double w = transformationMatrix(0);
+  double x = transformationMatrix(1);
+  double y = transformationMatrix(2);
+  double z = transformationMatrix(3);
+
+  Eigen::Matrix<double, 3, 4> L;
+  L << -x, w, z, -y,
+      -y, -z, w, x,
+      -z, y, -x, w;
+
+  return L;
 }
