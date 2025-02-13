@@ -18,9 +18,7 @@ bool Application::initialize() {
   // Create a cube
   const RigidBody cube0(
     Eigen::Vector3d(0.0, 0.0, 0.0),
-    Eigen::Vector4d(1.0, 0.0, 0.0, 0.0),
     Eigen::Matrix3d::Identity() * 10.0,
-    Eigen::Matrix3d::Identity() * 60.0,
     MeshData::cubeVertices,
     MeshData::cubeIndices,
     glm::vec3(0.6118, 0.2510, 0.4039)

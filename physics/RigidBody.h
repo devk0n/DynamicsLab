@@ -9,9 +9,7 @@
 class RigidBody {
 public:
 	RigidBody(Eigen::Vector3d position,
-	          Eigen::Vector4d orientation,
 	          Eigen::Matrix3d massMatrix,
-	          Eigen::Matrix3d localInertiaTensor,
 	          const std::vector<Vertex> &vertices,
 	          const std::vector<GLuint> &indices,
 	          glm::vec3 color);
@@ -25,48 +23,19 @@ public:
 
 	[[nodiscard]] const Eigen::Vector3d &getPosition() const;
 
-	[[nodiscard]] const Eigen::Vector4d &getOrientation() const;
-
 	[[nodiscard]] const Eigen::Vector3d &getLinearVelocity() const;
 
-	[[nodiscard]] const Eigen::Vector4d &getAngularVelocity() const;
-
 	Eigen::Matrix3d &getMassMatrix();
-
-	Eigen::Matrix3d getLocalInertiaTensor() const;
-
-	double getMass() const;
-
-	Eigen::Vector3d getAppliedForce();
-
-	Eigen::Vector3d getAppliedTorque();
 
 	// Setters
 	void setPosition(const Eigen::Vector3d &position);
 
-	void setOrientation(const Eigen::Vector4d &orientation);
-
 	void setLinearVelocity(const Eigen::Vector3d &linearVelocity);
-
-	void setAngularVelocity(const Eigen::Vector4d &angularVelocity);
-
-	Eigen::Matrix<double, 3, 4> transformationMatrixL(Eigen::Vector4d transformationMatrix);
-
-	void setMass(const double &mass);
-
-	void setLocalInertiaTensor(const Eigen::Matrix3d &localInertiaTensor);
 
 private:
 	Eigen::Vector3d m_position;
-	Eigen::Vector4d m_orientation;
-
 	Eigen::Vector3d m_linearVelocity;
-	Eigen::Vector4d m_angularVelocity;
-
 	Eigen::Matrix3d m_massMatrix;
-	Eigen::Matrix3d m_localInertiaTensor;
-
-	Eigen::Matrix4d m_inertiaTensor;
 
 	Mesh m_mesh;
 };

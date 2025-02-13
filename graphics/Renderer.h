@@ -15,9 +15,13 @@ public:
 
   void render(const std::vector<RigidBody> &rigidBodies, const glm::mat4 &view, const glm::mat4 &projection) const;
 
+  void drawAxes(const glm::mat4 &modelMatrix);
+
   static void endFrame();
 
   void shutdown() const;
+
+  void drawAxes(const glm::mat4 &modelMatrix, const glm::mat4 &view, const glm::mat4 &projection) const;
 
   void setClearColor(float r, float g, float b, float a);
 
@@ -26,7 +30,8 @@ public:
   bool wireframeMode = false;
 
 private:
-  Shader m_bodyShader;
+  Shader m_bodyShader, m_axesShader;
+  GLuint m_axesVAO, m_axesVBO;
 
   float m_clearColor[4] = {0.1f, 0.1f, 0.1f, 1.0f};
 

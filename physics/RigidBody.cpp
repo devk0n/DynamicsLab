@@ -4,25 +4,19 @@
 #include "graphics/Mesh.h"
 
 RigidBody::RigidBody(Eigen::Vector3d position,
-                     Eigen::Vector4d orientation,
                      Eigen::Matrix3d massMatrix,
-                     Eigen::Matrix3d localInertiaTensor,
                      const std::vector<Vertex> &vertices,
                      const std::vector<GLuint> &indices,
                      const glm::vec3 color)
   : color(color),
     m_position(std::move(position)),
-    m_orientation(std::move(orientation)),
     m_massMatrix(std::move(massMatrix)),
-    m_localInertiaTensor(std::move(localInertiaTensor)),
     m_mesh(vertices, indices) {
-  m_inertiaTensor = 4 * transformationMatrixL(m_orientation).transpose() * m_localInertiaTensor *
-                    transformationMatrixL(m_orientation);
 }
 
 glm::mat4 RigidBody::getModelMatrix() const {
   // Convert Eigen::Vector4d orientation to a rotation matrix
-  const Eigen::Quaterniond quat(m_orientation[3], m_orientation[0], m_orientation[1], m_orientation[2]);
+  const Eigen::Quaterniond quat(0, 0, 0, 1);
   Eigen::Matrix4d model = Eigen::Matrix4d::Identity();
   model.block<3, 3>(0, 0) = quat.toRotationMatrix();
   model.block<3, 1>(0, 3) = m_position;
@@ -44,76 +38,22 @@ Eigen::Matrix3d &RigidBody::getMassMatrix() {
   return m_massMatrix;
 }
 
-double RigidBody::getMass() const {
-  return m_massMatrix.trace() / 3.0;
-}
-
-Eigen::Matrix3d RigidBody::getLocalInertiaTensor() const {
-  return m_localInertiaTensor;
-}
-
 void RigidBody::setPosition(const Eigen::Vector3d &position) {
   m_position = position;
-}
-
-void RigidBody::setOrientation(const Eigen::Vector4d &orientation) {
-  m_orientation = orientation;
 }
 
 void RigidBody::setLinearVelocity(const Eigen::Vector3d &linearVelocity) {
   m_linearVelocity = linearVelocity;
 }
 
-void RigidBody::setAngularVelocity(const Eigen::Vector4d &angularVelocity) {
-  m_angularVelocity = angularVelocity;
-}
-
-void RigidBody::setMass(const double &mass) {
-  m_massMatrix = mass * Eigen::Matrix3d::Identity();
-}
-
-void RigidBody::setLocalInertiaTensor(const Eigen::Matrix3d &localInertiaTensor) {
-  m_localInertiaTensor = localInertiaTensor;
-}
-
 const Eigen::Vector3d &RigidBody::getPosition() const {
   return m_position;
-}
-
-const Eigen::Vector4d &RigidBody::getOrientation() const {
-  return m_orientation;
 }
 
 const Eigen::Vector3d &RigidBody::getLinearVelocity() const {
   return m_linearVelocity;
 }
 
-const Eigen::Vector4d &RigidBody::getAngularVelocity() const {
-  return m_angularVelocity;
-}
-
 const Mesh &RigidBody::getMesh() const {
   return m_mesh;
-}
-
-Eigen::Matrix<double, 3, 4> RigidBody::transformationMatrixL(Eigen::Vector4d transformationMatrix) {
-  double w = transformationMatrix(0);
-  double x = transformationMatrix(1);
-  double y = transformationMatrix(2);
-  double z = transformationMatrix(3);
-
-  Eigen::Matrix<double, 3, 4> L;
-  L << -x, w, z, -y,
-      -y, -z, w, x,
-      -z, y, -x, w;
-
-  return L;
-}
-
-Eigen::Vector3d RigidBody::getAppliedForce() {
-  return m_linearVelocity;
-}
-
-Eigen::Vector3d RigidBody::getAppliedTorque() {
-  return m_linearVelocity;
 }

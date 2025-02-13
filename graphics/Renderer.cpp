@@ -6,12 +6,38 @@
 const std::string bodyVertexPath = "assets/shaders/body.vert.glsl";
 const std::string bodyFragmentPath = "assets/shaders/body.frag.glsl";
 
+const std::string axesVertexPath = "assets/shaders/axes.vert.glsl";
+const std::string axesFragmentPath = "assets/shaders/axes.frag.glsl";
+
+const std::vector<glm::vec3> axesVertices = {
+  glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f),
+  glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f),
+  glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)
+};
+
 bool Renderer::initialize() {
   // Initialize the shader
   if (!m_bodyShader.loadShader(bodyVertexPath, bodyFragmentPath)) {
     std::cerr << "Failed to initialize body shader" << std::endl;
     return false;
   }
+  if (!m_axesShader.loadShader(axesVertexPath, axesFragmentPath)) {
+    std::cerr << "Failed to initialize axes shader" << std::endl;
+    return false;
+  }
+
+  glGenVertexArrays(1, &m_axesVAO);
+  glGenBuffers(1, &m_axesVBO);
+
+  glBindVertexArray(m_axesVAO);
+  glBindBuffer(GL_ARRAY_BUFFER, m_axesVBO);
+  glBufferData(GL_ARRAY_BUFFER, axesVertices.size() * sizeof(glm::vec3), axesVertices.data(), GL_STATIC_DRAW);
+
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void *) 0);
+  glEnableVertexAttribArray(0);
+
+  glBindBuffer(GL_ARRAY_BUFFER, 0);
+  glBindVertexArray(0);
 
   m_initialized = true;
   return true;
@@ -55,9 +81,35 @@ void Renderer::render(const std::vector<RigidBody> &rigidBodies, const glm::mat4
     m_bodyShader.setVec3("objectColor", body.color);
 
     body.getMesh().draw(m_bodyShader);
+    drawAxes(modelMatrix, view, projection);
   }
   // Restore default mode to prevent affecting UI elements
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void Renderer::drawAxes(const glm::mat4 &modelMatrix, const glm::mat4 &view, const glm::mat4 &projection) const {
+  m_axesShader.use();
+  m_axesShader.setMat4("model", modelMatrix);
+  m_axesShader.setMat4("view", view);
+  m_axesShader.setMat4("projection", projection);
+
+  // Bind the VAO
+  glBindVertexArray(m_axesVAO);
+
+  // Draw X-axis (red)
+  m_axesShader.setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f)); // Red
+  glDrawArrays(GL_LINES, 0, 2); // First two vertices (X-axis)
+
+  // Draw Y-axis (green)
+  m_axesShader.setVec3("color", glm::vec3(0.0f, 1.0f, 0.0f)); // Green
+  glDrawArrays(GL_LINES, 2, 2); // Next two vertices (Y-axis)
+
+  // Draw Z-axis (blue)
+  m_axesShader.setVec3("color", glm::vec3(0.0f, 0.0f, 1.0f)); // Blue
+  glDrawArrays(GL_LINES, 4, 2); // Last two vertices (Z-axis)
+
+  // Unbind the VAO
+  glBindVertexArray(0);
 }
 
 void Renderer::endFrame() {
@@ -65,8 +117,10 @@ void Renderer::endFrame() {
 }
 
 void Renderer::shutdown() const {
-  // Clean up shaders and other resources
   m_bodyShader.cleanup();
+  m_axesShader.cleanup();
+  glDeleteVertexArrays(1, &m_axesVAO);
+  glDeleteBuffers(1, &m_axesVBO);
 }
 
 void Renderer::captureScreenshot() {

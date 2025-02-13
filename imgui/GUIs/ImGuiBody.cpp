@@ -14,7 +14,7 @@ void ImGuiManager::showBodyControls(PhysicsEngine &physicsEngine) {
             // Summary section
             Eigen::Vector3d position = body.getPosition();
             Eigen::Vector3d linearVelocity = body.getLinearVelocity();
-            double mass = body.getMass();
+            double mass = 800815;
 
             ImGui::Text("Position: (%.2f, %.2f, %.2f)", position.x(), position.y(), position.z());
             ImGui::Text("Linear Velocity: (%.2f, %.2f, %.2f)", linearVelocity.x(), linearVelocity.y(),
@@ -49,7 +49,7 @@ void ImGuiManager::showBodyControls(PhysicsEngine &physicsEngine) {
                         "%.2f rad"
                     )) {
                         // Get the current orientation (w, x, y, z)
-                        Eigen::Vector4d currentOrientation = body.getOrientation();
+                        Eigen::Vector4d currentOrientation = {1.0, 0.0, 0.0, 0.0};
 
                         // Create quaternions for each axis rotation
                         auto createQuaternion = [](double angle, const Eigen::Vector3d &axis) -> Eigen::Vector4d {
@@ -95,14 +95,14 @@ void ImGuiManager::showBodyControls(PhysicsEngine &physicsEngine) {
                         );
 
                         // Normalize the quaternion
-                        double norm = sqrt(newQuaternion(0) * newQuaternion(0) +
-                                           newQuaternion(1) * newQuaternion(1) +
-                                           newQuaternion(2) * newQuaternion(2) +
-                                           newQuaternion(3) * newQuaternion(3));
+                        const double norm = sqrt(newQuaternion(0) * newQuaternion(0) +
+                                                 newQuaternion(1) * newQuaternion(1) +
+                                                 newQuaternion(2) * newQuaternion(2) +
+                                                 newQuaternion(3) * newQuaternion(3));
                         newQuaternion /= norm;
 
                         // Update the body's orientation
-                        body.setOrientation(newQuaternion);
+                        // body.setOrientation(newQuaternion);
                     }
                     if (ImGui::IsItemHovered()) {
                         ImGui::SetTooltip("Drag to rotate the rigid body around its local axes.");
@@ -114,30 +114,31 @@ void ImGuiManager::showBodyControls(PhysicsEngine &physicsEngine) {
                 // Velocities Tab
                 if (ImGui::BeginTabItem("Velocities")) {
                     Eigen::Vector3d linearVelocity = body.getLinearVelocity();
-                    Eigen::Vector4d angularVelocity = body.getAngularVelocity();
+                    // Eigen::Vector4d angularVelocity = body.getAngularVelocity();
 
                     float linVel[3] = {
                         static_cast<float>(linearVelocity.x()),
                         static_cast<float>(linearVelocity.y()),
                         static_cast<float>(linearVelocity.z())
                     };
+                    /*
                     float angVel[4] = {
                         static_cast<float>(angularVelocity.w()),
                         static_cast<float>(angularVelocity.x()),
                         static_cast<float>(angularVelocity.y()),
                         static_cast<float>(angularVelocity.z())
                     };
-
+                    */
                     ImGui::DragFloat3("Linear Velocity", linVel, 0.1f, -100.0f, 100.0f, "%.2f m/s");
-                    ImGui::DragFloat3("Angular Velocity", angVel, 0.1f, -10.0f, 10.0f, "%.2f rad/s");
+                    // ImGui::DragFloat4("Angular Velocity", angVel, 0.1f, -10.0f, 10.0f, "%.2f rad/s");
 
                     ImGui::EndTabItem();
                 }
 
                 // Forces Tab
                 if (ImGui::BeginTabItem("Forces")) {
-                    Eigen::Vector3d force = body.getAppliedForce();
-                    Eigen::Vector3d torque = body.getAppliedTorque();
+                    Eigen::Vector3d force = {0.0, 0.0, 0.0};
+                    Eigen::Vector3d torque = {0.0, 0.0, 0.0};
 
                     float forceData[3] = {
                         static_cast<float>(force.x()), static_cast<float>(force.y()), static_cast<float>(force.z())
@@ -154,36 +155,10 @@ void ImGuiManager::showBodyControls(PhysicsEngine &physicsEngine) {
 
                 // Mass and Inertia Tab
                 if (ImGui::BeginTabItem("Mass and Inertia")) {
-                    double mass = body.getMass();
+                    double mass = 10.0;
                     if (ImGui::InputDouble("Mass", &mass, 0.1, 1.0, "%.2f kg")) {
-                        body.setMass(mass);
+                        // body.setMass(mass);
                     }
-
-                    Eigen::Matrix3d inertia = body.getLocalInertiaTensor();
-                    float inertiaData[3][3] = {
-                        {
-                            static_cast<float>(inertia(0, 0)), static_cast<float>(inertia(0, 1)),
-                            static_cast<float>(inertia(0, 2))
-                        },
-                        {
-                            static_cast<float>(inertia(1, 0)), static_cast<float>(inertia(1, 1)),
-                            static_cast<float>(inertia(1, 2))
-                        },
-                        {
-                            static_cast<float>(inertia(2, 0)), static_cast<float>(inertia(2, 1)),
-                            static_cast<float>(inertia(2, 2))
-                        }
-                    };
-
-                    if (ImGui::InputFloat3("Inertia Row 1", inertiaData[0], "%.2f")) {
-                        body.setLocalInertiaTensor(Eigen::Matrix3d{
-                            {inertiaData[0][0], inertiaData[0][1], inertiaData[0][2]},
-                            {inertiaData[1][0], inertiaData[1][1], inertiaData[1][2]},
-                            {inertiaData[2][0], inertiaData[2][1], inertiaData[2][2]}
-                        });
-                    }
-                    ImGui::InputFloat3("Inertia Row 2", inertiaData[1], "%.2f");
-                    ImGui::InputFloat3("Inertia Row 3", inertiaData[2], "%.2f");
 
                     ImGui::EndTabItem();
                 }
