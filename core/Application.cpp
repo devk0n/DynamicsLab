@@ -1,4 +1,3 @@
-#include <filesystem>
 #include "Application.h"
 #include "physics/PhysicsEngine.h"
 #include "graphics/MeshData.h"
@@ -17,7 +16,7 @@ bool Application::initialize() {
   }
 
   // Create a cube
-  RigidBody cube(
+  const RigidBody cube(
     Eigen::Vector3d(0.0, 0.0, 0.0),
     Eigen::Vector4d(1.0, 0.0, 0.0, 0.0),
     Eigen::Matrix3d::Identity() * 10.0,
@@ -32,7 +31,7 @@ bool Application::initialize() {
   return true;
 }
 
-void Application::update(float deltaTime) {
+void Application::update(const float deltaTime) {
   InputManager::update(deltaTime, m_camera);
 
   if (m_physicsEngine.isInitialized() && m_physicsEngine.isRunning()) {
@@ -67,4 +66,3 @@ void Application::run() {
     m_windowManager.swapBuffers();
   }
 }
-
