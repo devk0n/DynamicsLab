@@ -52,7 +52,7 @@ void Renderer::render(const std::vector<RigidBody> &rigidBodies, const glm::mat4
   for (const auto &body: rigidBodies) {
     glm::mat4 modelMatrix = body.getModelMatrix();
     m_bodyShader.setMat4("model", modelMatrix);
-    m_bodyShader.setVec3("objectColor", glm::vec3(0.6118, 0.2510, 0.4039));
+    m_bodyShader.setVec3("objectColor", body.color);
 
     body.getMesh().draw(m_bodyShader);
   }

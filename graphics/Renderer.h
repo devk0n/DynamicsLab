@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <glm/glm.hpp>
+
 #include "Shader.h"
 #include "physics/RigidBody.h"
 
@@ -14,7 +15,7 @@ public:
 
   void render(const std::vector<RigidBody> &rigidBodies, const glm::mat4 &view, const glm::mat4 &projection) const;
 
-  void endFrame();
+  static void endFrame();
 
   void shutdown() const;
 

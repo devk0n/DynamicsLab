@@ -64,7 +64,7 @@ void PhysicsEngine::step() {
   }
 }
 
-Eigen::VectorXd PhysicsEngine::computeStateDerivatives(const Eigen::VectorXd &state) {
+Eigen::VectorXd PhysicsEngine::computeStateDerivatives(const Eigen::VectorXd &state) const {
   Eigen::VectorXd derivatives(state.size());
   derivatives.setZero();
 

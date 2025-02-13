@@ -1,4 +1,4 @@
-#include "ImGuiManager.h"
+#include "../ImGuiManager.h"
 
 void ImGuiManager::showRendererControls(Renderer &renderer) {
 	ImGui::Begin("Renderer Controls");

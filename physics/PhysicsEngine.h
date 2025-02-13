@@ -7,7 +7,8 @@
 
 class PhysicsEngine {
 public:
-  PhysicsEngine() : PhysicsEngine(0.004166666) {}
+  PhysicsEngine() : PhysicsEngine(0.004166666) {
+  }
 
   explicit PhysicsEngine(double timeStep);
 
@@ -19,7 +20,7 @@ public:
 
   void stop();
 
-  Eigen::VectorXd computeStateDerivatives(const Eigen::VectorXd &state);
+  Eigen::VectorXd computeStateDerivatives(const Eigen::VectorXd &state) const;
 
   // Adders
   void addRigidBody(const RigidBody &rigidBody);
@@ -35,7 +36,6 @@ public:
   [[nodiscard]] bool isRunning() const;
 
 private:
-
   Solver m_solver;
 
   Eigen::MatrixXd m_matrixA;

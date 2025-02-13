@@ -100,12 +100,12 @@ set(SOURCES
         graphics/Mesh.cpp
 
         imgui/ImGuiManager.cpp
-        imgui/ImGuiDebug.cpp
-        imgui/ImGuiRenderer.cpp
-        imgui/ImGuiCamera.cpp
-        imgui/ImGuiBody.cpp
-        imgui/ImGuiPhysics.cpp
-        imgui/ImGuiWindow.cpp
+        imgui/GUIs/ImGuiDebug.cpp
+        imgui/GUIs/ImGuiRenderer.cpp
+        imgui/GUIs/ImGuiCamera.cpp
+        imgui/GUIs/ImGuiBody.cpp
+        imgui/GUIs/ImGuiPhysics.cpp
+        imgui/GUIs/ImGuiWindow.cpp
 
         physics/PhysicsEngine.cpp
         physics/RigidBody.cpp

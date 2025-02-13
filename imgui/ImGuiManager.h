@@ -23,7 +23,7 @@ private:
 
   static void showCameraControls(const Camera &camera);
 
-  static void showPhysicsControls(PhysicsEngine &physicsEngine);
+  static void showBodyControls(PhysicsEngine &physicsEngine);
 
   static void showDebugWindow(const Camera &camera, PhysicsEngine &physicsEngine, GLFWwindow *window);
 

@@ -1,4 +1,4 @@
-#include "ImGuiManager.h"
+#include "../ImGuiManager.h"
 
 void ImGuiManager::showDebugWindow(const Camera &camera, PhysicsEngine &physicsEngine, GLFWwindow *window) {
   ImGui::Begin("Debug");

@@ -8,8 +8,10 @@ RigidBody::RigidBody(Eigen::Vector3d position,
                      Eigen::Matrix3d massMatrix,
                      Eigen::Matrix3d localInertiaTensor,
                      const std::vector<Vertex> &vertices,
-                     const std::vector<GLuint> &indices)
-  : m_position(std::move(position)),
+                     const std::vector<GLuint> &indices,
+                     const glm::vec3 color)
+  : color(color),
+    m_position(std::move(position)),
     m_orientation(std::move(orientation)),
     m_massMatrix(std::move(massMatrix)),
     m_localInertiaTensor(std::move(localInertiaTensor)),
@@ -34,12 +36,28 @@ glm::mat4 RigidBody::getModelMatrix() const {
   }
 
   // Explicitly set scale to 1.0
-  glmModel = glm::scale(glmModel, glm::vec3(1.0f, 1.0f, 1.0f));
+  glmModel = scale(glmModel, glm::vec3(1.0f, 1.0f, 1.0f));
   return glmModel;
 }
 
-Eigen::Matrix3d RigidBody::getMassMatrix() {
+Eigen::Matrix3d &RigidBody::getMassMatrix() {
   return m_massMatrix;
+}
+
+double RigidBody::getMass() const {
+  return m_massMatrix.trace() / 3.0;
+}
+
+Eigen::Matrix3d RigidBody::getLocalInertiaTensor() const {
+  return m_localInertiaTensor;
+}
+
+void RigidBody::setPosition(const Eigen::Vector3d &position) {
+  m_position = position;
+}
+
+void RigidBody::setOrientation(const Eigen::Vector4d &orientation) {
+  m_orientation = orientation;
 }
 
 void RigidBody::setLinearVelocity(const Eigen::Vector3d &linearVelocity) {
@@ -48,6 +66,22 @@ void RigidBody::setLinearVelocity(const Eigen::Vector3d &linearVelocity) {
 
 void RigidBody::setAngularVelocity(const Eigen::Vector4d &angularVelocity) {
   m_angularVelocity = angularVelocity;
+}
+
+void RigidBody::setMass(const double &mass) {
+  m_massMatrix = mass * Eigen::Matrix3d::Identity();
+}
+
+void RigidBody::setLocalInertiaTensor(const Eigen::Matrix3d &localInertiaTensor) {
+  m_localInertiaTensor = localInertiaTensor;
+}
+
+const Eigen::Vector3d &RigidBody::getPosition() const {
+  return m_position;
+}
+
+const Eigen::Vector4d &RigidBody::getOrientation() const {
+  return m_orientation;
 }
 
 const Eigen::Vector3d &RigidBody::getLinearVelocity() const {
