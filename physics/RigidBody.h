@@ -5,7 +5,6 @@
 #include "graphics/Mesh.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
 class RigidBody {
 public:
@@ -44,9 +43,9 @@ public:
     m_orientation = orientation;
   }
 
-  void setLinearVelocity(Eigen::Vector3d linearVelocity);
+  void setLinearVelocity(const Eigen::Vector3d &linearVelocity);
 
-  void setAngularVelocity(Eigen::Vector4d angularVelocity);
+  void setAngularVelocity(const Eigen::Vector4d &angularVelocity);
 
 private:
   Eigen::Vector3d m_position;
@@ -55,10 +54,11 @@ private:
   Eigen::Vector3d m_linearVelocity;
   Eigen::Vector4d m_angularVelocity;
 
-  Mesh m_mesh;
-
   Eigen::Matrix3d m_massMatrix;
   Eigen::Matrix3d m_localInertiaTensor;
+
+  Mesh m_mesh;
+
 };
 
 

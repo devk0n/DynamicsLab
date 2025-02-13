@@ -1,7 +1,8 @@
 #include "PhysicsEngine.h"
 
 PhysicsEngine::PhysicsEngine(double timeStep)
-    : m_solver(timeStep), m_timeStep(timeStep), m_initialized(false), m_running(false) {}
+  : m_solver(timeStep), m_timeStep(timeStep), m_initialized(false), m_running(false) {
+}
 
 void PhysicsEngine::addRigidBody(const RigidBody &rigidBody) {
   m_rigidBodies.push_back(rigidBody);
@@ -39,7 +40,7 @@ void PhysicsEngine::step() {
 
   // Define the current state vector (positions, orientations, velocities, angular velocities)
   Eigen::VectorXd state(
-      m_rigidBodies.size() * 14); // 7 DOF per body (position + orientation + velocity + angular velocity)
+    m_rigidBodies.size() * 14); // 7 DOF per body (position + orientation + velocity + angular velocity)
   for (size_t i = 0; i < m_rigidBodies.size(); i++) {
     int n = 14 * i;
     state.segment(n, 3) = m_rigidBodies[i].getPosition();

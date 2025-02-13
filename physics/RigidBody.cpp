@@ -9,16 +9,16 @@ RigidBody::RigidBody(Eigen::Vector3d position,
                      Eigen::Matrix3d localInertiaTensor,
                      const std::vector<Vertex> &vertices,
                      const std::vector<GLuint> &indices)
-    : m_position(std::move(position)),
-      m_orientation(std::move(orientation)),
-      m_mesh(vertices, indices),
-      m_massMatrix(std::move(massMatrix)),
-      m_localInertiaTensor(std::move(localInertiaTensor)) {}
-
+  : m_position(std::move(position)),
+    m_orientation(std::move(orientation)),
+    m_mesh(vertices, indices),
+    m_massMatrix(std::move(massMatrix)),
+    m_localInertiaTensor(std::move(localInertiaTensor)) {
+}
 
 glm::mat4 RigidBody::getModelMatrix() const {
   // Convert Eigen::Vector4d orientation to a rotation matrix
-  Eigen::Quaterniond quat(m_orientation[3], m_orientation[0], m_orientation[1], m_orientation[2]);
+  const Eigen::Quaterniond quat(m_orientation[3], m_orientation[0], m_orientation[1], m_orientation[2]);
   Eigen::Matrix4d model = Eigen::Matrix4d::Identity();
   model.block<3, 3>(0, 0) = quat.toRotationMatrix();
   model.block<3, 1>(0, 3) = m_position;
@@ -40,11 +40,11 @@ Eigen::Matrix3d RigidBody::getMassMatrix() {
   return m_massMatrix;
 }
 
-void RigidBody::setLinearVelocity(Eigen::Vector3d linearVelocity) {
+void RigidBody::setLinearVelocity(const Eigen::Vector3d &linearVelocity) {
   m_linearVelocity = linearVelocity;
 }
 
-void RigidBody::setAngularVelocity(Eigen::Vector4d angularVelocity) {
+void RigidBody::setAngularVelocity(const Eigen::Vector4d &angularVelocity) {
   m_angularVelocity = angularVelocity;
 }
 
