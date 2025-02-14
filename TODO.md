@@ -10,3 +10,7 @@
 ## GUI
 
 - [ ] Body data inspection
+
+## Physics
+
+- [ ] Switch to deltaTime instead of timeStep

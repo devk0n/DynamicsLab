@@ -16,7 +16,7 @@ RigidBody::RigidBody(Eigen::Vector3d position,
 
 glm::mat4 RigidBody::getModelMatrix() const {
   // Convert Eigen::Vector4d orientation to a rotation matrix
-  const Eigen::Quaterniond quat(0, 0, 0, 1);
+  const Eigen::Quaterniond quat(1, 0, 0, 0);
   Eigen::Matrix4d model = Eigen::Matrix4d::Identity();
   model.block<3, 3>(0, 0) = quat.toRotationMatrix();
   model.block<3, 1>(0, 3) = m_position;
@@ -32,6 +32,10 @@ glm::mat4 RigidBody::getModelMatrix() const {
   // Explicitly set scale to 1.0
   glmModel = scale(glmModel, glm::vec3(1.0f, 1.0f, 1.0f));
   return glmModel;
+}
+
+double RigidBody::getMass() const {
+  return m_massMatrix.trace() / 3.0;
 }
 
 Eigen::Matrix3d &RigidBody::getMassMatrix() {

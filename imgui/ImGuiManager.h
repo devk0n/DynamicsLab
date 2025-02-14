@@ -29,7 +29,7 @@ private:
 
   static void shutdown();
 
-  void controlWindow(PhysicsEngine &physicsEngine);
+  void showPhysicsControl(PhysicsEngine &physicsEngine);
 };
 
 

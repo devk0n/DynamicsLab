@@ -3,11 +3,11 @@
 
 #include <vector>
 #include "RigidBody.h"
-#include "Solver.h"
+#include <Eigen/Dense>
 
 class PhysicsEngine {
 public:
-  PhysicsEngine() : PhysicsEngine(0.004166666) {
+  PhysicsEngine() : PhysicsEngine(0.00001) {
   }
 
   explicit PhysicsEngine(double timeStep);
@@ -20,34 +20,33 @@ public:
 
   void stop();
 
-  Eigen::VectorXd computeStateDerivatives(const Eigen::VectorXd &state) const;
-
-  // Adders
   void addRigidBody(const RigidBody &rigidBody);
 
-  // Getters
   std::vector<RigidBody> &getRigidBodies();
 
-  // Setters
-  void setExternalForces(Eigen::Vector3d externalForces);
+  void setGravity(const Eigen::Vector3d &gravity);
+
+  void setConstraintMatrix(const Eigen::MatrixXd &P);
+
+  void setConstraintViolation(const Eigen::VectorXd &c);
 
   [[nodiscard]] bool isInitialized() const;
 
   [[nodiscard]] bool isRunning() const;
 
 private:
-  Solver m_solver;
-
-  Eigen::MatrixXd m_matrixA;
-  Eigen::VectorXd m_vectorX;
-  Eigen::VectorXd m_externalForces;
+  Eigen::MatrixXd m_matrixA; // Mass matrix (M)
+  Eigen::VectorXd m_vectorX; // State vector (positions, velocities)
+  Eigen::Vector3d m_gravity; // Gravity vector (fixed-size)
+  Eigen::MatrixXd m_P; // Constraint matrix (P)
+  Eigen::VectorXd m_c; // Constraint violation vector (c)
 
   double m_timeStep;
-
   bool m_initialized;
   bool m_running;
 
   std::vector<RigidBody> m_rigidBodies;
+  std::vector<Eigen::Vector3d> m_accelerations; // Store accelerations for each rigid body
 };
 
 #endif // PHYSICSENGINE_H

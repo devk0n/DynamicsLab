@@ -27,6 +27,8 @@ public:
 
 	Eigen::Matrix3d &getMassMatrix();
 
+	double getMass() const;
+
 	// Setters
 	void setPosition(const Eigen::Vector3d &position);
 

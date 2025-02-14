@@ -1,7 +1,8 @@
 #include "WindowManager.h"
 #include <iostream>
 
-WindowManager::WindowManager() : m_window(nullptr), m_width(0), m_height(0) {}
+WindowManager::WindowManager() : m_window(nullptr), m_width(0), m_height(0) {
+}
 
 WindowManager::~WindowManager() {
   shutdown();
@@ -32,7 +33,7 @@ bool WindowManager::initialize(int width, int height, const std::string &title) 
   glfwMakeContextCurrent(m_window);
 
   // 4) Load GLAD *after* making the context current
-  if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
+  if (!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
     std::cerr << "Failed to initialize GLAD\n";
     glfwDestroyWindow(m_window);
     glfwTerminate();
