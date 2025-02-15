@@ -8,16 +8,19 @@
 
 class RigidBody {
 public:
-	RigidBody(Eigen::Vector3d position,
+	RigidBody(Eigen::Vector3d initialPosition,
 	          Eigen::Matrix3d massMatrix,
 	          const std::vector<Vertex> &vertices,
 	          const std::vector<GLuint> &indices,
-	          glm::vec3 color);
+	          glm::vec3 color,
+	          Eigen::Vector3d initialLinearVelocity = Eigen::Vector3d::Zero());
 
 	glm::vec3 color;
 
 	// Getters
 	[[nodiscard]] glm::mat4 getModelMatrix() const;
+
+	void reset();
 
 	[[nodiscard]] const Mesh &getMesh() const;
 
@@ -37,9 +40,13 @@ public:
 private:
 	Eigen::Vector3d m_position;
 	Eigen::Vector3d m_linearVelocity;
+
 	Eigen::Matrix3d m_massMatrix;
 
 	Mesh m_mesh;
+
+	const Eigen::Vector3d m_initialPosition;
+	const Eigen::Vector3d m_initialLinearVelocity;
 };
 
 

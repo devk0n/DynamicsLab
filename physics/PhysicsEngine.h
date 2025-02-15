@@ -20,6 +20,8 @@ public:
 
   void stop();
 
+  void reset();
+
   void addRigidBody(const RigidBody &rigidBody);
 
   std::vector<RigidBody> &getRigidBodies();

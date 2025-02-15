@@ -3,15 +3,19 @@
 #include <utility>
 #include "graphics/Mesh.h"
 
-RigidBody::RigidBody(Eigen::Vector3d position,
+RigidBody::RigidBody(Eigen::Vector3d initialPosition,
                      Eigen::Matrix3d massMatrix,
                      const std::vector<Vertex> &vertices,
                      const std::vector<GLuint> &indices,
-                     const glm::vec3 color)
+                     const glm::vec3 color,
+                     Eigen::Vector3d initialLinearVelocity)
   : color(color),
-    m_position(std::move(position)),
+    m_position(std::move(initialPosition)),
+    m_linearVelocity(std::move(initialLinearVelocity)),
     m_massMatrix(std::move(massMatrix)),
-    m_mesh(vertices, indices) {
+    m_mesh(vertices, indices),
+    m_initialPosition(std::move(initialPosition)),
+    m_initialLinearVelocity(std::move(initialLinearVelocity)) {
 }
 
 glm::mat4 RigidBody::getModelMatrix() const {
@@ -32,6 +36,11 @@ glm::mat4 RigidBody::getModelMatrix() const {
   // Explicitly set scale to 1.0
   glmModel = scale(glmModel, glm::vec3(1.0f, 1.0f, 1.0f));
   return glmModel;
+}
+
+void RigidBody::reset() {
+  m_position = m_initialPosition;
+  m_linearVelocity = m_initialLinearVelocity;
 }
 
 double RigidBody::getMass() const {

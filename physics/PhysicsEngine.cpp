@@ -119,13 +119,18 @@ void PhysicsEngine::step() {
     }
 }
 
-
 void PhysicsEngine::start() {
     m_running = true;
 }
 
 void PhysicsEngine::stop() {
     m_running = false;
+}
+
+void PhysicsEngine::reset() {
+    for (auto &m_rigidBody: m_rigidBodies) {
+        m_rigidBody.reset();
+    }
 }
 
 bool PhysicsEngine::isInitialized() const {
