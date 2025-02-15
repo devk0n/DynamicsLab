@@ -90,27 +90,27 @@ find_package(OpenGL REQUIRED)
 set(SOURCES
         main.cpp
 
-        core/Application.cpp
-        core/InputManager.cpp
-        core/Camera.cpp
-        core/WindowManager.cpp
+        src/core/Application.cpp
+        src/core/InputManager.cpp
+        src/core/Camera.cpp
+        src/core/WindowManager.cpp
 
-        graphics/Renderer.cpp
-        graphics/Shader.cpp
-        graphics/Mesh.cpp
+        src/graphics/Renderer.cpp
+        src/graphics/Shader.cpp
+        src/graphics/Mesh.cpp
 
-        imgui/ImGuiManager.cpp
-        imgui/GUIs/ImGuiDebug.cpp
-        imgui/GUIs/ImGuiRenderer.cpp
-        imgui/GUIs/ImGuiCamera.cpp
-        imgui/GUIs/ImGuiBody.cpp
-        imgui/GUIs/ImGuiPhysics.cpp
-        imgui/GUIs/ImGuiWindow.cpp
+        src/imgui/ImGuiManager.cpp
+        src/imgui/GUIs/ImGuiDebug.cpp
+        src/imgui/GUIs/ImGuiRenderer.cpp
+        src/imgui/GUIs/ImGuiCamera.cpp
+        src/imgui/GUIs/ImGuiBody.cpp
+        src/imgui/GUIs/ImGuiPhysics.cpp
+        src/imgui/GUIs/ImGuiWindow.cpp
 
-        physics/PhysicsEngine.cpp
-        physics/GroundPoint.cpp
-        physics/RigidBody.cpp
-        physics/Solver.cpp
+        src/physics/PhysicsEngine.cpp
+        src/physics/GroundPoint.cpp
+        src/physics/RigidBody.cpp
+        src/physics/Solver.cpp
 )
 
 # Add executable
@@ -139,7 +139,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 # Include the current source directory in the project's include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
         ${CMAKE_CURRENT_SOURCE_DIR}/resources
         ${CMAKE_CURRENT_SOURCE_DIR}/include/core
         ${CMAKE_CURRENT_SOURCE_DIR}/include/physics
