@@ -5,8 +5,8 @@
 #include <glm/glm.hpp>
 
 #include "Shader.h"
-#include "physics/GroundPoint.h"
-#include "physics/RigidBody.h"
+#include "GroundPoint.h"
+#include "RigidBody.h"
 
 class Renderer {
 public:

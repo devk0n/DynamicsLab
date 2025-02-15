@@ -1,6 +1,6 @@
 #include "Application.h"
-#include "physics/PhysicsEngine.h"
-#include "graphics/MeshData.h"
+#include "PhysicsEngine.h"
+#include "MeshData.h"
 
 Application::Application() : m_lastFrameTime(0.0f) {
 }

@@ -1,7 +1,7 @@
 #include "RigidBody.h"
 
 #include <utility>
-#include "graphics/Mesh.h"
+#include "Mesh.h"
 
 RigidBody::RigidBody(Eigen::Vector3d initialPosition,
                      Eigen::Matrix3d massMatrix,

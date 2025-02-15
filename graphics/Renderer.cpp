@@ -1,6 +1,6 @@
 #include "Renderer.h"
 
-#include <physics/GroundPoint.h>
+#include <GroundPoint.h>
 
 #include "ScreenshotUtils.h"
 #include "MeshData.h"

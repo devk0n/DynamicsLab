@@ -2,7 +2,7 @@
 #define RIGIDBODY_H
 
 #include <Eigen/Dense>
-#include "graphics/Mesh.h"
+#include "Mesh.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 

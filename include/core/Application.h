@@ -2,13 +2,13 @@
 #define APPLICATION_H
 
 #include "WindowManager.h"
-#include "graphics/Renderer.h"
+#include "Renderer.h"
 
 #include "Camera.h"
 #include "InputManager.h"
 
-#include "physics/PhysicsEngine.h"
-#include "imgui/ImGuiManager.h"
+#include "PhysicsEngine.h"
+#include "ImGuiManager.h"
 
 class Application {
 public:
@@ -28,7 +28,6 @@ private:
   float m_lastFrameTime;
 
   void update(float deltaTime);
-
 };
 
 #endif // APPLICATION_H

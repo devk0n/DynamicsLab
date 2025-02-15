@@ -6,9 +6,9 @@
 #include "imgui_impl_opengl3.h"
 #include "glm/glm.hpp"
 
-#include "physics/PhysicsEngine.h"
-#include "graphics/Renderer.h"
-#include "core/Camera.h"
+#include "PhysicsEngine.h"
+#include "Renderer.h"
+#include "Camera.h"
 #include <GLFW/glfw3.h>
 
 class ImGuiManager {

@@ -1,4 +1,4 @@
-#include "../ImGuiManager.h"
+#include "ImGuiManager.h"
 
 void ImGuiManager::showPhysicsControl(PhysicsEngine &physicsEngine) {
 	ImGui::Begin("Simulation Controls");

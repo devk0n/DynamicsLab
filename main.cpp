@@ -1,9 +1,8 @@
 #include <iostream>
 
-#include "core/Application.h"
+#include "Application.h"
 
 int main() {
-
   Application app;
   if (!app.initialize()) {
     return EXIT_FAILURE;
