@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "RigidBody.h"
+#include "GroundPoint.h"
 #include <Eigen/Dense>
 
 class PhysicsEngine {
@@ -24,7 +25,11 @@ public:
 
   void addRigidBody(const RigidBody &rigidBody);
 
+  void addGroundPoint(const GroundPoint &groundPoint);
+
   std::vector<RigidBody> &getRigidBodies();
+
+  std::vector<GroundPoint> &getGroundPoints();
 
   void setGravity(const Eigen::Vector3d &gravity);
 
@@ -48,6 +53,7 @@ private:
   bool m_running;
 
   std::vector<RigidBody> m_rigidBodies;
+  std::vector<GroundPoint> m_groundPoints;
   std::vector<Eigen::Vector3d> m_accelerations; // Store accelerations for each rigid body
 };
 

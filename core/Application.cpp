@@ -15,6 +15,9 @@ bool Application::initialize() {
     return false;
   }
 
+  // Create fixed ground
+  const GroundPoint groundPoint0(Eigen::Vector3d(1.0, 1.0, 1.0));
+
   // Create a cube
   const RigidBody cube0(
     Eigen::Vector3d(0.0, 0.0, 0.0),
@@ -25,6 +28,7 @@ bool Application::initialize() {
   );
 
   m_physicsEngine.addRigidBody(cube0);
+  m_physicsEngine.addGroundPoint(groundPoint0);
   m_physicsEngine.initialize();
 
   return true;
@@ -49,6 +53,7 @@ void Application::run() {
 
     m_renderer.beginFrame();
     m_renderer.render(
+      m_physicsEngine.getGroundPoints(),
       m_physicsEngine.getRigidBodies(),
       m_camera.getViewMatrix(),
       m_camera.getProjectionMatrix(m_windowManager.getAspectRatio())
@@ -61,7 +66,7 @@ void Application::run() {
       m_physicsEngine
     );
 
-    m_renderer.endFrame();
+    Renderer::endFrame();
     m_windowManager.swapBuffers();
   }
 }

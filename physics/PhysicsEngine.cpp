@@ -1,11 +1,22 @@
 #include "PhysicsEngine.h"
 
-PhysicsEngine::PhysicsEngine(double timeStep)
-    : m_gravity(0.0, 0.0, -9.81), m_timeStep(timeStep), m_initialized(false), m_running(false) {
+PhysicsEngine::PhysicsEngine(const double timeStep)
+    : m_gravity(0.0, 0.0, -9.81),
+      m_timeStep(timeStep),
+      m_initialized(false),
+      m_running(false) {
 }
 
 void PhysicsEngine::addRigidBody(const RigidBody &rigidBody) {
     m_rigidBodies.push_back(rigidBody);
+}
+
+void PhysicsEngine::addGroundPoint(const GroundPoint &groundPoint) {
+    m_groundPoints.push_back(groundPoint);
+}
+
+std::vector<GroundPoint> &PhysicsEngine::getGroundPoints() {
+    return m_groundPoints;
 }
 
 std::vector<RigidBody> &PhysicsEngine::getRigidBodies() {

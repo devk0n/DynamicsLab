@@ -108,6 +108,7 @@ set(SOURCES
         imgui/GUIs/ImGuiWindow.cpp
 
         physics/PhysicsEngine.cpp
+        physics/GroundPoint.cpp
         physics/RigidBody.cpp
         physics/Solver.cpp
 )

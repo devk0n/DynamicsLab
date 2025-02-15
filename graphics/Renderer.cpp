@@ -1,4 +1,7 @@
 #include "Renderer.h"
+
+#include <physics/GroundPoint.h>
+
 #include "ScreenshotUtils.h"
 #include "MeshData.h"
 
@@ -52,7 +55,9 @@ void Renderer::beginFrame() const {
   glEnable(GL_DEPTH_TEST);
 }
 
-void Renderer::render(const std::vector<RigidBody> &rigidBodies, const glm::mat4 &view,
+void Renderer::render(const std::vector<GroundPoint> &groundPoints,
+                      const std::vector<RigidBody> &rigidBodies,
+                      const glm::mat4 &view,
                       const glm::mat4 &projection) const {
   if (!m_initialized) {
     std::cerr << "Renderer not initialized" << std::endl;
@@ -81,13 +86,24 @@ void Renderer::render(const std::vector<RigidBody> &rigidBodies, const glm::mat4
     m_bodyShader.setVec3("objectColor", body.color);
 
     body.getMesh().draw(m_bodyShader);
-    drawAxes(modelMatrix, view, projection);
+    drawAxes(body.getPosition(), view, projection);
   }
+
+  for (const auto &groundPoint: groundPoints) {
+    drawAxes(groundPoint.getPosition(), view, projection);
+  }
+
   // Restore default mode to prevent affecting UI elements
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
-void Renderer::drawAxes(const glm::mat4 &modelMatrix, const glm::mat4 &view, const glm::mat4 &projection) const {
+void Renderer::drawAxes(const Eigen::Vector3d &translation, const glm::mat4 &view, const glm::mat4 &projection) const {
+  // Convert Eigen::Vector3d to glm::vec3
+  glm::vec3 glmTranslation(translation.x(), translation.y(), translation.z());
+
+  // Create a model matrix from the translation vector
+  glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), glmTranslation);
+
   m_axesShader.use();
   m_axesShader.setMat4("model", modelMatrix);
   m_axesShader.setMat4("view", view);
