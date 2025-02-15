@@ -17,10 +17,10 @@ public:
 
 	glm::vec3 color;
 
+	void reset();
+
 	// Getters
 	[[nodiscard]] glm::mat4 getModelMatrix() const;
-
-	void reset();
 
 	[[nodiscard]] const Mesh &getMesh() const;
 
@@ -30,7 +30,7 @@ public:
 
 	Eigen::Matrix3d &getMassMatrix();
 
-	double getMass() const;
+	[[nodiscard]] double getMass() const;
 
 	// Setters
 	void setPosition(const Eigen::Vector3d &position);
