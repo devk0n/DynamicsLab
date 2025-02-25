@@ -112,16 +112,16 @@ void Renderer::drawAxes(const Eigen::Vector3d &translation, const glm::mat4 &vie
   // Bind the VAO
   glBindVertexArray(m_axesVAO);
 
-  // Draw X-axis (red)
-  m_axesShader.setVec3("color", glm::vec3(1.0f, 0.0f, 0.0f)); // Red
+  // Draw X-axis (Cyan)
+  m_axesShader.setVec3("color", glm::vec3(0.0f, 1.0f, 1.0f)); // Cyan
   glDrawArrays(GL_LINES, 0, 2); // First two vertices (X-axis)
 
-  // Draw Y-axis (green)
-  m_axesShader.setVec3("color", glm::vec3(0.0f, 1.0f, 0.0f)); // Green
+  // Draw Y-axis (Magenta)
+  m_axesShader.setVec3("color", glm::vec3(1.0f, 0.0f, 1.0f)); // Magenta
   glDrawArrays(GL_LINES, 2, 2); // Next two vertices (Y-axis)
 
-  // Draw Z-axis (blue)
-  m_axesShader.setVec3("color", glm::vec3(0.0f, 0.0f, 1.0f)); // Blue
+  // Draw Z-axis (Yellow)
+  m_axesShader.setVec3("color", glm::vec3(1.0f, 1.0f, 0.0f)); // Yellow
   glDrawArrays(GL_LINES, 4, 2); // Last two vertices (Z-axis)
 
   // Unbind the VAO
