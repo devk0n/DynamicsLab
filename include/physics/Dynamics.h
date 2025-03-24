@@ -36,6 +36,10 @@ public:
 
   const std::vector<std::unique_ptr<Body>>& getBodies() const { return m_bodies; }
 
+  std::vector<std::shared_ptr<Constraint>> getConstraints() const {
+    return m_constraints;
+  }
+
   void step(double dt);
 
 private:

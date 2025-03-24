@@ -1,6 +1,10 @@
 #ifndef SYSTEM_VISUALIZER_H
 #define SYSTEM_VISUALIZER_H
 
+#include <glm/glm.hpp>
+
+#include "DistanceConstraint.h"
+#include "SphericalJoint.h"
 #include "Dynamics.h"
 #include "ShaderManager.h"
 #include "Logger.h"
@@ -57,6 +61,47 @@ public:
       drawCube();                                       // Render the cube
     }
 
+    // Render constraints
+    m_shaderManager.useShader("lineShader");
+    m_shaderManager.setUniform("view", viewMatrix);
+    m_shaderManager.setUniform("projection", projectionMatrix);
+    m_shaderManager.setUniform("model", glm::mat4(1.0f)); // Identity matrix
+    m_shaderManager.setUniform("lineColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Red lines
+
+    std::vector<glm::vec3> linePoints;
+    for (const auto& constraint : system.getConstraints()) {
+      if (auto* dc = dynamic_cast<Proton::DistanceConstraint*>(constraint.get())) {
+        // Distance constraint: line between body positions
+        auto pos1 = dc->getBody1()->getPositionVec3();
+        auto pos2 = dc->getBody2()->getPositionVec3();
+        linePoints.push_back(pos1);
+        linePoints.push_back(pos2);
+      } else if (auto* sj = dynamic_cast<Proton::SphericalJoint*>(constraint.get())) {
+        // Spherical joint: line between local attachment points
+        Eigen::Vector3d local1 = sj->getLocal1();
+        Eigen::Vector3d local2 = sj->getLocal2();
+
+        glm::vec3 pos1 = sj->getBody1()->getPositionVec3() +
+                       sj->getBody1()->getOrientationQuat() *
+                       glm::vec3(local1.x(), local1.y(), local1.z());
+
+        glm::vec3 pos2 = sj->getBody2()->getPositionVec3() +
+                       sj->getBody2()->getOrientationQuat() *
+                       glm::vec3(local2.x(), local2.y(), local2.z());
+
+        linePoints.push_back(pos1);
+        linePoints.push_back(pos2);
+      }
+    }
+
+    // Draw lines
+    glBindVertexArray(m_lineVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
+    glBufferData(GL_ARRAY_BUFFER, linePoints.size() * sizeof(glm::vec3),
+                 linePoints.data(), GL_DYNAMIC_DRAW);
+    glLineWidth(2.0f);
+    glDrawArrays(GL_LINES, 0, linePoints.size());
+    glBindVertexArray(0);
   }
 
 private:

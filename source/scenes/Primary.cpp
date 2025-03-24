@@ -18,14 +18,14 @@ bool Primary::load() {
   UniqueID body_1 = m_system.addBody(
     10,
     Vector3d(3, 3, 3),
-    Vector3d(0, 0, 0),
+    Vector3d(0, 0, 1),
     Vector4d(1, 0, 0, 0)
   );
 
   UniqueID body_2 = m_system.addBody(
     20,
     Vector3d(6, 6, 6),
-    Vector3d(10, 0, 0),
+    Vector3d(10, 0, 1),
     Vector4d(1, 0, 0, 0)
   );
 
@@ -37,9 +37,16 @@ bool Primary::load() {
   gravity->addBody(b2);
   m_system.addForceGenerator(gravity);
 
+  /*
   m_system.addConstraint(std::make_shared<SphericalJoint>(
     b1, Vector3d(5.0, 0, 0),
     b2, Vector3d(-5.0, 0, 0)
+  ));
+  */
+
+  m_system.addConstraint(std::make_shared<DistanceConstraint>(
+    b2,
+    b1
   ));
 
   b1->setFixed(true);
@@ -54,6 +61,14 @@ bool Primary::load() {
                   "assets/shaders/cube.vert",
                   "assets/shaders/cube.frag")) {
     LOG_ERROR("Failed to load cube shader");
+    return false;
+  }
+
+  if (!m_ctx.renderer->getShaderManager()
+        .loadShader("lineShader",
+                    "assets/shaders/line.vert",
+                    "assets/shaders/line.frag")) {
+    LOG_ERROR("Failed to load line shader");
     return false;
   }
 
