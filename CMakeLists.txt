@@ -1,148 +1,63 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.30)
 project(DynamicsLab)
+
+# Set CMake policies to NEW to eliminate warnings
+cmake_policy(SET CMP0077 NEW)  # option() honors normal variables
+cmake_policy(SET CMP0153 NEW)  # exec_program is deprecated
+cmake_policy(SET CMP0167 NEW)  # FindBoost module is removed
+cmake_policy(SET CMP0146 NEW)  # FindCUDA module is removed
+
+if(MSVC)
+  add_compile_options(/std:c++20)
+else()
+  add_compile_options(-std=c++20)
+endif()
 
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static")
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Include FetchContent module
-include(FetchContent)
+# Enable ccache
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    message(STATUS "Using ccache: ${CCACHE_PROGRAM}")
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+endif()
+
+# Force Eigen to recognize C++11 support
+set(EIGEN_COMPILER_SUPPORT_CPP11 TRUE CACHE BOOL "Force C++11 support" FORCE)
+set(EIGEN_TEST_CXX11 ON CACHE BOOL "Enable C++11 support in Eigen" FORCE)
+
+# Disable unwanted Eigen components to reduce warnings
+set(EIGEN_BUILD_DOC OFF CACHE BOOL "Don't build Eigen documentation" FORCE)
+set(EIGEN_BUILD_PKGCONFIG OFF CACHE BOOL "Don't build pkg-config files" FORCE)
+set(EIGEN_DISABLE_CXX11_TESTSUITE OFF CACHE BOOL "Enable CXX11 testsuite" FORCE)
+set(BUILD_TESTING OFF CACHE BOOL "Disable Eigen tests" FORCE)
 
 # Fetch Eigen
+include(FetchContent)
 FetchContent_Declare(
-        Eigen
-        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-        GIT_TAG master
-        GIT_SHALLOW TRUE
+    Eigen
+    GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+    GIT_TAG 3.4.0
+    GIT_SHALLOW TRUE
 )
-set(EIGEN_BUILD_DOC OFF)
-set(EIGEN_BUILD_PKGCONFIG OFF)
 FetchContent_MakeAvailable(Eigen)
 
-# Fetch GLFW
-FetchContent_Declare(
-        glfw
-        GIT_REPOSITORY https://github.com/glfw/glfw.git
-        GIT_TAG 3.4
-)
-set(GLFW_BUILD_DOCS OFF)
-set(GLFW_BUILD_EXAMPLES OFF)
-set(GLFW_BUILD_TESTS OFF)
-FetchContent_MakeAvailable(glfw)
-
-# Add GLAD as a static library
-add_library(glad STATIC external/glad/src/glad.c)
-target_include_directories(glad PUBLIC external/glad/include)
-
-# Include STB as a header-only library
-add_library(stb INTERFACE)
-target_include_directories(stb INTERFACE ${CMAKE_SOURCE_DIR}/external/stb)
-
-# Fetch ImGui
-FetchContent_Declare(
-        imgui
-        GIT_REPOSITORY https://github.com/ocornut/imgui.git
-        GIT_TAG v1.91.7
-)
-FetchContent_MakeAvailable(imgui)
-add_library(imgui STATIC
-        ${imgui_SOURCE_DIR}/imgui.cpp
-        ${imgui_SOURCE_DIR}/imgui_demo.cpp
-        ${imgui_SOURCE_DIR}/imgui_draw.cpp
-        ${imgui_SOURCE_DIR}/imgui_tables.cpp
-        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
-        ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
-        ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
-)
-target_include_directories(imgui PUBLIC
-        ${imgui_SOURCE_DIR}
-        ${imgui_SOURCE_DIR}/backends
-)
-target_link_libraries(imgui glfw OpenGL::GL glad)
-
-# Fetch GLM
-FetchContent_Declare(
-        glm
-        GIT_REPOSITORY https://github.com/g-truc/glm.git
-        GIT_TAG 1.0.1
-)
-FetchContent_MakeAvailable(glm)
-
-# Fetch ImPlot
-FetchContent_Declare(
-        implot
-        GIT_REPOSITORY https://github.com/epezent/implot.git
-        GIT_TAG v0.16
-)
-FetchContent_MakeAvailable(implot)
-add_library(implot STATIC
-        ${implot_SOURCE_DIR}/implot.cpp
-        ${implot_SOURCE_DIR}/implot_items.cpp
-)
-target_include_directories(implot PUBLIC ${implot_SOURCE_DIR})
-target_link_libraries(implot imgui)
-
-# Find OpenGL
-find_package(OpenGL REQUIRED)
-
 # Source files
-set(SOURCES
-        main.cpp
+set(SOURCES source/main.cpp)
 
-        src/core/Application.cpp
-        src/core/InputManager.cpp
-        src/core/Camera.cpp
-        src/core/WindowManager.cpp
-
-        src/graphics/Renderer.cpp
-        src/graphics/Shader.cpp
-        src/graphics/Mesh.cpp
-
-        src/imgui/ImGuiManager.cpp
-        src/imgui/GUIs/ImGuiDebug.cpp
-        src/imgui/GUIs/ImGuiRenderer.cpp
-        src/imgui/GUIs/ImGuiCamera.cpp
-        src/imgui/GUIs/ImGuiBody.cpp
-        src/imgui/GUIs/ImGuiPhysics.cpp
-        src/imgui/GUIs/ImGuiWindow.cpp
-
-        src/physics/PhysicsEngine.cpp
-        src/physics/GroundPoint.cpp
-        src/physics/RigidBody.cpp
-        src/physics/Solver.cpp
-)
-
-# Add executable
+# Executable
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-add_custom_target(copy_assets ALL
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/assets ${CMAKE_BINARY_DIR}/assets
-)
-add_dependencies(${PROJECT_NAME} copy_assets)
+# Link Eigen and Mingw's math library
+target_link_libraries(${PROJECT_NAME} PRIVATE Eigen3::Eigen)
 
-# Apply Warning Flags Only to Your Own Project Code
-target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Werror -Wpedantic)
-
-# Link libraries to the project
-target_link_libraries(${PROJECT_NAME} PRIVATE
-        imgui
-        implot
-        glfw
-        glad
-        glm::glm
-        OpenGL::GL
-        Eigen3::Eigen
-        stb
-)
-
-# Include the current source directory in the project's include directories
+# Include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/resources
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/core
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/physics
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/imgui
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics
+    ${CMAKE_CURRENT_SOURCE_DIR}/source
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/core
 )

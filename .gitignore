@@ -1,9 +1,6 @@
 # Ignore build directories
-cmake-build-debug/
-cmake-build-release/
+build-debug/
+build-release/
 
 # Ignore IDE configuration
 .idea/
-
-# Ignore pdf
-*.pdf
