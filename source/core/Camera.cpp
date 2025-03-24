@@ -80,9 +80,10 @@ void Camera::lookAt(const glm::vec3 &target) {
 }
 
 void Camera::updateVectors() {
-  m_front = m_orientation * glm::vec3(1.0f, 0.0f, 0.0f);
-  m_left = m_orientation * glm::vec3(0.0f, 1.0f, 0.0f);
-  m_up = m_orientation * glm::vec3(0.0f, 0.0f, 1.0f);
+  const glm::mat3 rotationMatrix = glm::mat3_cast(m_orientation);
+  m_front = rotationMatrix * s_forward; // X+ axis
+  m_left = rotationMatrix * s_left;     // Y+ axis
+  m_up = rotationMatrix * s_up;         // Z+ axis
 }
 
 glm::mat4 Camera::getViewMatrix() const {

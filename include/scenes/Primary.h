@@ -12,7 +12,6 @@ public:
   void render() override;
   void unload() override;
 
-
 private:
   Camera m_camera;
   float m_displayedFps = 0.0f;

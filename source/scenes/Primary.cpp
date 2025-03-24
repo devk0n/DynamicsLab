@@ -11,6 +11,11 @@
 
 bool Primary::load() {
 
+  LOG_INFO("Initializing Simulation");
+  m_camera.setPosition(glm::vec3(10.0f, 8.0f, 4.0f));
+  m_camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
+  m_camera.setMovementSpeed(20.0f);
+
   return true;
 }
 
@@ -25,6 +30,7 @@ void Primary::render() {
 
 void Primary::unload() {
   LOG_INFO("Unloading primary scene...");
+  m_camera = Camera{};
 }
 
 void Primary::showUI() {
