@@ -2,106 +2,161 @@ cmake_minimum_required(VERSION 3.30)
 project(DynamicsLab)
 
 # Set CMake policies to NEW to eliminate warnings
+set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON CACHE BOOL "" FORCE)
+option(CMAKE_WARN_DEPRECATED OFF)
 cmake_policy(SET CMP0077 NEW)  # option() honors normal variables
 cmake_policy(SET CMP0153 NEW)  # exec_program is deprecated
 cmake_policy(SET CMP0167 NEW)  # FindBoost module is removed
 cmake_policy(SET CMP0146 NEW)  # FindCUDA module is removed
 
-if(MSVC)
-  add_compile_options(/std:c++20)
-else()
-  add_compile_options(-std=c++20)
-endif()
+# —————————————————————————————————————————————————————————————
 
-# Set C++ standard
+# Set standards
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Enable ccache
+# —————————————————————————————————————————————————————————————
+
+include(FetchContent)
+
+# ccache
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
-    message(STATUS "Using ccache: ${CCACHE_PROGRAM}")
-    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
-    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+  set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
 endif()
 
-# Force Eigen to recognize C++11 support
-set(EIGEN_COMPILER_SUPPORT_CPP11 TRUE CACHE BOOL "Force C++11 support" FORCE)
-set(EIGEN_TEST_CXX11 ON CACHE BOOL "Enable C++11 support in Eigen" FORCE)
+# —————————————————————————————————————————————————————————————
 
-# Disable unwanted Eigen components to reduce warnings
-set(EIGEN_BUILD_DOC OFF CACHE BOOL "Don't build Eigen documentation" FORCE)
-set(EIGEN_BUILD_PKGCONFIG OFF CACHE BOOL "Don't build pkg-config files" FORCE)
-set(EIGEN_DISABLE_CXX11_TESTSUITE OFF CACHE BOOL "Enable CXX11 testsuite" FORCE)
-set(BUILD_TESTING OFF CACHE BOOL "Disable Eigen tests" FORCE)
-
-# Fetch Eigen
-include(FetchContent)
+# Eigen
 FetchContent_Declare(
     Eigen
     GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-    GIT_TAG 3.4.0
-    GIT_SHALLOW TRUE
-)
+    GIT_TAG 3.4.0)
+
+# Eigen configuration options to eliminate warnings
+set(EIGEN_TEST_CXX11 OFF CACHE BOOL "Disable C++11 tests in Eigen" FORCE)
+set(EIGEN_BUILD_DOC OFF CACHE BOOL "Don't build Eigen docs" FORCE)
+set(BUILD_TESTING OFF CACHE BOOL "Disable Eigen tests" FORCE)
+set(EIGEN_TEST_NOQT ON CACHE BOOL "Disable Qt tests in Eigen" FORCE)
+set(EIGEN_LEAVE_TEST_IN_ALL_TARGET OFF CACHE BOOL "Don't include tests in all target" FORCE)
+
 FetchContent_MakeAvailable(Eigen)
 
-# Fetch GLFW
-FetchContent_Declare(
-        glfw
-        GIT_REPOSITORY https://github.com/glfw/glfw.git
-        GIT_TAG 3.4
-)
-set(GLFW_BUILD_DOCS OFF)
-set(GLFW_BUILD_EXAMPLES OFF)
-set(GLFW_BUILD_TESTS OFF)
+# —————————————————————————————————————————————————————————————
+
+# GLFW
+FetchContent_Declare(glfw GIT_REPOSITORY https://github.com/glfw/glfw.git GIT_TAG 3.4)
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(glfw)
 
-# GLAD
+# —————————————————————————————————————————————————————————————
+
+# Fetch ImGui
 FetchContent_Declare(
-        glad
-        DOWNLOAD_EXTRACT_TIMESTAMP OFF
-        URL https://github.com/Dav1dde/glad/archive/refs/tags/v2.0.8.zip
+        imgui
+        GIT_REPOSITORY https://github.com/ocornut/imgui.git
+        GIT_TAG v1.91.7
+)
+FetchContent_MakeAvailable(imgui)
+add_library(imgui STATIC
+        ${imgui_SOURCE_DIR}/imgui.cpp
+        ${imgui_SOURCE_DIR}/imgui_demo.cpp
+        ${imgui_SOURCE_DIR}/imgui_draw.cpp
+        ${imgui_SOURCE_DIR}/imgui_tables.cpp
+        ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+        ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+)
+target_include_directories(imgui PUBLIC
+        ${imgui_SOURCE_DIR}
+        ${imgui_SOURCE_DIR}/backends
+)
+target_link_libraries(imgui glfw OpenGL::GL glad)
+
+# —————————————————————————————————————————————————————————————
+
+# Fetch ImGuizmo
+FetchContent_Declare(
+    imguizmo
+    GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo.git
+    GIT_TAG master
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(imguizmo)
+
+add_library(imguizmo STATIC
+    ${imguizmo_SOURCE_DIR}/ImGuizmo.cpp
+)
+target_include_directories(imguizmo PUBLIC ${imguizmo_SOURCE_DIR})
+
+# Add these two lines to connect ImGuizmo with ImGui
+target_include_directories(imguizmo PUBLIC
+    ${imguizmo_SOURCE_DIR}
+    ${imgui_SOURCE_DIR}  # Add ImGui headers
 )
 
-FetchContent_GetProperties(glad)
-if (NOT glad_POPULATED)
-    set(FETCHCONTENT_QUIET NO)
-    FetchContent_MakeAvailable(glad)
+target_link_libraries(imguizmo PRIVATE imgui)  # Link to ImGui library
 
-    add_subdirectory("${glad_SOURCE_DIR}/cmake" glad_cmake)
-    glad_add_library(glad REPRODUCIBLE EXCLUDE_FROM_ALL LOADER API gl:core=4.6)
-endif ()
-set_target_properties(glad PROPERTIES FOLDER "Dependencies")
+# —————————————————————————————————————————————————————————————
 
-# Find OpenGL
+# GLM
+FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 1.0.1)
+FetchContent_MakeAvailable(glm)
+
+# —————————————————————————————————————————————————————————————
+
+# Build GLAD from source
+add_library(glad STATIC
+    ${CMAKE_SOURCE_DIR}/external/src/glad.c
+)
+
+target_include_directories(glad PUBLIC
+    ${CMAKE_SOURCE_DIR}/external/include
+)
+
+# —————————————————————————————————————————————————————————————
+
 find_package(OpenGL REQUIRED)
 
-# Source files
+# Sources
 set(SOURCES
     source/main.cpp
+
     source/core/Application.cpp
-include/utilities/OpenGLCore.h
+    source/core/WindowManager.cpp
+    source/core/InputManager.cpp
+    source/core/Renderer.cpp
+    source/core/ShaderManager.cpp
+    source/core/Camera.cpp
+    source/core/SceneManager.cpp
+    source/core/ImGuiManager.cpp
+    source/scenes/Primary.cpp
 )
 
-# Executable
 add_executable(${PROJECT_NAME} ${SOURCES})
+target_precompile_headers(${PROJECT_NAME} PRIVATE include/utilities/PCH.h)
 
-# Precompiled headers
-target_precompile_headers(${PROJECT_NAME} PRIVATE include/utilities/pch.h)
-
-# Link Eigen and Mingw's math library
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    glfw
     glad
+    glfw
+    glm::glm
     OpenGL::GL
     Eigen3::Eigen
+    imgui
+    imguizmo
 )
 
-# Include directories
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/source
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include/core
     ${CMAKE_CURRENT_SOURCE_DIR}/include/utilities
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/scenes
+    ${CMAKE_CURRENT_SOURCE_DIR}/external/include
+    ${imguizmo_SOURCE_DIR}
 )
+

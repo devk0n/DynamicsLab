@@ -177,7 +177,7 @@ private:
 
     // White timestamp + log level + file:line + message
     if (m_consoleConfig.showTimestamps) {
-      struct tm timeInfo;
+      struct tm timeInfo{};
       localtime_s(&timeInfo, &time);
       ss << "[" << std::put_time(&timeInfo, "%Y-%m-%d %H:%M:%S") << "] ";
     }

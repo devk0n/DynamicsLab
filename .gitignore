@@ -4,3 +4,6 @@ build-release/
 
 # Ignore IDE configuration
 .idea/
+
+/log.txt
+/Combined.txt
