@@ -10,7 +10,7 @@ class SceneManager {
 public:
   void pushScene(std::unique_ptr<Scene> scene);
   void popScene();
-  void update(float dt);
+  void update(double dt);
   void render();
 
 private:

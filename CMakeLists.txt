@@ -160,3 +160,4 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${imguizmo_SOURCE_DIR}
 )
 
+set_target_properties(${PROJECT_NAME} PROPERTIES UNITY_BUILD ON)

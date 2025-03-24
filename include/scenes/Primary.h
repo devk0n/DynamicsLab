@@ -12,11 +12,16 @@ public:
   void render() override;
   void unload() override;
 
-  void handleCameraMovement(double dt);
 
 private:
   Camera m_camera;
+  float m_displayedFps = 0.0f;
+  float m_fpsUpdateTimer = 0.0f;
+  static constexpr float FPS_UPDATE_INTERVAL = 1.0f;
+
   void showUI();
+  void handleCameraMovement(double dt);
+
 };
 
 #endif // PRIMARY_H

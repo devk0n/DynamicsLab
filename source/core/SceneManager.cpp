@@ -37,7 +37,7 @@ void SceneManager::popScene() {
   }
 }
 
-void SceneManager::update(const float dt) {
+void SceneManager::update(const double dt) {
   if (m_scenes.empty()) {
     LOG_WARN("No scenes to update");
     return;
