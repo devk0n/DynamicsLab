@@ -1,11 +1,29 @@
-#include <iostream>
-#include <Eigen/Dense>
+#include "Application.h"
+#include "Logger.h"
 
 int main() {
 
-  Eigen::MatrixXd A = Eigen::MatrixXd::Random(3, 3);
+  // Initialize logger
+  if (!Logger::initialize("log.txt")) {
+    return 1;
+  }
+  Logger::ConsoleConfig config;
+  config.showTimestamps = false;  // Disable timestamps
+  config.showFileNames = true;    // Disable file names
+  config.showLevel = false;       // Disable level
+  config.enabled = true;          // Disable console logger
+  Logger::setConsoleConfig(config);
+  Logger::setLogLevel(Logger::Level::Debug);
+  LOG_INFO("Logger initialized.");
 
-  std::cout << A << std::endl;
+  Application app;
+  if (!app.initialize()) {
+    LOG_ERROR("Failed to initialize application.");
+    return 1;
+  }
 
-  return 0;
+  app.run();
+
+  LOG_DEBUG("Application terminated.");
+
 }
