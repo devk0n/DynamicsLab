@@ -31,6 +31,8 @@ private:
   float m_fpsUpdateTimer = 0.0f;
   static constexpr float FPS_UPDATE_INTERVAL = 1.0f;
 
+  mutable bool m_run = false;
+
   void showUI();
   void handleCameraMovement(double dt);
 

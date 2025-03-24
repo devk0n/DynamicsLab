@@ -1,9 +1,10 @@
 #include "Primary.h"
 
+#include "SphericalJoint.h"
+#include "GravityForce.h"
 #include "InputManager.h"
 #include "WindowManager.h"
 #include "Dynamics.h"
-
 #include "Renderer.h"
 #include "Context.h"
 #include "PCH.h"
@@ -15,11 +16,33 @@ using namespace Proton;
 bool Primary::load() {
 
   UniqueID body_1 = m_system.addBody(
-      10,
-      Vector3d(3, 3, 3),
-      Vector3d(0, 0, 0),
-      Vector4d(1, 0, 0, 0)
-    );
+    10,
+    Vector3d(3, 3, 3),
+    Vector3d(0, 0, 0),
+    Vector4d(1, 0, 0, 0)
+  );
+
+  UniqueID body_2 = m_system.addBody(
+    20,
+    Vector3d(6, 6, 6),
+    Vector3d(10, 0, 0),
+    Vector4d(1, 0, 0, 0)
+  );
+
+  Body* b1 = m_system.getBody(body_1);
+  Body* b2 = m_system.getBody(body_2);
+
+  auto gravity = std::make_shared<GravityForce>();
+  gravity->addBody(b1);
+  gravity->addBody(b2);
+  m_system.addForceGenerator(gravity);
+
+  m_system.addConstraint(std::make_shared<SphericalJoint>(
+    b1, Vector3d(5.0, 0, 0),
+    b2, Vector3d(-5.0, 0, 0)
+  ));
+
+  b1->setFixed(true);
 
   LOG_INFO("Initializing Primary Scene");
   m_camera.setPosition(glm::vec3(10.0f, 8.0f, 4.0f));
@@ -39,6 +62,11 @@ bool Primary::load() {
 
 void Primary::update(double dt) {
   handleCameraMovement(dt);
+  if (m_ctx.input->isKeyPressed(GLFW_KEY_SPACE)) { toggle(m_run); }
+
+  if (m_run) {
+    m_system.step(dt);
+  }
 }
 
 void Primary::render() {

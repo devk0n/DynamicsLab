@@ -20,6 +20,8 @@ using MatrixL = Eigen::Matrix<double, 3, 4>;
 
 using Quaterniond = Eigen::Quaterniond;
 
+inline void toggle(bool& flag) { flag = !flag; }
+
 inline Matrix4d omegaMatrix(const Vector3d& w) {
   Matrix4d Omega;
   Omega <<  0,    -w.x(), -w.y(), -w.z(),
