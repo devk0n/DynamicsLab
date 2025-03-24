@@ -2,19 +2,37 @@
 
 #include "InputManager.h"
 #include "WindowManager.h"
-#include "ShaderManager.h"
+#include "Dynamics.h"
+
 #include "Renderer.h"
 #include "Context.h"
 #include "PCH.h"
 #include "Logger.h"
 #include "FrameTimer.h"
 
+using namespace Proton;
+
 bool Primary::load() {
+
+  UniqueID body_1 = m_system.addBody(
+      10,
+      Vector3d(3, 3, 3),
+      Vector3d(0, 0, 0),
+      Vector4d(1, 0, 0, 0)
+    );
 
   LOG_INFO("Initializing Primary Scene");
   m_camera.setPosition(glm::vec3(10.0f, 8.0f, 4.0f));
   m_camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
   m_camera.setMovementSpeed(20.0f);
+
+  if (!m_ctx.renderer->getShaderManager()
+      .loadShader("cubeShader",
+                  "assets/shaders/cube.vert",
+                  "assets/shaders/cube.frag")) {
+    LOG_ERROR("Failed to load cube shader");
+    return false;
+  }
 
   return true;
 }
@@ -24,8 +42,10 @@ void Primary::update(double dt) {
 }
 
 void Primary::render() {
-  m_ctx.renderer->drawGrid(m_camera);
   showUI();
+
+  m_systemVisualizer.render(m_system, m_camera.getPosition(), m_camera.getViewMatrix(), m_camera.getProjectionMatrix());
+  m_ctx.renderer->drawGrid(m_camera);
 }
 
 void Primary::unload() {

@@ -1,8 +1,9 @@
-#ifndef SYSTEMVISUALIZER_H
-#define SYSTEMVISUALIZER_H
+#ifndef SYSTEM_VISUALIZER_H
+#define SYSTEM_VISUALIZER_H
 
 #include "Dynamics.h"
-#include "graphics/ShaderManager.h"
+#include "ShaderManager.h"
+#include "Logger.h"
 
 class SystemVisualizer {
 public:
@@ -181,4 +182,4 @@ private:
   }
 };
 
-#endif // SYSTEMVISUALIZER_H
+#endif // SYSTEM_VISUALIZER_H
