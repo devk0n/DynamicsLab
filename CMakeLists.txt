@@ -134,7 +134,23 @@ set(SOURCES
     source/core/Camera.cpp
     source/core/SceneManager.cpp
     source/core/ImGuiManager.cpp
+
     source/scenes/Primary.cpp
+
+    source/physics/Dynamics.cpp
+    source/physics/constraints/DistanceConstraint.cpp
+    source/physics/constraints/SphericalJoint.cpp
+)
+
+include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/core
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/scenes
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/physics
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/physics/constraints
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/physics/objects
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/physics/forces
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/utilities
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -151,12 +167,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/source
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/core
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/utilities
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/scenes
-    ${CMAKE_CURRENT_SOURCE_DIR}/external/include
     ${imguizmo_SOURCE_DIR}
 )
 
