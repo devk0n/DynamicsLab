@@ -4,17 +4,9 @@
 // Standard
 #define NOMINMAX
 #include <algorithm>
-#include <cmath>
-#include <iostream>
 #include <memory>
-#include <ranges>
-#include <sstream>
-#include <stack>
 #include <string>
-#include <unordered_set>
 #include <vector>
-#include <mutex>
-#include <unordered_map>
 
 // Third-Party
 #include <Eigen/Dense>

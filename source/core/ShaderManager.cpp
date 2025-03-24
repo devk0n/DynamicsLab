@@ -1,6 +1,8 @@
 #include "ShaderManager.h"
+#include "PCH.h"
 #include "Logger.h"
 #include "OpenGLCore.h"
+#include <ranges>
 
 ShaderManager::~ShaderManager() {}
 
