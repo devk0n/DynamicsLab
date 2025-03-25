@@ -55,7 +55,7 @@ private:
   void projectPositions(VectorXd &q_next, int dof_dq) const;
   void projectVelocities(VectorXd &dq_next, int dof_dq) const;
   void writeBack(VectorXd q_next, VectorXd dq_next) const;
-  void projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_dq) const;
+  void projectConstraints(VectorXd &q_next, VectorXd &dq_next, int dof_dq, double dt) const;
 
   // System state
   std::vector<std::unique_ptr<Body>> m_bodies;

@@ -31,7 +31,7 @@ void Dynamics::step(double dt) const {
     const VectorXd q_mid = 0.5 * (q_n + q_next);
     const VectorXd dq_mid = 0.5 * (dq_n + dq_next);
 
-    // === Update body states to midpoint
+    // Update body states to midpoint
     for (int i = 0; i < m_numBodies; ++i) {
       auto& body = m_bodies[i];
       body->clearForces();
@@ -55,7 +55,7 @@ void Dynamics::step(double dt) const {
       fg->apply(dt);
     }
 
-    // === External forces and torques
+    // External forces and torques
     VectorXd F_ext = VectorXd::Zero(dof_dq);
     for (int i = 0; i < m_numBodies; ++i) {
       const auto& body = m_bodies[i];
@@ -63,7 +63,7 @@ void Dynamics::step(double dt) const {
       F_ext.segment<3>(i * 6 + 3) = body->getTorque();
     }
 
-    // === Mass and inertia matrix
+    // Mass and inertia matrix
     MatrixXd M = MatrixXd::Zero(dof_dq, dof_dq);
     for (int i = 0; i < m_numBodies; ++i) {
       const auto& body = m_bodies[i];
@@ -71,7 +71,7 @@ void Dynamics::step(double dt) const {
       M.block<3, 3>(i * 6 + 3, i * 6 + 3) = body->getInertiaWorld();
     }
 
-    // === Constraints
+    // Constraints
     MatrixXd P = MatrixXd::Zero(m_numConstraints, dof_dq);
     VectorXd gamma = VectorXd::Zero(m_numConstraints);
     int row = 0;
@@ -81,7 +81,7 @@ void Dynamics::step(double dt) const {
       row += c->getDOFs();
     }
 
-    // === Solve KKT system
+    // Solve KKT system
     MatrixXd KKT(dof_dq + m_numConstraints, dof_dq + m_numConstraints);
     KKT.setZero();
     KKT.topLeftCorner(dof_dq, dof_dq) = M;
@@ -95,7 +95,7 @@ void Dynamics::step(double dt) const {
     VectorXd sol = KKT.fullPivLu().solve(rhs);
     VectorXd ddq_mid = sol.head(dof_dq);
 
-    // === Midpoint integration
+    // Midpoint integration
     VectorXd dq_new = dq_n + dt * ddq_mid;
     VectorXd q_new = q_n;
 
@@ -117,11 +117,11 @@ void Dynamics::step(double dt) const {
     if (err < tol) break;
   }
 
-  projectConstraints(q_next, dq_next, dof_dq);
+  projectConstraints(q_next, dq_next, dof_dq, dt);
   writeBack(q_next, dq_next);
 }
 
-void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_dq) const {
+void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_dq, double dt) const {
   constexpr int maxProjectionIters = 10;
   constexpr double projectionTol = 1e-8;
 
@@ -174,7 +174,7 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
         q_next.segment<3>(i * 7) -= delta_q.segment<3>(i * 6);
         Vector3d delta_theta = delta_q.segment<3>(i * 6 + 3);
         Vector4d q = q_next.segment<4>(i * 7 + 3);
-        q_next.segment<4>(i * 7 + 3) = integrateQuaternion(q, delta_theta, 1.0);
+        q_next.segment<4>(i * 7 + 3) = integrateQuaternion(q, delta_theta, dt);
 
         // Velocity correction
         dq_next.segment<3>(i * 6) -= delta_dq.segment<3>(i * 6);

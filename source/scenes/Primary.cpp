@@ -30,17 +30,31 @@ bool Primary::load() {
     Vector4d(1, 0, 0, 0)
   );
 
+  UniqueID body_3 = m_system.addBody(
+    30,
+    Vector3d(12, 12, 12),
+    Vector3d(12, 8, 1),
+    Vector4d(1, 0, 0, 0)
+  );
+
   Body* b1 = m_system.getBody(body_1);
   Body* b2 = m_system.getBody(body_2);
+  Body* b3 = m_system.getBody(body_3);
 
   auto gravity = std::make_shared<GravityForce>();
   gravity->addBody(b1);
   gravity->addBody(b2);
+  gravity->addBody(b3);
   m_system.addForceGenerator(gravity);
 
   m_system.addConstraint(std::make_shared<SphericalJoint>(
     b1, Vector3d( 2, 0, 0),
     b2, Vector3d(-2, 0, 0)
+  ));
+
+  m_system.addConstraint(std::make_shared<SphericalJoint>(
+    b2, Vector3d( 2, 0, 0),
+    b3, Vector3d(-2, 0, 0)
   ));
 
   b1->setFixed(true);
