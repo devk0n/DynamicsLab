@@ -12,6 +12,12 @@ public:
       Body* body2, Vector3d local2
   );
 
+  SphericalJoint(
+      Body* body1, Vector3d local1,
+      Body* body2, Vector3d local2,
+      double distance
+  );
+
   void computePositionError(VectorXd &phi, int startRow) const override;
   void computeJacobian(MatrixXd &jacobian, int startRow) const override;
   void computeAccelerationCorrection(VectorXd &gamma, int startRow) const override;

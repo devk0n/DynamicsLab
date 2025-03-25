@@ -9,8 +9,26 @@ SphericalJoint::SphericalJoint(
       m_body2(body2),
       m_local1(std::move(local1)),
       m_local2(std::move(local2)) {
-  m_distance = 6.0;
+  // Compute each anchor’s world‑space position
+  const auto A1 = quaternionToRotationMatrix(m_body1->getOrientation());
+  const auto A2 = quaternionToRotationMatrix(m_body2->getOrientation());
+  const Vector3d world1 = m_body1->getPosition() + A1 * m_local1;
+  const Vector3d world2 = m_body2->getPosition() + A2 * m_local2;
+
+  // Initialize the resting distance automatically
+  m_distance = (world2 - world1).norm();
 }
+
+SphericalJoint::SphericalJoint(
+    Body *body1, Vector3d local1,
+    Body *body2, Vector3d local2,
+    const double distance)
+    : Constraint(1),
+      m_body1(body1),
+      m_body2(body2),
+      m_local1(std::move(local1)),
+      m_local2(std::move(local2)),
+      m_distance(distance) {}
 
 void SphericalJoint::computePositionError(VectorXd &phi, int startRow) const {
   auto r1 = m_body1->getPosition();
