@@ -138,10 +138,11 @@ set(SOURCES
     source/scenes/Primary.cpp
 
     source/physics/Dynamics.cpp
+
     source/physics/constraints/DistanceConstraint.cpp
     source/physics/constraints/BallJoint.cpp
-include/physics/constraints/SphericalJoint.h
-source/physics/constraints/SphericalJoint.cpp
+    source/physics/constraints/SphericalJoint.cpp
+    source/physics/constraints/RevoluteJoint.cpp
 )
 
 include_directories(
