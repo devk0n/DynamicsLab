@@ -37,9 +37,9 @@ bool Primary::load() {
   gravity->addBody(b2);
   m_system.addForceGenerator(gravity);
 
-  m_system.addConstraint(std::make_shared<DistanceConstraint>(
-    b1,
-    b2
+  m_system.addConstraint(std::make_shared<SphericalJoint>(
+    b1, Vector3d(3, 2, 0),
+    b2, Vector3d(-5, 0, 0)
   ));
 
   b1->setFixed(true);

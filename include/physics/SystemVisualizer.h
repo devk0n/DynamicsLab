@@ -77,19 +77,34 @@ public:
         linePoints.push_back(pos1);
         linePoints.push_back(pos2);
       } else if (auto* sj = dynamic_cast<Proton::SphericalJoint*>(constraint.get())) {
-        // Spherical joint: line between local attachment points
+        // Get local attachment points
         Eigen::Vector3d local1 = sj->getLocal1();
         Eigen::Vector3d local2 = sj->getLocal2();
 
-        glm::vec3 pos1 = sj->getBody1()->getPositionVec3() +
-                       sj->getBody1()->getOrientationQuat() *
-                       glm::vec3(local1.x(), local1.y(), local1.z());
+        // Convert Eigen vectors to glm
+        glm::vec3 glmLocal1(local1.x(), local1.y(), local1.z());
+        glm::vec3 glmLocal2(local2.x(), local2.y(), local2.z());
 
-        glm::vec3 pos2 = sj->getBody2()->getPositionVec3() +
-                       sj->getBody2()->getOrientationQuat() *
-                       glm::vec3(local2.x(), local2.y(), local2.z());
+        // Get body positions and orientations
+        glm::vec3 body1Pos = sj->getBody1()->getPositionVec3();
+        glm::quat body1Rot = sj->getBody1()->getOrientationQuat();
+        glm::vec3 body2Pos = sj->getBody2()->getPositionVec3();
+        glm::quat body2Rot = sj->getBody2()->getOrientationQuat();
 
+        // Calculate world positions of attachment points
+        glm::vec3 pos1 = body1Pos + body1Rot * glmLocal1;
+        glm::vec3 pos2 = body2Pos + body2Rot * glmLocal2;
+
+        // Connection line between attachment points
+        // linePoints.push_back(pos1);
+        // linePoints.push_back(pos2);
+
+        // Local vector for body 1 (from body origin to attachment point)
+        linePoints.push_back(body1Pos);
         linePoints.push_back(pos1);
+
+        // Local vector for body 2 (from body origin to attachment point)
+        linePoints.push_back(body2Pos);
         linePoints.push_back(pos2);
       }
     }

@@ -39,15 +39,17 @@ void Dynamics::step(double dt) const {
 
       if (body->isFixed()) continue;
 
-      body->setPosition(q_mid.segment<3>(i * 7));
 
       Vector4d q = q_mid.segment<4>(i * 7 + 3);
       q.normalize();
       body->setOrientation(q);
 
+      body->updateInertiaWorld();
+      body->setPosition(q_mid.segment<3>(i * 7));
+
       body->setLinearVelocity(dq_mid.segment<3>(i * 6));
       body->setAngularVelocity(dq_mid.segment<3>(i * 6 + 3));
-      body->updateInertiaWorld();
+
     }
 
     for (const auto& fg : m_forceGenerators) {
@@ -66,7 +68,6 @@ void Dynamics::step(double dt) const {
     MatrixXd M = MatrixXd::Zero(dof_dq, dof_dq);
     for (int i = 0; i < m_numBodies; ++i) {
       const auto& body = m_bodies[i];
-      if (body->isFixed()) continue;
       M.block<3, 3>(i * 6, i * 6) = body->getMass() * Matrix3d::Identity();
       M.block<3, 3>(i * 6 + 3, i * 6 + 3) = body->getInertiaWorld();
     }
@@ -171,13 +172,11 @@ void Dynamics::projectVelocities(VectorXd &dq_next, int dof_dq) const {
 void Dynamics::writeBack(VectorXd q_next, VectorXd dq_next) const {
   for (int i = 0; i < m_numBodies; ++i) {
     auto& body = m_bodies[i];
-
+    if (body->isFixed()) continue;
     Vector4d q = q_next.segment<4>(i * 7 + 3);
     q.normalize();
     body->setOrientation(q);
     body->setAngularVelocity(dq_next.segment<3>(i * 6 + 3));
-
-    if (body->isFixed()) continue;
 
     body->setPosition(q_next.segment<3>(i * 7));
     body->setLinearVelocity(dq_next.segment<3>(i * 6));

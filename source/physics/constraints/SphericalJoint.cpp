@@ -1,64 +1,57 @@
 #include "SphericalJoint.h"
 
+#include <utility>
+
 namespace Proton {
 
 SphericalJoint::SphericalJoint(
     Body *body1,
-    const Vector3d &local1,
+    Vector3d local1,
     Body *body2,
-    const Vector3d &local2)
-    : Constraint(1),
+    Vector3d local2)
+    : Constraint(3),
       m_body1(body1),
       m_body2(body2),
-      m_local1(local1),
-      m_local2(local2) {
-  m_distance = 0.0;
-}
+      m_local1(std::move(local1)),
+      m_local2(std::move(local2)) {}
 
 void SphericalJoint::computePositionError(VectorXd &phi, const int startRow) const {
+  auto r1 = m_body1->getPosition();
+  auto r2 = m_body2->getPosition();
 
-  auto A1 = matrixG(m_body1->getOrientation()) * matrixL(m_body1->getOrientation()).transpose();
-  auto A2 = matrixG(m_body2->getOrientation()) * matrixL(m_body2->getOrientation()).transpose();
+  auto A1 = quaternionToRotationMatrix(m_body1->getOrientation());
+  auto A2 = quaternionToRotationMatrix(m_body2->getOrientation());
 
-  auto d = m_body2->getPosition() + A2 * m_local2 - (m_body1->getPosition() + A1 * m_local1);
-
-  // Constraint equation
-  auto result = (d.transpose() * d) - (m_distance * m_distance);
-
-  phi[startRow] = result;
+  phi.segment<3>(startRow) = r1 + (A1 * m_local1).eval() - (r2 + (A2 * m_local2).eval());
 }
 
 void SphericalJoint::computeJacobian(MatrixXd &jacobian, const int startRow) const {
-  auto A1 = matrixG(m_body1->getOrientation()) * matrixL(m_body1->getOrientation()).transpose();
-  auto A2 = matrixG(m_body2->getOrientation()) * matrixL(m_body2->getOrientation()).transpose();
 
-  // Relative position
-  auto d = m_body2->getPosition() + A2 * m_local2 - (m_body1->getPosition() + A1 * m_local1);
+  auto A1 = quaternionToRotationMatrix(m_body1->getOrientation());
+  auto A2 = quaternionToRotationMatrix(m_body2->getOrientation());
 
   // Jacobian matrix
-  jacobian.block<1, 3>(startRow, m_body1->getIndex() * 6)     = - 2 * d.transpose();
-  jacobian.block<1, 3>(startRow, m_body1->getIndex() * 6 + 3) =   2 * d.transpose() * A1 * skew(m_local1);
-  jacobian.block<1, 3>(startRow, m_body2->getIndex() * 6)     =   2 * d.transpose();
-  jacobian.block<1, 3>(startRow, m_body2->getIndex() * 6 + 3) = - 2 * d.transpose() * A2 * skew(m_local2);
+  jacobian.block<3, 3>(startRow, m_body1->getIndex() * 6)     =   Matrix3d::Identity(); // Body1 linear
+  jacobian.block<3, 3>(startRow, m_body1->getIndex() * 6 + 3) =   A1 * skew(m_local1);    // Body1 angular
+  jacobian.block<3, 3>(startRow, m_body2->getIndex() * 6)     = - Matrix3d::Identity(); // Body2 linear
+  jacobian.block<3, 3>(startRow, m_body2->getIndex() * 6 + 3) = - A2 * skew(m_local2);    // Body2 angular
 }
 
 void SphericalJoint::computeAccelerationCorrection(VectorXd &gamma, const int startRow) const {
-  auto A1 = matrixG(m_body1->getOrientation()) * matrixL(m_body1->getOrientation()).transpose();
-  auto A2 = matrixG(m_body2->getOrientation()) * matrixL(m_body2->getOrientation()).transpose();
+  auto A1 = quaternionToRotationMatrix(m_body1->getOrientation());
+  auto A2 = quaternionToRotationMatrix(m_body2->getOrientation());
+
+  Vector3d worldLocal1 = A1 * m_local1;
+  Vector3d worldLocal2 = A2 * m_local2;
 
   auto omega1 = m_body1->getAngularVelocity();
   auto omega2 = m_body2->getAngularVelocity();
 
-  auto v = m_body2->getLinearVelocity() + A2 * skew(m_body2->getAngularVelocity()) * m_local2 -
-              (m_body1->getLinearVelocity() + A1 * skew(m_body1->getAngularVelocity()) * m_local1);
+  // Centripetal acceleration terms (CORRECTED SIGN)
+  Vector3d a1 = skew(omega1) * skew(omega1) * worldLocal1;
+  Vector3d a2 = skew(omega2) * skew(omega2) * worldLocal2;
 
-  auto o = - 2 * (v.transpose() * v);
-
-  auto in = A2 * skew(omega2) * skew(omega2) * m_local2 + A1 * skew(omega1) * skew(omega1) * m_local1;
-
-  auto result = o - (2 * v.transpose() * in);
-
-  gamma[startRow] = result.value();
+  gamma.segment<3>(startRow) = Vector3d::Zero();
 }
 
 }
