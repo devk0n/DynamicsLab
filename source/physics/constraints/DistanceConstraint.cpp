@@ -25,6 +25,7 @@ void DistanceConstraint::computePositionError(VectorXd &phi, const int startRow)
 
 void DistanceConstraint::computeJacobian(MatrixXd &jacobian, const int startRow) const {
   // Relative position
+
   Vector3d d = m_body2->getPosition() - m_body1->getPosition();
 
   // Jacobian matrix

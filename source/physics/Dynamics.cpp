@@ -2,35 +2,7 @@
 
 namespace Proton {
 
-VectorXd Dynamics::getPositionState() const {
-  VectorXd positionState(m_numBodies * 3);
-
-  int i = 0;
-  for (const auto &body : m_bodies) {
-    positionState.segment<3>(i * 3) = body->getPosition();
-    ++i;
-  }
-
-  // LOG_DEBUG("Position State: \n", positionState);
-
-  return positionState;
-}
-
-VectorXd Dynamics::getVelocityState() const {
-  VectorXd velocityState(m_numBodies * 3);
-
-  int i = 0;
-  for (const auto &body : m_bodies) {
-    velocityState.segment<3>(i * 3) = body->getLinearVelocity();
-    ++i;
-  }
-
-  // LOG_DEBUG("Velocity State: \n", velocityState);
-
-  return velocityState;
-}
-
-void Dynamics::step(double dt) {
+void Dynamics::step(double dt) const {
 
   if (dt > 0.01) {
     LOG_WARN("Too large time step: ", dt, " Setting to 0.01 to keep stability.");
@@ -145,57 +117,58 @@ void Dynamics::step(double dt) {
     if (err < tol) break;
   }
 
-  // === 🔧 Position projection
-  {
-    VectorXd phi(m_numConstraints);
-    MatrixXd J(m_numConstraints, dof_dq);
-    int row = 0;
-    for (const auto& c : m_constraints) {
-      c->computePositionError(phi, row);
-      c->computeJacobian(J, row);
-      row += c->getDOFs();
-    }
+  projectPositions(q_next, dof_dq);
+  projectVelocities(dq_next, dof_dq);
+  writeBack(q_next, dq_next);
+}
 
-    if (m_numConstraints > 0) {
-      MatrixXd JJt = J * J.transpose();
-      VectorXd correction = J.transpose() * JJt.completeOrthogonalDecomposition().solve(phi);
-      for (int i = 0; i < m_numBodies; ++i) {
-        if (m_bodies[i]->isFixed()) continue;
-
-        // Position correction
-        q_next.segment<3>(i * 7) -= correction.segment<3>(i * 6);
-
-        // Orientation correction from angular component
-        Vector3d deltaTheta = correction.segment<3>(i * 6 + 3);
-        Vector4d q = q_next.segment<4>(i * 7 + 3);
-
-        // Apply small rotation using Omega matrix
-        q_next.segment<4>(i * 7 + 3) = applySmallRotationQuaternion(q, deltaTheta);
-
-      }
-
-    }
+void Dynamics::projectPositions(VectorXd &q_next, int dof_dq) const {
+  VectorXd phi = VectorXd::Zero(m_numConstraints);
+  MatrixXd J = MatrixXd::Zero(m_numConstraints, dof_dq);
+  int row = 0;
+  for (const auto& c : m_constraints) {
+    c->computePositionError(phi, row);
+    c->computeJacobian(J, row);
+    row += c->getDOFs();
   }
 
-  // === 🔧 Velocity projection
-  {
-    MatrixXd J(m_numConstraints, dof_dq);
-    VectorXd Jdq(m_numConstraints);
-    int row = 0;
-    for (const auto& c : m_constraints) {
-      c->computeJacobian(J, row);
-      Jdq.segment(row, c->getDOFs()) = J.block(row, 0, c->getDOFs(), dof_dq) * dq_next;
-      row += c->getDOFs();
-    }
+  if (m_numConstraints > 0) {
+    MatrixXd JJt = J * J.transpose();
+    VectorXd correction = J.transpose() * JJt.ldlt().solve(phi);
+    for (int i = 0; i < m_numBodies; ++i) {
+      if (m_bodies[i]->isFixed()) continue;
 
-    if (m_numConstraints > 0) {
-      MatrixXd JJt = J * J.transpose();
-      VectorXd correction = J.transpose() * JJt.completeOrthogonalDecomposition().solve(Jdq);
-      dq_next -= correction;
+      // Position correction
+      q_next.segment<3>(i * 7) -= correction.segment<3>(i * 6);
+
+      // Orientation correction from angular component
+      Vector3d deltaTheta = correction.segment<3>(i * 6 + 3);
+      Vector4d q = q_next.segment<4>(i * 7 + 3);
+
+      // Apply small rotation using Omega matrix
+      q_next.segment<4>(i * 7 + 3) = applySmallRotationQuaternion(q, deltaTheta);
     }
   }
+}
 
-  // === ✅ Final write-back
+void Dynamics::projectVelocities(VectorXd &dq_next, int dof_dq) const {
+  MatrixXd J = MatrixXd::Zero(m_numConstraints, dof_dq);
+  VectorXd Jdq = VectorXd::Zero(m_numConstraints);
+  int row = 0;
+  for (const auto& c : m_constraints) {
+    c->computeJacobian(J, row);
+    Jdq.segment(row, c->getDOFs()) = J.block(row, 0, c->getDOFs(), dof_dq) * dq_next;
+    row += c->getDOFs();
+  }
+
+  if (m_numConstraints > 0) {
+    MatrixXd JJt = J * J.transpose();
+    VectorXd correction = J.transpose() * JJt.ldlt().solve(Jdq);
+    dq_next -= correction;
+  }
+}
+
+void Dynamics::writeBack(VectorXd q_next, VectorXd dq_next) const {
   for (int i = 0; i < m_numBodies; ++i) {
     auto& body = m_bodies[i];
 
@@ -207,12 +180,32 @@ void Dynamics::step(double dt) {
     if (body->isFixed()) continue;
 
     body->setPosition(q_next.segment<3>(i * 7));
-
     body->setLinearVelocity(dq_next.segment<3>(i * 6));
 
   }
 }
 
+VectorXd Dynamics::getPositionState() const {
+  VectorXd positionState(m_numBodies * 3);
+
+  int i = 0;
+  for (const auto &body : m_bodies) {
+    positionState.segment<3>(i * 3) = body->getPosition();
+    ++i;
+  }
+  return positionState;
+}
+
+VectorXd Dynamics::getVelocityState() const {
+  VectorXd velocityState(m_numBodies * 3);
+
+  int i = 0;
+  for (const auto &body : m_bodies) {
+    velocityState.segment<3>(i * 3) = body->getLinearVelocity();
+    ++i;
+  }
+  return velocityState;
+}
 
 UniqueID Dynamics::addBody(
   const double &mass,

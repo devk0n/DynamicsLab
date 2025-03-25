@@ -21,7 +21,8 @@ public:
   );
 
   Body* getBody(UniqueID ID);
-  const Body *getBody(UniqueID ID) const;
+  [[nodiscard]] const Body *getBody(UniqueID ID) const;
+  [[nodiscard]] const std::vector<std::unique_ptr<Body>>& getBodies() const { return m_bodies; }
 
   // Force handling
   void addForceGenerator(const std::shared_ptr<ForceGenerator>& generator) {
@@ -34,18 +35,21 @@ public:
     m_numConstraints += constraint->getDOFs();
   }
 
-  const std::vector<std::unique_ptr<Body>>& getBodies() const { return m_bodies; }
-
-  std::vector<std::shared_ptr<Constraint>> getConstraints() const {
+  [[nodiscard]] std::vector<std::shared_ptr<Constraint>> getConstraints() const {
     return m_constraints;
   }
 
-  void step(double dt);
+  void step(double dt) const;
+
 
 private:
 
-  VectorXd getPositionState() const;
-  VectorXd getVelocityState() const;
+  [[nodiscard]] VectorXd getPositionState() const;
+  [[nodiscard]] VectorXd getVelocityState() const;
+
+  void projectPositions(VectorXd &q_next, int dof_dq) const;
+  void projectVelocities(VectorXd &dq_next, int dof_dq) const;
+  void writeBack(VectorXd q_next, VectorXd dq_next) const;
 
   // System state
   std::vector<std::unique_ptr<Body>> m_bodies;
@@ -55,7 +59,7 @@ private:
   // Force generators
   std::vector<std::shared_ptr<ForceGenerator>> m_forceGenerators;
 
-  // constraints
+  // Constraints
   std::vector<std::shared_ptr<Constraint>> m_constraints;
   int m_numConstraints = 0;
 
