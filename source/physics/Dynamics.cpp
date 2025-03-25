@@ -39,7 +39,6 @@ void Dynamics::step(double dt) const {
 
       if (body->isFixed()) continue;
 
-
       Vector4d q = q_mid.segment<4>(i * 7 + 3);
       q.normalize();
       body->setOrientation(q);
@@ -72,7 +71,7 @@ void Dynamics::step(double dt) const {
       M.block<3, 3>(i * 6 + 3, i * 6 + 3) = body->getInertiaWorld();
     }
 
-    // === constraints
+    // === Constraints
     MatrixXd P = MatrixXd::Zero(m_numConstraints, dof_dq);
     VectorXd gamma = VectorXd::Zero(m_numConstraints);
     int row = 0;
@@ -93,7 +92,7 @@ void Dynamics::step(double dt) const {
     rhs.head(dof_dq) = F_ext;
     rhs.tail(m_numConstraints) = gamma;
 
-    VectorXd sol = KKT.completeOrthogonalDecomposition().solve(rhs);
+    VectorXd sol = KKT.fullPivLu().solve(rhs);
     VectorXd ddq_mid = sol.head(dof_dq);
 
     // === Midpoint integration
@@ -118,55 +117,98 @@ void Dynamics::step(double dt) const {
     if (err < tol) break;
   }
 
-  projectPositions(q_next, dof_dq);
-  projectVelocities(dq_next, dof_dq);
+  projectConstraints(q_next, dq_next, dof_dq);
   writeBack(q_next, dq_next);
 }
 
-void Dynamics::projectPositions(VectorXd &q_next, int dof_dq) const {
-  VectorXd phi = VectorXd::Zero(m_numConstraints);
-  MatrixXd J = MatrixXd::Zero(m_numConstraints, dof_dq);
-  int row = 0;
-  for (const auto& c : m_constraints) {
-    c->computePositionError(phi, row);
-    c->computeJacobian(J, row);
-    row += c->getDOFs();
+void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_dq) const {
+  constexpr int maxProjectionIters = 100;
+  constexpr double projectionTol = 1e-8;
+  constexpr double positionRelaxation = 0.5;
+  constexpr double velocityRelaxation = 0.8;
+  constexpr double warmStartDecay = 0.9;
+
+  // Initialize warm start if needed
+  if (m_lambda_p_prev.size() != m_numConstraints) {
+    m_lambda_p_prev = VectorXd::Zero(m_numConstraints);
+    m_lambda_v_prev = VectorXd::Zero(m_numConstraints);
   }
 
-  if (m_numConstraints > 0) {
-    MatrixXd JJt = J * J.transpose();
-    VectorXd correction = J.transpose() * JJt.ldlt().solve(phi);
+  // Warm start initialization
+  VectorXd lambda_p = m_lambda_p_prev;
+  VectorXd lambda_v = m_lambda_v_prev;
+
+  for (int iter = 0; iter < maxProjectionIters; ++iter) {
+    // Update body states temporarily for constraint evaluation
     for (int i = 0; i < m_numBodies; ++i) {
       if (m_bodies[i]->isFixed()) continue;
 
-      // Position correction
-      q_next.segment<3>(i * 7) -= correction.segment<3>(i * 6);
-
-      // Orientation correction from angular component
-      Vector3d deltaTheta = correction.segment<3>(i * 6 + 3);
+      m_bodies[i]->setPosition(q_next.segment<3>(i * 7));
       Vector4d q = q_next.segment<4>(i * 7 + 3);
+      q.normalize();
+      m_bodies[i]->setOrientation(q);
+      m_bodies[i]->setLinearVelocity(dq_next.segment<3>(i * 6));
+      m_bodies[i]->setAngularVelocity(dq_next.segment<3>(i * 6 + 3));
+      m_bodies[i]->updateInertiaWorld();
+    }
 
-      // Apply small rotation using Omega matrix
-      q_next.segment<4>(i * 7 + 3) = applySmallRotationQuaternion(q, deltaTheta);
+    // Compute position and velocity constraints
+    VectorXd phi = VectorXd::Zero(m_numConstraints);
+    VectorXd Jdq = VectorXd::Zero(m_numConstraints);
+    MatrixXd J = MatrixXd::Zero(m_numConstraints, dof_dq);
+
+    int row = 0;
+    for (const auto& c : m_constraints) {
+      c->computePositionError(phi, row);
+      c->computeJacobian(J, row);
+      Jdq.segment(row, c->getDOFs()) = J.block(row, 0, c->getDOFs(), dof_dq) * dq_next;
+      row += c->getDOFs();
+    }
+
+    double totalError = phi.squaredNorm() + Jdq.squaredNorm();
+    if (totalError < projectionTol) break;
+    if (iter == maxProjectionIters - 1) {
+      LOG_WARN("Projection failed to converge. Final error: ", totalError);
+    }
+
+    if (m_numConstraints > 0) {
+      MatrixXd JJt = J * J.transpose();
+
+      // Warm start modification on first iteration
+      if (iter == 0) {
+        phi -= J * (J.transpose() * lambda_p);
+        Jdq -= J * (J.transpose() * lambda_v);
+      }
+
+      // Solve KKT system
+      lambda_p = JJt.fullPivLu().solve(phi);
+      lambda_v = JJt.fullPivLu().solve(Jdq);
+
+      // Apply corrections with relaxation
+      VectorXd delta_q =  J.transpose() * lambda_p * positionRelaxation;
+      VectorXd delta_dq = J.transpose() * lambda_v * velocityRelaxation;
+
+      for (int i = 0; i < m_numBodies; ++i) {
+        if (m_bodies[i]->isFixed()) continue;
+
+        // Position correction
+        q_next.segment<3>(i * 7) -= delta_q.segment<3>(i * 6);
+
+        // Orientation correction (exponential map)
+        Vector3d delta_theta = delta_q.segment<3>(i * 6 + 3);
+        Vector4d q = q_next.segment<4>(i * 7 + 3);
+        q_next.segment<4>(i * 7 + 3) = integrateQuaternion(q, delta_theta, 1.0);
+
+        // Velocity correction
+        dq_next.segment<3>(i * 6) -= delta_dq.segment<3>(i * 6);
+        dq_next.segment<3>(i * 6 + 3) -= delta_dq.segment<3>(i * 6 + 3);
+      }
     }
   }
-}
 
-void Dynamics::projectVelocities(VectorXd &dq_next, int dof_dq) const {
-  MatrixXd J = MatrixXd::Zero(m_numConstraints, dof_dq);
-  VectorXd Jdq = VectorXd::Zero(m_numConstraints);
-  int row = 0;
-  for (const auto& c : m_constraints) {
-    c->computeJacobian(J, row);
-    Jdq.segment(row, c->getDOFs()) = J.block(row, 0, c->getDOFs(), dof_dq) * dq_next;
-    row += c->getDOFs();
-  }
-
-  if (m_numConstraints > 0) {
-    MatrixXd JJt = J * J.transpose();
-    VectorXd correction = J.transpose() * JJt.ldlt().solve(Jdq);
-    dq_next -= correction;
-  }
+  // Store for next frame with decay
+  m_lambda_p_prev = lambda_p * warmStartDecay;
+  m_lambda_v_prev = lambda_v * warmStartDecay;
 }
 
 void Dynamics::writeBack(VectorXd q_next, VectorXd dq_next) const {

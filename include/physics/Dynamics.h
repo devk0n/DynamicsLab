@@ -10,7 +10,9 @@
 namespace Proton {
 class Dynamics {
 public:
-  Dynamics() = default;
+  Dynamics()
+      : m_lambda_p_prev(VectorXd::Zero(0)),  // Initialize empty, will resize when constraints are added
+        m_lambda_v_prev(VectorXd::Zero(0)) {}
 
   // Body management
   UniqueID addBody(
@@ -44,12 +46,16 @@ public:
 
 private:
 
+  mutable VectorXd m_lambda_p_prev;
+  mutable VectorXd m_lambda_v_prev;
+
   [[nodiscard]] VectorXd getPositionState() const;
   [[nodiscard]] VectorXd getVelocityState() const;
 
   void projectPositions(VectorXd &q_next, int dof_dq) const;
   void projectVelocities(VectorXd &dq_next, int dof_dq) const;
   void writeBack(VectorXd q_next, VectorXd dq_next) const;
+  void projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_dq) const;
 
   // System state
   std::vector<std::unique_ptr<Body>> m_bodies;

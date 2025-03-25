@@ -41,15 +41,16 @@ void SphericalJoint::computeAccelerationCorrection(VectorXd &gamma, const int st
   auto A1 = quaternionToRotationMatrix(m_body1->getOrientation());
   auto A2 = quaternionToRotationMatrix(m_body2->getOrientation());
 
-  Vector3d worldLocal1 = A1 * m_local1;
-  Vector3d worldLocal2 = A2 * m_local2;
+  auto worldLocal1 = A1 * skew(m_local1);
+  auto worldLocal2 = A2 * skew(m_local2);
+
+  auto worldLocal1t = worldLocal1 * skew(m_local1);
+  auto worldLocal2t = worldLocal2 * skew(m_local2);
 
   auto omega1 = m_body1->getAngularVelocity();
   auto omega2 = m_body2->getAngularVelocity();
 
-  // Centripetal acceleration terms (CORRECTED SIGN)
-  Vector3d a1 = skew(omega1) * skew(omega1) * worldLocal1;
-  Vector3d a2 = skew(omega2) * skew(omega2) * worldLocal2;
+  auto result = worldLocal1t - worldLocal2t;
 
   gamma.segment<3>(startRow) = Vector3d::Zero();
 }

@@ -66,7 +66,7 @@ public:
     m_shaderManager.setUniform("view", viewMatrix);
     m_shaderManager.setUniform("projection", projectionMatrix);
     m_shaderManager.setUniform("model", glm::mat4(1.0f)); // Identity matrix
-    m_shaderManager.setUniform("lineColor", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f)); // Red lines
+    m_shaderManager.setUniform("lineColor", glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
 
     std::vector<glm::vec3> linePoints;
     for (const auto& constraint : system.getConstraints()) {
