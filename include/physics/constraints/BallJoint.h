@@ -1,14 +1,14 @@
-#ifndef SPHERICAL_JOINT_H
-#define SPHERICAL_JOINT_H
+#ifndef BALL_JOINT_H
+#define BALL_JOINT_H
 
 #include "Body.h"
 #include "Constraint.h"
 
 namespace Proton {
 
-class SphericalJoint final : public Constraint {
+class BallJoint final : public Constraint {
 public:
-  SphericalJoint(
+  BallJoint(
       Body* body1,
       Vector3d local1,
       Body* body2,
@@ -32,4 +32,4 @@ private:
 };
 } // Proton
 
-#endif // SPHERICAL_JOINT_H
+#endif // BALL_JOINT_H

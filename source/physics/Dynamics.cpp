@@ -168,7 +168,7 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
     double totalError = phi.squaredNorm() + Jdq.squaredNorm();
     if (totalError < projectionTol) break;
     if (iter == maxProjectionIters - 1) {
-      LOG_WARN("Projection failed to converge. Final error: ", totalError);
+      // LOG_WARN("Projection failed to converge. Final error: ", totalError);
     }
 
     if (m_numConstraints > 0) {

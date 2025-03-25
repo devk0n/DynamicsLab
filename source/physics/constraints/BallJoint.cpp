@@ -1,10 +1,10 @@
-#include "SphericalJoint.h"
+#include "BallJoint.h"
 
 #include <utility>
 
 namespace Proton {
 
-SphericalJoint::SphericalJoint(
+BallJoint::BallJoint(
     Body *body1,
     Vector3d local1,
     Body *body2,
@@ -15,7 +15,7 @@ SphericalJoint::SphericalJoint(
       m_local1(std::move(local1)),
       m_local2(std::move(local2)) {}
 
-void SphericalJoint::computePositionError(VectorXd &phi, const int startRow) const {
+void BallJoint::computePositionError(VectorXd &phi, const int startRow) const {
   auto r1 = m_body1->getPosition();
   auto r2 = m_body2->getPosition();
 
@@ -25,7 +25,7 @@ void SphericalJoint::computePositionError(VectorXd &phi, const int startRow) con
   phi.segment<3>(startRow) = r1 + (A1 * m_local1).eval() - (r2 + (A2 * m_local2).eval());
 }
 
-void SphericalJoint::computeJacobian(MatrixXd &jacobian, const int startRow) const {
+void BallJoint::computeJacobian(MatrixXd &jacobian, const int startRow) const {
 
   auto A1 = quaternionToRotationMatrix(m_body1->getOrientation());
   auto A2 = quaternionToRotationMatrix(m_body2->getOrientation());
@@ -37,7 +37,7 @@ void SphericalJoint::computeJacobian(MatrixXd &jacobian, const int startRow) con
   jacobian.block<3, 3>(startRow, m_body2->getIndex() * 6 + 3) = - A2 * skew(m_local2);    // Body2 angular
 }
 
-void SphericalJoint::computeAccelerationCorrection(VectorXd &gamma, const int startRow) const {
+void BallJoint::computeAccelerationCorrection(VectorXd &gamma, const int startRow) const {
   auto A1 = quaternionToRotationMatrix(m_body1->getOrientation());
   auto A2 = quaternionToRotationMatrix(m_body2->getOrientation());
 

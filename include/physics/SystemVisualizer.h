@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "DistanceConstraint.h"
-#include "SphericalJoint.h"
+#include "BallJoint.h"
 #include "Dynamics.h"
 #include "ShaderManager.h"
 #include "Logger.h"
@@ -76,7 +76,7 @@ public:
         auto pos2 = dc->getBody2()->getPositionVec3();
         linePoints.push_back(pos1);
         linePoints.push_back(pos2);
-      } else if (auto* sj = dynamic_cast<Proton::SphericalJoint*>(constraint.get())) {
+      } else if (auto* sj = dynamic_cast<Proton::BallJoint*>(constraint.get())) {
         // Get local attachment points
         Eigen::Vector3d local1 = sj->getLocal1();
         Eigen::Vector3d local2 = sj->getLocal2();
