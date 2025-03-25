@@ -10,6 +10,7 @@
 #include "PCH.h"
 #include "Logger.h"
 #include "FrameTimer.h"
+#include "SphericalJoint.h"
 
 using namespace Proton;
 
@@ -29,59 +30,17 @@ bool Primary::load() {
     Vector4d(1, 0, 0, 0)
   );
 
-  UniqueID body_3 = m_system.addBody(
-    20,
-    Vector3d(6, 6, 6),
-    Vector3d(20, 0, 1),
-    Vector4d(1, 0, 0, 0)
-  );
-
-  UniqueID body_4 = m_system.addBody(
-    20,
-    Vector3d(6, 6, 6),
-    Vector3d(30, 0, 1),
-    Vector4d(1, 0, 0, 0)
-  );
-
-  UniqueID body_5 = m_system.addBody(
-    20,
-    Vector3d(6, 6, 6),
-    Vector3d(40, 0, 1),
-    Vector4d(1, 0, 0, 0)
-  );
-
   Body* b1 = m_system.getBody(body_1);
   Body* b2 = m_system.getBody(body_2);
-  Body* b3 = m_system.getBody(body_3);
-  Body* b4 = m_system.getBody(body_4);
-  Body* b5 = m_system.getBody(body_5);
 
   auto gravity = std::make_shared<GravityForce>();
   gravity->addBody(b1);
   gravity->addBody(b2);
-  gravity->addBody(b3);
-  gravity->addBody(b4);
-  gravity->addBody(b5);
   m_system.addForceGenerator(gravity);
 
-  m_system.addConstraint(std::make_shared<BallJoint>(
-    b1, Vector3d( 5, 0, 0),
-    b2, Vector3d(-5, 0, 0)
-  ));
-
-  m_system.addConstraint(std::make_shared<BallJoint>(
-    b2, Vector3d( 5, 0, 0),
-    b3, Vector3d(-5, 0, 0)
-  ));
-
-  m_system.addConstraint(std::make_shared<BallJoint>(
-    b3, Vector3d( 5, 0, 0),
-    b4, Vector3d(-5, 0, 0)
-  ));
-
-  m_system.addConstraint(std::make_shared<BallJoint>(
-    b4, Vector3d( 5, 0, 0),
-    b5, Vector3d(-5, 0, 0)
+  m_system.addConstraint(std::make_shared<SphericalJoint>(
+    b1, Vector3d( 2, 0, 0),
+    b2, Vector3d(-2, 0, 0)
   ));
 
   b1->setFixed(true);

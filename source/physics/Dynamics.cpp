@@ -122,27 +122,13 @@ void Dynamics::step(double dt) const {
 }
 
 void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_dq) const {
-  constexpr int maxProjectionIters = 100;
+  constexpr int maxProjectionIters = 10;
   constexpr double projectionTol = 1e-8;
-  constexpr double positionRelaxation = 0.5;
-  constexpr double velocityRelaxation = 0.8;
-  constexpr double warmStartDecay = 0.9;
-
-  // Initialize warm start if needed
-  if (m_lambda_p_prev.size() != m_numConstraints) {
-    m_lambda_p_prev = VectorXd::Zero(m_numConstraints);
-    m_lambda_v_prev = VectorXd::Zero(m_numConstraints);
-  }
-
-  // Warm start initialization
-  VectorXd lambda_p = m_lambda_p_prev;
-  VectorXd lambda_v = m_lambda_v_prev;
 
   for (int iter = 0; iter < maxProjectionIters; ++iter) {
-    // Update body states temporarily for constraint evaluation
+    // Update body states for constraint evaluation
     for (int i = 0; i < m_numBodies; ++i) {
       if (m_bodies[i]->isFixed()) continue;
-
       m_bodies[i]->setPosition(q_next.segment<3>(i * 7));
       Vector4d q = q_next.segment<4>(i * 7 + 3);
       q.normalize();
@@ -152,7 +138,7 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
       m_bodies[i]->updateInertiaWorld();
     }
 
-    // Compute position and velocity constraints
+    // Compute constraints
     VectorXd phi = VectorXd::Zero(m_numConstraints);
     VectorXd Jdq = VectorXd::Zero(m_numConstraints);
     MatrixXd J = MatrixXd::Zero(m_numConstraints, dof_dq);
@@ -167,34 +153,25 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
 
     double totalError = phi.squaredNorm() + Jdq.squaredNorm();
     if (totalError < projectionTol) break;
-    if (iter == maxProjectionIters - 1) {
-      // LOG_WARN("Projection failed to converge. Final error: ", totalError);
-    }
 
     if (m_numConstraints > 0) {
       MatrixXd JJt = J * J.transpose();
+      Eigen::FullPivLU<MatrixXd> solver(JJt);
 
-      // Warm start modification on first iteration
-      if (iter == 0) {
-        phi -= J * (J.transpose() * lambda_p);
-        Jdq -= J * (J.transpose() * lambda_v);
-      }
+      // Position projection: q^c = q'' - Jᵀ(JJᵀ)⁻¹Φ
+      VectorXd lambda_p = solver.solve(phi);
+      VectorXd delta_q = J.transpose() * lambda_p;
 
-      // Solve KKT system
-      lambda_p = JJt.fullPivLu().solve(phi);
-      lambda_v = JJt.fullPivLu().solve(Jdq);
+      // Velocity projection: v^c = v'' - Jᵀ(JJᵀ)⁻¹Jv
+      VectorXd lambda_v = solver.solve(Jdq);
+      VectorXd delta_dq = J.transpose() * lambda_v;
 
-      // Apply corrections with relaxation
-      VectorXd delta_q =  J.transpose() * lambda_p * positionRelaxation;
-      VectorXd delta_dq = J.transpose() * lambda_v * velocityRelaxation;
-
+      // Apply corrections
       for (int i = 0; i < m_numBodies; ++i) {
         if (m_bodies[i]->isFixed()) continue;
 
         // Position correction
         q_next.segment<3>(i * 7) -= delta_q.segment<3>(i * 6);
-
-        // Orientation correction (exponential map)
         Vector3d delta_theta = delta_q.segment<3>(i * 6 + 3);
         Vector4d q = q_next.segment<4>(i * 7 + 3);
         q_next.segment<4>(i * 7 + 3) = integrateQuaternion(q, delta_theta, 1.0);
@@ -205,10 +182,6 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
       }
     }
   }
-
-  // Store for next frame with decay
-  m_lambda_p_prev = lambda_p * warmStartDecay;
-  m_lambda_v_prev = lambda_v * warmStartDecay;
 }
 
 void Dynamics::writeBack(VectorXd q_next, VectorXd dq_next) const {
