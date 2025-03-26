@@ -9,6 +9,7 @@
 #include "ShaderManager.h"
 #include "Logger.h"
 #include "SphericalJoint.h"
+#include "UniversalJoint.h"
 
 class SystemVisualizer {
 public:
@@ -55,6 +56,8 @@ public:
       glm::quat orientation = body->getOrientationQuat();
       modelMatrix = modelMatrix * mat4_cast(orientation);
       // Convert quaternion to matrix and apply
+
+      modelMatrix = glm::scale(modelMatrix, body->getSizeVec3());
 
       m_shaderManager.setUniform("objectColor", glm::vec4(0.98, 0.98, 0.96, 1.0));
       // Set color (white)
@@ -137,7 +140,60 @@ public:
         // Local vector for body 2 (from body origin to attachment point)
         linePoints.push_back(body2Pos);
         linePoints.push_back(pos2);
+      } else if (auto* uj = dynamic_cast<Proton::UniversalJoint*>(constraint.get())) {
+        // Get local attachment points
+        Eigen::Vector3d local1 = uj->getLocal1();
+        Eigen::Vector3d local2 = uj->getLocal2();
+
+        // Convert Eigen vectors to glm
+        glm::vec3 glmLocal1(local1.x(), local1.y(), local1.z());
+        glm::vec3 glmLocal2(local2.x(), local2.y(), local2.z());
+
+        // Get body positions and orientations
+        glm::vec3 body1Pos = uj->getBody1()->getPositionVec3();
+        glm::quat body1Rot = uj->getBody1()->getOrientationQuat();
+        glm::vec3 body2Pos = uj->getBody2()->getPositionVec3();
+        glm::quat body2Rot = uj->getBody2()->getOrientationQuat();
+
+        // Calculate world positions of attachment points
+        glm::vec3 pos1 = body1Pos + body1Rot * glmLocal1;
+        glm::vec3 pos2 = body2Pos + body2Rot * glmLocal2;
+
+        // Local vector for body 1 (from body origin to attachment point)
+        linePoints.push_back(body1Pos);
+        linePoints.push_back(pos1);
+
+        // Local vector for body 2 (from body origin to attachment point)
+        linePoints.push_back(body2Pos);
+        linePoints.push_back(pos2);
+
+        // --- Draw the axis lines ---
+        // Get axis directions (assuming UniversalJoint provides these getters)
+        Eigen::Vector3d axis1 = uj->getAxis1();
+        Eigen::Vector3d axis2 = uj->getAxis2();
+
+        // Convert to glm vectors
+        glm::vec3 glmAxis1(axis1.x(), axis1.y(), axis1.z());
+        glm::vec3 glmAxis2(axis2.x(), axis2.y(), axis2.z());
+
+        // Transform axes to world space using body rotations
+        glm::vec3 worldAxis1 = body1Rot * glmAxis1;
+        glm::vec3 worldAxis2 = body2Rot * glmAxis2;
+
+        // Choose a scale factor for visualizing the axis length
+        float axisScale = 0.5f;
+
+        // Draw axis line from attachment point for body1
+        linePoints.push_back(pos1);
+        linePoints.push_back(pos1 + axisScale * worldAxis1);
+        linePoints.push_back(pos1 - axisScale * worldAxis1);
+
+        // Draw axis line from attachment point for body2
+        linePoints.push_back(pos2);
+        linePoints.push_back(pos2 + axisScale * worldAxis2);
+        linePoints.push_back(pos2 - axisScale * worldAxis2);
       }
+
     }
 
     // Draw lines

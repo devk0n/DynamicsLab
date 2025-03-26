@@ -143,6 +143,8 @@ set(SOURCES
     source/physics/constraints/BallJoint.cpp
     source/physics/constraints/SphericalJoint.cpp
     source/physics/constraints/RevoluteJoint.cpp
+    source/physics/constraints/UniversalJoint.cpp
+
 )
 
 include_directories(

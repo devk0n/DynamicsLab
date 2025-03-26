@@ -17,6 +17,10 @@ public:
       : Scene(ctx),
         m_systemVisualizer(ctx.renderer->getShaderManager()) {}
 
+  void setupDynamics();
+
+  void setupDynamics2();
+
   bool load() override;
   void update(double dt) override;
   void render() override;

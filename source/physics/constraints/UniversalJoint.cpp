@@ -1,21 +1,20 @@
-#include "RevoluteJoint.h"
+#include "UniversalJoint.h"
 
 #include <utility>
 
 namespace Proton {
-RevoluteJoint::RevoluteJoint(
+UniversalJoint::UniversalJoint(
     Body* body1, Vector3d local1, Vector3d axis1,
-    Body* body2, Vector3d local2, Vector3d axis2, Vector3d axis3)
-      : Constraint(5),
+    Body* body2, Vector3d local2, Vector3d axis2)
+      : Constraint(4),
         m_body1(body1),
         m_body2(body2),
         m_local1(std::move(local1)),
         m_local2(std::move(local2)),
         m_axis1(std::move(axis1)),
-        m_axis2(std::move(axis2)),
-        m_axis3(std::move(axis3)){}
+        m_axis2(std::move(axis2)) {}
 
-void RevoluteJoint::computePositionError(VectorXd &phi, int startRow) const {
+void UniversalJoint::computePositionError(VectorXd &phi, int startRow) const {
   auto r1 = m_body1->getPosition();
   auto r2 = m_body2->getPosition();
 
@@ -24,26 +23,25 @@ void RevoluteJoint::computePositionError(VectorXd &phi, int startRow) const {
 
   phi.segment<3>(startRow) = r1 + A1 * m_local1 - r2 - A2 * m_local2;
   phi.segment<1>(startRow + 3) = (A1 * m_axis1).eval().transpose() * (A2 * m_axis2).eval();
-  phi.segment<1>(startRow + 4) = (A1 * m_axis1).eval().transpose() * (A2 * m_axis3).eval();
 }
 
-void RevoluteJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
+void UniversalJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
   auto A1 = quaternionToRotationMatrix(m_body1->getOrientation());
   auto A2 = quaternionToRotationMatrix(m_body2->getOrientation());
 
-  // Jacobian matrix
+  // Jacobian matrix Spherical
   jacobian.block<3,3>(startRow, m_body1->getIndex() * 6)     =   Matrix3d::Identity();
   jacobian.block<3,3>(startRow, m_body1->getIndex() * 6 + 3) = - A1 * skew(m_local1);
   jacobian.block<3,3>(startRow, m_body2->getIndex() * 6)     = - Matrix3d::Identity();
   jacobian.block<3,3>(startRow, m_body2->getIndex() * 6 + 3) =   A2 * skew(m_local2);
 
+  // Jacobian matrix Universal
   jacobian.block<1,3>(startRow + 3, m_body1->getIndex() * 6 + 3) = (A2 * m_axis2).transpose() * (A1 * skew(m_axis1));
   jacobian.block<1,3>(startRow + 3, m_body2->getIndex() * 6 + 3) = (A1 * m_axis1).transpose() * (A2 * skew(m_axis2));
-  jacobian.block<1,3>(startRow + 4, m_body1->getIndex() * 6 + 3) = (A2 * m_axis3).transpose() * (A1 * skew(m_axis1));
-  jacobian.block<1,3>(startRow + 4, m_body2->getIndex() * 6 + 3) = (A1 * m_axis1).transpose() * (A2 * skew(m_axis3));
+
 }
 
-void RevoluteJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow) const {
+void UniversalJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow) const {
   auto A1 = quaternionToRotationMatrix(m_body1->getOrientation());
   auto A2 = quaternionToRotationMatrix(m_body2->getOrientation());
 
@@ -54,6 +52,5 @@ void RevoluteJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow)
   gamma.segment<3>(startRow) = result;
 
   gamma.segment<1>(startRow + 3) = VectorXd::Zero(1);
-  gamma.segment<1>(startRow + 4) = VectorXd::Zero(1);
 }
 } // Proton

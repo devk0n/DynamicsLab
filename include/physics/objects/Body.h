@@ -44,6 +44,8 @@ public:
 
   double getMass() const noexcept { return m_mass; }
   double getInverseMass() const noexcept { return m_inverseMass; }
+  const Vector3d &getInertia() const noexcept { return m_inertia; }
+  const Vector3d &getInverseInertia() const noexcept { return m_inverseInertia; }
   const Matrix3d &getInertiaWorld() const noexcept { return m_inverseInertiaWorld; }
 
   // Setters
@@ -71,6 +73,8 @@ public:
   // Configuration
   void setFixed(bool fixed) noexcept { m_fixed = fixed; }
   bool isFixed() const noexcept { return m_fixed; }
+  void setSize(const Vector3d &size) noexcept { m_size = size; }
+  const Vector3d &getSize() const noexcept { return m_size; }
 
   // Visualization conversion
   [[nodiscard]] glm::vec3 getPositionVec3() const noexcept {
@@ -78,6 +82,14 @@ public:
       static_cast<float>(m_position.x()),
       static_cast<float>(m_position.y()),
       static_cast<float>(m_position.z())
+    );
+  }
+
+  [[nodiscard]] glm::vec3 getSizeVec3() const noexcept {
+    return glm::vec3(
+      static_cast<float>(m_size.x()),
+      static_cast<float>(m_size.y()),
+      static_cast<float>(m_size.z())
     );
   }
 
@@ -103,6 +115,7 @@ private:
   int m_index;
 
   // Physical properties
+  Vector3d m_size = Vector3d::Ones();
   double m_mass = 0.0;
   double m_inverseMass = 0.0;
   Vector3d m_inertia = Vector3d::Zero();

@@ -5,6 +5,8 @@
 
 namespace Proton {
 
+#define PI 3.14159265358979323846
+
 using UniqueID = std::uint16_t;
 
 using Vector3d = Eigen::Vector3d;
@@ -88,6 +90,59 @@ inline Matrix3d quaternionToRotationMatrix(const Vector4d& q) {
 inline Matrix3d updateInertiaWorld(const Vector4d& orientation, const Vector3d& inverseInertia) {
   Matrix3d R = quaternionToRotationMatrix(orientation);
   return R * inverseInertia.asDiagonal() * R.transpose();
+}
+
+inline Vector4d eulerToQuaternion(const Vector3d& eulerAngles) {
+  double roll  = eulerAngles.x();
+  double pitch = eulerAngles.y();
+  double yaw   = eulerAngles.z();
+
+  double cy = std::cos(  yaw * 0.5);
+  double sy = std::sin(  yaw * 0.5);
+  double cp = std::cos(pitch * 0.5);
+  double sp = std::sin(pitch * 0.5);
+  double cr = std::cos( roll * 0.5);
+  double sr = std::sin( roll * 0.5);
+
+  Vector4d q;
+  q[0] = cr * cp * cy + sr * sp * sy;
+  q[1] = sr * cp * cy - cr * sp * sy;
+  q[2] = cr * sp * cy + sr * cp * sy;
+  q[3] = cr * cp * sy - sr * sp * cy;
+
+  return q;
+}
+
+inline double cosd(double degrees) {
+  double radians = degrees * PI / 180.0;
+  return std::cos(radians);
+}
+
+inline double sind(double degrees) {
+  double radians = degrees * PI / 180.0;
+  return std::sin(radians);
+}
+
+inline Vector4d eulerToQuaternionDegrees(const Vector3d& eulerAnglesDegrees) {
+  constexpr double degToRad = PI / 180.0;
+  double roll  = eulerAnglesDegrees.x() * degToRad;
+  double pitch = eulerAnglesDegrees.y() * degToRad;
+  double yaw   = eulerAnglesDegrees.z() * degToRad;
+
+  double cy = std::cos(yaw * 0.5);
+  double sy = std::sin(yaw * 0.5);
+  double cp = std::cos(pitch * 0.5);
+  double sp = std::sin(pitch * 0.5);
+  double cr = std::cos(roll * 0.5);
+  double sr = std::sin(roll * 0.5);
+
+  Vector4d q;
+  q[0] = cr * cp * cy + sr * sp * sy;
+  q[1] = sr * cp * cy - cr * sp * sy;
+  q[2] = cr * sp * cy + sr * cp * sy;
+  q[3] = cr * cp * sy - sr * sp * cy;
+
+  return q;
 }
 
 } // Proton

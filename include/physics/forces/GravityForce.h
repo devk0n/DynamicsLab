@@ -1,6 +1,8 @@
 #ifndef GRAVITY_FORCE_GENERATOR_H
 #define GRAVITY_FORCE_GENERATOR_H
 
+#include <ranges>
+
 #include "Body.h"
 #include "Proton.h"
 
@@ -10,16 +12,13 @@ namespace Proton {
 
 class GravityForce final : public ForceGenerator {
 public:
+  explicit GravityForce(const Vector3d &gravity) : m_gravity(gravity) {}
 
-  void addBody(Body* body) {
-    m_targets.emplace(body->getID(), body);
-  }
+  void addBody(Body* body) { m_targets.emplace(body->getID(), body); }
 
   void apply(double dt) override {
-    for (const auto& [id, body] : m_targets) {
-      if (body->getMass() <= 0.0) continue; // skip static/infinite mass bodies
+    for (const auto &body: m_targets | std::views::values) {
       body->addForce(body->getMass() * m_gravity);
-      // body->addTorque(Vector3d(10, 2, 1));
     }
   }
 

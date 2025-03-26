@@ -61,6 +61,8 @@ void Dynamics::step(double dt) const {
       const auto& body = m_bodies[i];
       F_ext.segment<3>(i * 6) = body->getForce();
       F_ext.segment<3>(i * 6 + 3) = body->getTorque();
+
+      F_ext.segment<3>(i * 6 + 3) -= skew(body->getAngularVelocity()) * body->getInertia().asDiagonal() * body->getAngularVelocity();
     }
 
     // Mass and inertia matrix

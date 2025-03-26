@@ -1,5 +1,8 @@
 #include "Primary.h"
 
+#include <RevoluteJoint.h>
+#include <set>
+
 #include "BallJoint.h"
 #include "GravityForce.h"
 #include "InputManager.h"
@@ -10,54 +13,110 @@
 #include "PCH.h"
 #include "Logger.h"
 #include "FrameTimer.h"
-#include "SphericalJoint.h"
+#include "Torque.h"
+#include "UniversalJoint.h"
+#include "SpringForce.h"
 
 using namespace Proton;
 
-bool Primary::load() {
+void Primary::setupDynamics() {
 
-  UniqueID body_1 = m_system.addBody(
-    10,
-    Vector3d(3, 3, 3),
-    Vector3d(0, 0, 1),
+  UniqueID body0 = m_system.addBody(
+    6,
+    {1, 1, 1},
+    {-1, 0, 0},
     Vector4d(1, 0, 0, 0)
   );
 
-  UniqueID body_2 = m_system.addBody(
-    20,
-    Vector3d(6, 6, 6),
-    Vector3d(10, 0, 1),
+  UniqueID body1 = m_system.addBody(
+    6,
+    {1, 1, 1},
+    {1, 0, 0},
     Vector4d(1, 0, 0, 0)
   );
 
-  UniqueID body_3 = m_system.addBody(
-    20,
-    Vector3d(6, 6, 6),
-    Vector3d(20, 0, 1),
-    Vector4d(1, 0, 0, 0)
+  UniqueID body2 = m_system.addBody(
+    6,
+    {1, 1, 1},
+    {2, 3 * cosd(70), 3 * sind(70)},
+    eulerToQuaternionDegrees({0, -70, 90})
   );
 
-  Body* b1 = m_system.getBody(body_1);
-  Body* b2 = m_system.getBody(body_2);
-  Body* b3 = m_system.getBody(body_3);
+  Body* b0 = m_system.getBody(body0);
+  Body* b1 = m_system.getBody(body1);
+  Body* b2 = m_system.getBody(body2);
 
-  auto gravity = std::make_shared<GravityForce>();
+  b1->setSize({2, 0.4, 0.4});
+  b2->setSize({6, 0.3, 0.3});
+
+  auto gravity = std::make_shared<GravityForce>(Vector3d(0, 0, -9.81));
   gravity->addBody(b1);
   gravity->addBody(b2);
-  gravity->addBody(b3);
   m_system.addForceGenerator(gravity);
 
-  m_system.addConstraint(std::make_shared<BallJoint>(
-    b1, Vector3d( 5, 0, 0),
-    b2, Vector3d(-5, 0, 0)
+  m_system.addConstraint(std::make_shared<RevoluteJoint>(
+    b0, Vector3d(1, 0, 0), Vector3d(0, 1, 0),
+    b1, Vector3d(-1, 0, 0), Vector3d(1, 0, 0), Vector3d(0, 0, 1)
   ));
 
-  m_system.addConstraint(std::make_shared<BallJoint>(
-    b2, Vector3d( 5, 0, 0),
-    b3, Vector3d(-5, 0, 0)
+  m_system.addConstraint(std::make_shared<UniversalJoint>(
+    b1, Vector3d(1, 0, 0), Vector3d(0, 1, 0),
+    b2, Vector3d(-3, 0, 0), Vector3d(0, 1, 0)
   ));
 
-  b1->setFixed(true);
+  b0->setFixed(true);
+  b0->setSize({0.1, 0.1, 0.1});
+}
+
+void Primary::setupDynamics2() {
+
+  UniqueID body0 = m_system.addBody(
+    6,
+    {1, 1, 1},
+    {-1, 0, 0},
+    Vector4d(1, 0, 0, 0)
+  );
+
+  UniqueID body1 = m_system.addBody(
+    6,
+    {1, 1, 1},
+    {1, 0, 0},
+    Vector4d(1, 0, 0, 0)
+  );
+
+  UniqueID body2 = m_system.addBody(
+    6,
+    {1, 1, 1},
+    {2, 3 * cosd(70), 3 * sind(70)},
+    eulerToQuaternionDegrees({0, -70, 90})
+  );
+
+  Body* b0 = m_system.getBody(body0);
+  Body* b1 = m_system.getBody(body1);
+  Body* b2 = m_system.getBody(body2);
+
+  b1->setSize({2, 0.4, 0.4});
+  b2->setSize({6, 0.3, 0.3});
+
+  auto gravity = std::make_shared<GravityForce>(Vector3d(0, 0, -9.81));
+  gravity->addBody(b1);
+  gravity->addBody(b2);
+  m_system.addForceGenerator(gravity);
+
+  m_system.addConstraint(std::make_shared<SphericalJoint>(
+    b0, Vector3d(1, 0, 0),
+    b1, Vector3d(-1, 0, 0)
+  ));
+
+
+
+  b0->setFixed(true);
+  b0->setSize({0.1, 0.1, 0.1});
+}
+
+bool Primary::load() {
+
+  setupDynamics();
 
   LOG_INFO("Initializing Primary Scene");
   m_camera.setPosition(glm::vec3(10.0f, 8.0f, 4.0f));
