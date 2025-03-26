@@ -1,6 +1,7 @@
 #ifndef BODY_H
 #define BODY_H
 
+#include <Logger.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
@@ -100,6 +101,13 @@ public:
       static_cast<float>(m_orientation.z()),
       static_cast<float>(m_orientation.w())
     );
+  }
+
+  auto calculateKineticEnergy() {
+    auto T1 = 0.5 * m_velocity.transpose() * Vector3d(m_mass, m_mass, m_mass).asDiagonal() * m_velocity;
+    auto T2 = 0.5 * m_angularVelocity.transpose() * m_inertia.asDiagonal() * m_angularVelocity;
+
+    return T1 + T2;
   }
 
 private:

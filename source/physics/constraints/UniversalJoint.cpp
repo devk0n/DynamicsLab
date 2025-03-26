@@ -51,6 +51,21 @@ void UniversalJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow
   auto result = A1 * (skew(omega1) * skew(m_local1)).eval() * omega1 - A2 * (skew(omega2) * skew(m_local2)).eval() * omega2;
   gamma.segment<3>(startRow) = result;
 
-  gamma.segment<1>(startRow + 3) = VectorXd::Zero(1);
+  Vector3d a1 = A1 * m_axis1;
+  Vector3d a2 = A2 * m_axis2;
+
+  double cTerm = 0.0;
+
+  //  a1 dot [ ω2 × ( ω2 × a2 ) ]
+  cTerm += a1.dot(omega2.cross(omega2.cross(a2)));
+
+  //  + 2 ( ω1×a1 ) dot ( ω2×a2 )
+  cTerm += 2.0 * (omega1.cross(a1)).dot(omega2.cross(a2));
+
+  //  + [ ω1 × ( ω1 × a1 ) ] dot a2
+  cTerm += (omega1.cross(omega1.cross(a1))).dot(a2);
+
+  // gamma(4th constraint) = - (that expression)
+  gamma[startRow + 3] = -cTerm;
 }
 } // Proton

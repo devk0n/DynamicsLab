@@ -1,12 +1,10 @@
 #ifndef PRIMARY_H
 #define PRIMARY_H
 
-#include <Context.h>
-#include <Renderer.h>
-
+#include "Context.h"
+#include "Renderer.h"
 #include "Camera.h"
 #include "Scene.h"
-
 #include "Proton.h"
 #include "SystemVisualizer.h"
 #include "Dynamics.h"
@@ -17,9 +15,6 @@ public:
       : Scene(ctx),
         m_systemVisualizer(ctx.renderer->getShaderManager()) {}
 
-  void setupDynamics();
-
-  void setupDynamics2();
 
   bool load() override;
   void update(double dt) override;
@@ -39,6 +34,8 @@ private:
 
   void showUI();
   void handleCameraMovement(double dt);
+
+  void setupDynamics();
 
 };
 

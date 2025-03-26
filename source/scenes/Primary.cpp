@@ -36,8 +36,8 @@ void Primary::setupDynamics() {
   );
 
   UniqueID body2 = m_system.addBody(
-    6,
-    {1, 1, 1},
+    60,
+    {10, 10, 10},
     {2, 3 * cosd(70), 3 * sind(70)},
     eulerToQuaternionDegrees({0, -70, 90})
   );
@@ -66,52 +66,7 @@ void Primary::setupDynamics() {
 
   b0->setFixed(true);
   b0->setSize({0.1, 0.1, 0.1});
-}
 
-void Primary::setupDynamics2() {
-
-  UniqueID body0 = m_system.addBody(
-    6,
-    {1, 1, 1},
-    {-1, 0, 0},
-    Vector4d(1, 0, 0, 0)
-  );
-
-  UniqueID body1 = m_system.addBody(
-    6,
-    {1, 1, 1},
-    {1, 0, 0},
-    Vector4d(1, 0, 0, 0)
-  );
-
-  UniqueID body2 = m_system.addBody(
-    6,
-    {1, 1, 1},
-    {2, 3 * cosd(70), 3 * sind(70)},
-    eulerToQuaternionDegrees({0, -70, 90})
-  );
-
-  Body* b0 = m_system.getBody(body0);
-  Body* b1 = m_system.getBody(body1);
-  Body* b2 = m_system.getBody(body2);
-
-  b1->setSize({2, 0.4, 0.4});
-  b2->setSize({6, 0.3, 0.3});
-
-  auto gravity = std::make_shared<GravityForce>(Vector3d(0, 0, -9.81));
-  gravity->addBody(b1);
-  gravity->addBody(b2);
-  m_system.addForceGenerator(gravity);
-
-  m_system.addConstraint(std::make_shared<SphericalJoint>(
-    b0, Vector3d(1, 0, 0),
-    b1, Vector3d(-1, 0, 0)
-  ));
-
-
-
-  b0->setFixed(true);
-  b0->setSize({0.1, 0.1, 0.1});
 }
 
 bool Primary::load() {
@@ -144,11 +99,15 @@ bool Primary::load() {
 
 void Primary::update(double dt) {
   handleCameraMovement(dt);
+
   if (m_ctx.input->isKeyPressed(GLFW_KEY_SPACE)) { toggle(m_run); }
 
-  if (m_run) {
-    m_system.step(dt);
+  if (m_ctx.input->isKeyPressed(GLFW_KEY_L)) {
+    Body* b2 = m_system.getBody(1);
+    b2->calculateKineticEnergy();
   }
+
+  if (m_run) { m_system.step(dt); }
 }
 
 void Primary::render() {
