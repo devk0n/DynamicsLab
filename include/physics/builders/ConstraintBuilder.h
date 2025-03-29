@@ -2,7 +2,6 @@
 #define CONSTRAINT_BUILDER_H
 
 #include "Dynamics.h"
-#include "UniversalJoint.h"
 
 namespace Proton {
 
