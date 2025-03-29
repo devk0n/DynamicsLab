@@ -68,7 +68,7 @@ DynamicsLab currently supports the following constraints:
 
 ---
 
-## Visual Media
+## (TODO) Visual Media
 
 To help users and contributors understand the dynamics and constraints, consider including the following visual media in the repository or documentation:
 
