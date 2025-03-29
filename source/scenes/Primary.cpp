@@ -1,17 +1,8 @@
 #include "Primary.h"
 
-#include "RevoluteJoint.h"
-#include "BallJoint.h"
-#include "GravityForce.h"
+#include "FrameTimer.h"
 #include "InputManager.h"
 #include "WindowManager.h"
-#include "Dynamics.h"
-#include "Renderer.h"
-#include "Context.h"
-#include "PCH.h"
-#include "Logger.h"
-#include "FrameTimer.h"
-#include "Torque.h"
 #include "DynamicsBuilder.h"
 
 using namespace Proton;
@@ -19,7 +10,23 @@ using namespace Proton;
 void Primary::setupDynamics() {
   DynamicsBuilder builder(m_system);
 
-  Body* chassis = builder.createCube().build();
+  Body* chassis = builder.createCube()
+    .size(1.6, 0.6, 0.3)
+    .position(0, 0, 0.6)
+    .build();
+
+  Body* leftWheel = builder.createCube()
+    .size(0.2, 0.2, 0.2)
+    .position(-0.8, 0, 0)
+    .fixed(true)
+    .build();
+
+  builder.createConstraint<BallJoint>()
+    .withBodyA(chassis)
+    .withBodyB(leftWheel)
+    .withLocalPointA(-0.8, 0, 0)
+    .withLocalPointB(0.1, 0, 0)
+    .build();
 
   builder.createGravity(0, 0, -9.81)
     .addBody(chassis)

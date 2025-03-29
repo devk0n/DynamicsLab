@@ -46,6 +46,11 @@ public:
     return *this;
   }
 
+  std::shared_ptr<BallJoint> build() {
+    m_dynamics.addConstraint(m_constraint);
+    return m_constraint;
+  }
+
 private:
   Dynamics &m_dynamics;
   std::shared_ptr<BallJoint> m_constraint;
