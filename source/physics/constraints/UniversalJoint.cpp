@@ -4,15 +4,15 @@
 
 namespace Proton {
 UniversalJoint::UniversalJoint(
-    Body* bodyA, Vector3d local1, Vector3d axis1,
-    Body* bodyB, Vector3d local2, Vector3d axis2)
+    Body* bodyA, Vector3d localPointA, Vector3d axisA,
+    Body* bodyB, Vector3d localPointB, Vector3d axisB)
       : Constraint(4),
         m_bodyA(bodyA),
         m_bodyB(bodyB),
-        m_localPointA(std::move(local1)),
-        m_localPointB(std::move(local2)),
-        m_axisA(std::move(axis1)),
-        m_axisB(std::move(axis2)) {}
+        m_localPointA(std::move(localPointA)),
+        m_localPointB(std::move(localPointB)),
+        m_axisA(std::move(axisA)),
+        m_axisB(std::move(axisB)) {}
 
 void UniversalJoint::computePositionError(VectorXd &phi, int startRow) const {
   auto r1 = m_bodyA->getPosition();

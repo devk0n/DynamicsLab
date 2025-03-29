@@ -20,7 +20,7 @@ public:
   }
 
   template<typename ConstraintType>
-  ConstraintBuilder<ConstraintType> createConstraint() {
+  [[nodiscard]] ConstraintBuilder<ConstraintType> createConstraint() {
     return ConstraintBuilder<ConstraintType>(m_dynamics);
   }
 

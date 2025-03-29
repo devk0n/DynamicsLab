@@ -21,7 +21,7 @@ void Primary::setupDynamics() {
     .fixed(true)
     .build();
 
-  builder.createConstraint<SphericalJoint>()
+  builder.createConstraint<BallJoint>()
     .withBodyA(chassis)
     .withBodyB(leftWheel)
     .withLocalPointA(-0.8, 0, 0)
