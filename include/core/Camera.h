@@ -12,7 +12,7 @@ public:
 
   // Camera controls
   void processMouseMovement(float xOffset, float yOffset);
-  void processKeyboardInput(CameraMovement direction, float deltaTime);
+  void processKeyboardInput(CameraMovement direction, double deltaTime);
   void processScroll(float yOffset);
   void lookAt(const glm::vec3 &target);
 

@@ -31,8 +31,8 @@ void Camera::processMouseMovement(float xOffset, float yOffset) {
   updateVectors();
 }
 
-void Camera::processKeyboardInput(const CameraMovement direction, const float deltaTime) {
-  const float velocity = m_movementSpeed * deltaTime;
+void Camera::processKeyboardInput(const CameraMovement direction, const double deltaTime) {
+  const float velocity = m_movementSpeed * static_cast<float>(deltaTime);
 
   switch (direction) {
     case CameraMovement::FORWARD:

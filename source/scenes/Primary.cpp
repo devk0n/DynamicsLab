@@ -33,8 +33,8 @@ bool Primary::load() {
   setupDynamics();
 
   LOG_INFO("Initializing Primary Scene");
-  m_camera.setPosition(glm::vec3(5.0f, 3.2f, 3.2f));
-  m_camera.lookAt(glm::vec3(0.0f, 0.0f, 2.0f));
+  m_camera.setPosition({5.0f, 3.2f, 3.2f});
+  m_camera.lookAt({0.0f, 0.0f, 2.0f});
   m_camera.setMovementSpeed(5.0f);
 
   if (!m_ctx.renderer->getShaderManager()
