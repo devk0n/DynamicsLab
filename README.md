@@ -118,4 +118,4 @@ This project is licensed under the [MIT License](LICENSE).
 
 ## Contact
 
-For questions, feedback, or further information, please open an issue [GitHub repository](https://github.com/devk0n/DynamicsLab/issues).
+For questions, feedback, or further information, please open an issue [GitHub issues](https://github.com/devk0n/DynamicsLab/issues).
