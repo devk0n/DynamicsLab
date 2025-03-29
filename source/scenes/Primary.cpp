@@ -21,8 +21,7 @@ void Primary::setupDynamics() {
 
   Body* chassis = builder.createCube().build();
 
-  builder.createGravity()
-    .setGravity(0, 0, -9.81)
+  builder.createGravity(0, 0, -9.81)
     .addBody(chassis)
     .build();
 

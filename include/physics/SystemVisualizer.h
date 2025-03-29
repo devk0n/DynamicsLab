@@ -76,24 +76,24 @@ public:
     for (const auto& constraint : system.getConstraints()) {
       if (auto* dc = dynamic_cast<Proton::DistanceConstraint*>(constraint.get())) {
         // Distance constraint: line between body positions
-        auto pos1 = dc->getBody1()->getPositionVec3();
-        auto pos2 = dc->getBody2()->getPositionVec3();
+        auto pos1 = dc->getBodyA()->getPositionVec3();
+        auto pos2 = dc->getBodyB()->getPositionVec3();
         linePoints.push_back(pos1);
         linePoints.push_back(pos2);
       } else if (auto* sj = dynamic_cast<Proton::BallJoint*>(constraint.get())) {
         // Get local attachment points
-        Eigen::Vector3d local1 = sj->getLocal1();
-        Eigen::Vector3d local2 = sj->getLocal2();
+        Eigen::Vector3d local1 = sj->getLocalPointA();
+        Eigen::Vector3d local2 = sj->getLocalPointB();
 
         // Convert Eigen vectors to glm
         glm::vec3 glmLocal1(local1.x(), local1.y(), local1.z());
         glm::vec3 glmLocal2(local2.x(), local2.y(), local2.z());
 
         // Get body positions and orientations
-        glm::vec3 body1Pos = sj->getBody1()->getPositionVec3();
-        glm::quat body1Rot = sj->getBody1()->getOrientationQuat();
-        glm::vec3 body2Pos = sj->getBody2()->getPositionVec3();
-        glm::quat body2Rot = sj->getBody2()->getOrientationQuat();
+        glm::vec3 body1Pos = sj->getBodyA()->getPositionVec3();
+        glm::quat body1Rot = sj->getBodyA()->getOrientationQuat();
+        glm::vec3 body2Pos = sj->getBodyB()->getPositionVec3();
+        glm::quat body2Rot = sj->getBodyB()->getOrientationQuat();
 
         // Calculate world positions of attachment points
         glm::vec3 pos1 = body1Pos + body1Rot * glmLocal1;
@@ -112,18 +112,18 @@ public:
         linePoints.push_back(pos2);
       } else if (auto* sj = dynamic_cast<Proton::SphericalJoint*>(constraint.get())) {
         // Get local attachment points
-        Eigen::Vector3d local1 = sj->getLocal1();
-        Eigen::Vector3d local2 = sj->getLocal2();
+        Eigen::Vector3d local1 = sj->getLocalPointA();
+        Eigen::Vector3d local2 = sj->getLocalPointB();
 
         // Convert Eigen vectors to glm
         glm::vec3 glmLocal1(local1.x(), local1.y(), local1.z());
         glm::vec3 glmLocal2(local2.x(), local2.y(), local2.z());
 
         // Get body positions and orientations
-        glm::vec3 body1Pos = sj->getBody1()->getPositionVec3();
-        glm::quat body1Rot = sj->getBody1()->getOrientationQuat();
-        glm::vec3 body2Pos = sj->getBody2()->getPositionVec3();
-        glm::quat body2Rot = sj->getBody2()->getOrientationQuat();
+        glm::vec3 body1Pos = sj->getBodyA()->getPositionVec3();
+        glm::quat body1Rot = sj->getBodyA()->getOrientationQuat();
+        glm::vec3 body2Pos = sj->getBodyB()->getPositionVec3();
+        glm::quat body2Rot = sj->getBodyB()->getOrientationQuat();
 
         // Calculate world positions of attachment points
         glm::vec3 pos1 = body1Pos + body1Rot * glmLocal1;
@@ -142,18 +142,18 @@ public:
         linePoints.push_back(pos2);
       } else if (auto* uj = dynamic_cast<Proton::UniversalJoint*>(constraint.get())) {
         // Get local attachment points
-        Eigen::Vector3d local1 = uj->getLocal1();
-        Eigen::Vector3d local2 = uj->getLocal2();
+        Eigen::Vector3d local1 = uj->getLocalPointA();
+        Eigen::Vector3d local2 = uj->getLocalPointB();
 
         // Convert Eigen vectors to glm
         glm::vec3 glmLocal1(local1.x(), local1.y(), local1.z());
         glm::vec3 glmLocal2(local2.x(), local2.y(), local2.z());
 
         // Get body positions and orientations
-        glm::vec3 body1Pos = uj->getBody1()->getPositionVec3();
-        glm::quat body1Rot = uj->getBody1()->getOrientationQuat();
-        glm::vec3 body2Pos = uj->getBody2()->getPositionVec3();
-        glm::quat body2Rot = uj->getBody2()->getOrientationQuat();
+        glm::vec3 body1Pos = uj->getBodyA()->getPositionVec3();
+        glm::quat body1Rot = uj->getBodyA()->getOrientationQuat();
+        glm::vec3 body2Pos = uj->getBodyB()->getPositionVec3();
+        glm::quat body2Rot = uj->getBodyB()->getOrientationQuat();
 
         // Calculate world positions of attachment points
         glm::vec3 pos1 = body1Pos + body1Rot * glmLocal1;
@@ -169,8 +169,8 @@ public:
 
         // --- Draw the axis lines ---
         // Get axis directions (assuming UniversalJoint provides these getters)
-        Eigen::Vector3d axis1 = uj->getAxis1();
-        Eigen::Vector3d axis2 = uj->getAxis2();
+        Eigen::Vector3d axis1 = uj->getAxisA();
+        Eigen::Vector3d axis2 = uj->getAxisB();
 
         // Convert to glm vectors
         glm::vec3 glmAxis1(axis1.x(), axis1.y(), axis1.z());

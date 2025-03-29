@@ -1,6 +1,8 @@
 #ifndef UNIVERSAL_JOINT_H
 #define UNIVERSAL_JOINT_H
 
+#include <utility>
+
 #include "Body.h"
 #include "Constraint.h"
 
@@ -8,28 +10,35 @@ namespace Proton {
 class UniversalJoint final : public Constraint {
 public:
   UniversalJoint(
-      Body* body1, Vector3d local1, Vector3d axis1,
-      Body* body2, Vector3d local2, Vector3d axis2
+      Body* bodyA, Vector3d localPointA, Vector3d axisA,
+      Body* bodyB, Vector3d localPointB, Vector3d axisB
   );
 
   void computePositionError(VectorXd& phi, int startRow) const override;
   void computeJacobian(MatrixXd& jacobian, int startRow) const override;
   void computeAccelerationCorrection(VectorXd& gamma, int startRow) const override;
 
-  [[nodiscard]] Body* getBody1() const { return m_body1; }
-  [[nodiscard]] Body* getBody2() const { return m_body2; }
-  [[nodiscard]] Vector3d getLocal1() const { return m_local1; }
-  [[nodiscard]] Vector3d getLocal2() const { return m_local2; }
-  [[nodiscard]] Vector3d getAxis1() const { return m_axis1; }
-  [[nodiscard]] Vector3d getAxis2() const { return m_axis2; }
+  [[nodiscard]] Body* getBodyA() const { return m_bodyA; }
+  [[nodiscard]] Body* getBodyB() const { return m_bodyB; }
+  [[nodiscard]] Vector3d getLocalPointA() const { return m_localPointA; }
+  [[nodiscard]] Vector3d getLocalPointB() const { return m_localPointB; }
+  [[nodiscard]] Vector3d getAxisA() const { return m_axisA; }
+  [[nodiscard]] Vector3d getAxisB() const { return m_axisB; }
+
+  void setBodyA(Body* bodyA) { m_bodyA = bodyA; }
+  void setBodyB(Body* bodyB) { m_bodyB = bodyB; }
+  void setlocalPointA(Vector3d localA) { m_localPointA = std::move(localA); }
+  void setLocalPointB(Vector3d localB) { m_localPointB = std::move(localB); }
+  void setAxisA(Vector3d axisA) { m_axisA = std::move(axisA); }
+  void setAxisB(Vector3d axisB) { m_axisB = std::move(axisB); }
 
 private:
-  Body* m_body1;
-  Body* m_body2;
-  Vector3d m_local1;
-  Vector3d m_local2;
-  Vector3d m_axis1;
-  Vector3d m_axis2;
+  Body* m_bodyA;
+  Body* m_bodyB;
+  Vector3d m_localPointA;
+  Vector3d m_localPointB;
+  Vector3d m_axisA;
+  Vector3d m_axisB;
 
 };
 } // Proton

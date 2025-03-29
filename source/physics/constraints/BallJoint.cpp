@@ -5,46 +5,46 @@
 namespace Proton {
 
 BallJoint::BallJoint(
-    Body *body1,
-    Vector3d local1,
-    Body *body2,
-    Vector3d local2)
+    Body *bodyA,
+    Vector3d localPointA,
+    Body *bodyB,
+    Vector3d localPointB)
     : Constraint(3),
-      m_body1(body1),
-      m_body2(body2),
-      m_local1(std::move(local1)),
-      m_local2(std::move(local2)) {}
+      m_bodyA(bodyA),
+      m_bodyB(bodyB),
+      m_localPointA(std::move(localPointA)),
+      m_localPointB(std::move(localPointB)) {}
 
 void BallJoint::computePositionError(VectorXd &phi, const int startRow) const {
-  auto r1 = m_body1->getPosition();
-  auto r2 = m_body2->getPosition();
+  auto rA = m_bodyA->getPosition();
+  auto rB = m_bodyB->getPosition();
 
-  auto A1 = quaternionToRotationMatrix(m_body1->getOrientation());
-  auto A2 = quaternionToRotationMatrix(m_body2->getOrientation());
+  auto AA = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  auto AB = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
-  phi.segment<3>(startRow) = r1 + A1 * m_local1 - r2 - A2 * m_local2;
+  phi.segment<3>(startRow) = rA + AA * m_localPointA - rB - AB * m_localPointB;
 }
 
 void BallJoint::computeJacobian(MatrixXd &jacobian, const int startRow) const {
 
-  auto A1 = quaternionToRotationMatrix(m_body1->getOrientation());
-  auto A2 = quaternionToRotationMatrix(m_body2->getOrientation());
+  auto AA = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  auto AB = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
   // Jacobian matrix
-  jacobian.block<3, 3>(startRow, m_body1->getIndex() * 6)     =   Matrix3d::Identity(); // Body1 linear
-  jacobian.block<3, 3>(startRow, m_body1->getIndex() * 6 + 3) = - A1 * skew(m_local1);    // Body1 angular
-  jacobian.block<3, 3>(startRow, m_body2->getIndex() * 6)     = - Matrix3d::Identity(); // Body2 linear
-  jacobian.block<3, 3>(startRow, m_body2->getIndex() * 6 + 3) =   A2 * skew(m_local2);    // Body2 angular
+  jacobian.block<3, 3>(startRow, m_bodyA->getIndex() * 6)     =   Matrix3d::Identity(); // BodyA linear
+  jacobian.block<3, 3>(startRow, m_bodyA->getIndex() * 6 + 3) = - AA * skew(m_localPointA);    // BodyA angular
+  jacobian.block<3, 3>(startRow, m_bodyB->getIndex() * 6)     = - Matrix3d::Identity(); // BodyB linear
+  jacobian.block<3, 3>(startRow, m_bodyB->getIndex() * 6 + 3) =   AB * skew(m_localPointB);    // BodyB angular
 }
 
 void BallJoint::computeAccelerationCorrection(VectorXd &gamma, const int startRow) const {
-  auto A1 = quaternionToRotationMatrix(m_body1->getOrientation());
-  auto A2 = quaternionToRotationMatrix(m_body2->getOrientation());
+  auto AA = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  auto AB = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
-  auto omega1 = m_body1->getAngularVelocity();
-  auto omega2 = m_body2->getAngularVelocity();
+  auto omegaA = m_bodyA->getAngularVelocity();
+  auto omegaB = m_bodyB->getAngularVelocity();
 
-  auto result = A1 * (skew(omega1) * skew(m_local1)).eval() * omega1 - A2 * (skew(omega2) * skew(m_local2)).eval() * omega2;
+  auto result = AA * (skew(omegaA) * skew(m_localPointA)).eval() * omegaA - AB * (skew(omegaB) * skew(m_localPointB)).eval() * omegaB;
   gamma.segment<3>(startRow) = result;
 }
 

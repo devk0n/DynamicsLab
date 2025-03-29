@@ -3,13 +3,13 @@
 namespace Proton {
 
 DistanceConstraint::DistanceConstraint(
-    Body* body1,
-    Body* body2)
+    Body* bodyA,
+    Body* bodyB)
     : Constraint(1),
-      m_body1(body1),
-      m_body2(body2) {
+      m_bodyA(bodyA),
+      m_bodyB(bodyB) {
 
-  Vector3d d = m_body2->getPosition() - m_body1->getPosition();
+  Vector3d d = m_bodyB->getPosition() - m_bodyA->getPosition();
 
   m_distance = d.norm();
 
@@ -17,7 +17,7 @@ DistanceConstraint::DistanceConstraint(
 
 void DistanceConstraint::computePositionError(VectorXd &phi, const int startRow) const {
   // Relative position
-  Vector3d d = m_body2->getPosition() - m_body1->getPosition();
+  Vector3d d = m_bodyB->getPosition() - m_bodyA->getPosition();
 
   // Constraint equation
   phi[startRow] = (d.transpose() * d) - (m_distance * m_distance);
@@ -26,15 +26,15 @@ void DistanceConstraint::computePositionError(VectorXd &phi, const int startRow)
 void DistanceConstraint::computeJacobian(MatrixXd &jacobian, const int startRow) const {
   // Relative position
 
-  Vector3d d = m_body2->getPosition() - m_body1->getPosition();
+  Vector3d d = m_bodyB->getPosition() - m_bodyA->getPosition();
 
   // Jacobian matrix
-  jacobian.block<1, 3>(startRow, m_body1->getIndex() * 6) = - 2 * d.transpose();
-  jacobian.block<1, 3>(startRow, m_body2->getIndex() * 6) =   2 * d.transpose();
+  jacobian.block<1, 3>(startRow, m_bodyA->getIndex() * 6) = - 2 * d.transpose();
+  jacobian.block<1, 3>(startRow, m_bodyB->getIndex() * 6) =   2 * d.transpose();
 }
 
 void DistanceConstraint::computeAccelerationCorrection(VectorXd &gamma, const int startRow) const {
-  Vector3d v = m_body2->getLinearVelocity() - m_body1->getLinearVelocity();
+  Vector3d v = m_bodyB->getLinearVelocity() - m_bodyA->getLinearVelocity();
 
   gamma[startRow] = - 2.0 * v.transpose() * v;
 }

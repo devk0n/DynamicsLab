@@ -3,6 +3,7 @@
 
 #include "Dynamics.h"
 #include "BodyBuilder.h"
+#include "ConstraintBuilder.h"
 #include "GravityBuilder.h"
 
 namespace Proton {
@@ -16,6 +17,11 @@ public:
     UniqueID id = m_dynamics.addBody();
     Body* body = m_dynamics.getBody(id);
     return {m_dynamics, body};
+  }
+
+  template<typename ConstraintType>
+  ConstraintBuilder<ConstraintType> createConstraint() {
+    return ConstraintBuilder<ConstraintType>(m_dynamics);
   }
 
   [[nodiscard]] GravityBuilder createGravity(double gx, double gy, double gz) const {

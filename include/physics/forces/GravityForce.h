@@ -19,7 +19,7 @@ public:
   [[nodiscard]] const Vector3d& getGravity() const { return m_gravity; }
   void setGravity(const Vector3d& gravity) { m_gravity = gravity; }
 
-  void GravityForce::apply(double dt) override {
+  void apply(double dt) override {
     if (m_targets.empty() || m_gravity.norm() == 0) return;
     for (const auto &body : m_targets | std::views::values) {
       Vector3d force = body->getMass() * m_gravity;

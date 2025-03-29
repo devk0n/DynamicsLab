@@ -9,21 +9,21 @@ namespace Proton {
 class DistanceConstraint final : public Constraint {
 public:
   DistanceConstraint(
-      Body* body1,
-      Body* body2
+      Body* bodyA,
+      Body* bodyB
   );
 
   void computePositionError(VectorXd& phi, int startRow) const override;
   void computeJacobian(MatrixXd& jacobian, int startRow) const override;
   void computeAccelerationCorrection(VectorXd& gamma, int startRow) const override;
 
-  Body* getBody1() const { return m_body1; }
-  Body* getBody2() const { return m_body2; }
-  double getDistance() const { return m_distance; }
+  [[nodiscard]] Body* getBodyA() const { return m_bodyA; }
+  [[nodiscard]] Body* getBodyB() const { return m_bodyB; }
+  [[nodiscard]] double getDistance() const { return m_distance; }
 
 private:
-  Body* m_body1;
-  Body* m_body2;
+  Body* m_bodyA;
+  Body* m_bodyB;
   double m_distance;
 
 };

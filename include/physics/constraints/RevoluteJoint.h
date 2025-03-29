@@ -9,30 +9,32 @@ namespace Proton {
 class RevoluteJoint final : public Constraint {
 public:
   RevoluteJoint(
-      Body* body1, Vector3d local1, Vector3d axis1,
-      Body* body2, Vector3d local2, Vector3d axis2, Vector3d axis3
+      Body* bodyA, Vector3d localPointA, Vector3d axisA,
+      Body* bodyB, Vector3d localPointB, Vector3d axisB, Vector3d axisC
   );
 
   void computePositionError(VectorXd &phi, int startRow) const override;
   void computeJacobian(MatrixXd &jacobian, int startRow) const override;
   void computeAccelerationCorrection(VectorXd &gamma, int startRow) const override;
 
-  [[nodiscard]] Body* getBody1() const { return m_body1; }
-  [[nodiscard]] Body* getBody2() const { return m_body2; }
-  [[nodiscard]] Vector3d getLocal1() const { return m_local1; }
-  [[nodiscard]] Vector3d getLocal2() const { return m_local2; }
-  [[nodiscard]] Vector3d getAxis1() const { return m_axis1; }
-  [[nodiscard]] Vector3d getAxis2() const { return m_axis2; }
-  [[nodiscard]] Vector3d getAxis3() const { return m_axis3; }
+  [[nodiscard]] Body* getBodyA() const { return m_bodyA; }
+  [[nodiscard]] Body* getBodyB() const { return m_bodyB; }
+  [[nodiscard]] Vector3d getLocalPointA() const { return m_localPointA; }
+  [[nodiscard]] Vector3d getLocalPointB() const { return m_localPointB; }
+  [[nodiscard]] Vector3d getAxisA() const { return m_axisA; }
+  [[nodiscard]] Vector3d getAxisB() const { return m_axisB; }
+  [[nodiscard]] Vector3d getAxisC() const { return m_axisC; }
+
+
 
 private:
-  Body* m_body1;
-  Body* m_body2;
-  Vector3d m_local1;
-  Vector3d m_local2;
-  Vector3d m_axis1;
-  Vector3d m_axis2;
-  Vector3d m_axis3;
+  Body* m_bodyA;
+  Body* m_bodyB;
+  Vector3d m_localPointA;
+  Vector3d m_localPointB;
+  Vector3d m_axisA;
+  Vector3d m_axisB;
+  Vector3d m_axisC;
 };
 
 } // Proton
