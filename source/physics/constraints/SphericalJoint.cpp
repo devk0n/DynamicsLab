@@ -2,13 +2,33 @@
 
 namespace Proton {
 SphericalJoint::SphericalJoint(
-    Body *bodyA, Vector3d local1,
-    Body *bodyB, Vector3d local2)
+    Body *bodyA, Vector3d localPointA,
+    Body *bodyB, Vector3d localPointB)
     : Constraint(1),
       m_bodyA(bodyA),
       m_bodyB(bodyB),
-      m_localPointA(std::move(local1)),
-      m_localPointB(std::move(local2)) {
+      m_localPointA(std::move(localPointA)),
+      m_localPointB(std::move(localPointB)) {
+  computeDistance();
+}
+
+SphericalJoint::SphericalJoint(
+    Body *bodyA, Vector3d localPointA,
+    Body *bodyB, Vector3d localPointB,
+    const double distance)
+    : Constraint(1),
+      m_bodyA(bodyA),
+      m_bodyB(bodyB),
+      m_localPointA(std::move(localPointA)),
+      m_localPointB(std::move(localPointB)),
+      m_distance(distance) {}
+
+SphericalJoint::SphericalJoint()
+    : Constraint(1),
+      m_bodyA(nullptr),
+      m_bodyB(nullptr) {}
+
+void SphericalJoint::computeDistance() {
   // Compute each anchor’s world‑space position
   const auto A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
   const auto A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
@@ -18,17 +38,6 @@ SphericalJoint::SphericalJoint(
   // Initialize the resting distance automatically
   m_distance = (world2 - world1).norm();
 }
-
-SphericalJoint::SphericalJoint(
-    Body *bodyA, Vector3d local1,
-    Body *bodyB, Vector3d local2,
-    const double distance)
-    : Constraint(1),
-      m_bodyA(bodyA),
-      m_bodyB(bodyB),
-      m_localPointA(std::move(local1)),
-      m_localPointB(std::move(local2)),
-      m_distance(distance) {}
 
 void SphericalJoint::computePositionError(VectorXd &phi, int startRow) const {
   auto r1 = m_bodyA->getPosition();
@@ -69,7 +78,7 @@ void SphericalJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow
   const auto r2d = m_bodyB->getLinearVelocity();
 
   const auto d = r2 + A2 * m_localPointB - r1 - A1 * m_localPointA;
-  auto v = r2d + A2 * skew(omega1) * m_localPointB - r1d - A1 * skew(omega2) * m_localPointA;
+  auto v = r2d + A2 * skew(omega2) * m_localPointB - r1d - A1 * skew(omega1) * m_localPointA;
 
   auto vtv = (v.transpose() * v);
   auto par = A2 * skew(omega2) * skew(omega2) * m_localPointB - (A1 * skew(omega1) * skew(omega1) * m_localPointA);

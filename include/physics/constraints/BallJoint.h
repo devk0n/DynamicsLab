@@ -11,8 +11,8 @@ namespace Proton {
 class BallJoint final : public Constraint {
 public:
   BallJoint(
-      Body* bodyA, Vector3d localA,
-      Body* bodyB, Vector3d localB
+      Body* bodyA, Vector3d localPointA,
+      Body* bodyB, Vector3d localPointB
   );
 
   BallJoint() : Constraint(3), m_bodyA(nullptr), m_bodyB(nullptr) {}

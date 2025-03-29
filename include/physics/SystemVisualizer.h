@@ -59,8 +59,8 @@ public:
 
       modelMatrix = glm::scale(modelMatrix, body->getSizeVec3());
 
-      m_shaderManager.setUniform("objectColor", glm::vec4(0.98, 0.98, 0.96, 1.0));
-      // Set color (white)
+      m_shaderManager.setUniform("objectColor", glm::vec4(0.6118, 0.2510, 0.4039, 1.0)); // glm::vec4(0.98, 0.98, 0.96, 1.0)
+
       m_shaderManager.setUniform("model", modelMatrix); // Set model matrix
       drawCube();                                       // Render the cube
     }
