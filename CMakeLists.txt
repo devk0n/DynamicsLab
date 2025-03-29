@@ -174,10 +174,10 @@ set(SOURCES
     source/physics/constraints/SphericalJoint.cpp
     source/physics/constraints/RevoluteJoint.cpp
     source/physics/constraints/UniversalJoint.cpp
-include/physics/builders/ConstraintBuilder.h
 )
 
 include_directories(
+    ${CMAKE_CURRENT_SOURCE_DIR}/source
     ${CMAKE_CURRENT_SOURCE_DIR}/include
 
     ${CMAKE_CURRENT_SOURCE_DIR}/include/core

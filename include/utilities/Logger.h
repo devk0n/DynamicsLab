@@ -15,11 +15,15 @@
 
 // ANSI Color Codes for Unix/Linux/macOS & Windows 10+
 #define RESET "\033[0m"
-#define WHITE "\033[97m" // Bright White
-#define COLOR_DEBUG "\x1B[95m" // Magenta
-#define COLOR_INFO "\x1B[96m" // Cyan
-#define COLOR_WARN "\x1B[38;2;255;165;0m" // Orange
-#define COLOR_ERROR "\033[31m" // Red
+#define WHITE "\033[97m"                 // Bright White
+#define GRAY "\033[38;2;150;150;150m"    // Soft Gray for timestamps
+#define COLOR_DEBUG "\033[38;2;180;140;255m"   // Soft Purple
+#define COLOR_INFO "\033[38;2;92;198;255m"     // Bright Blue
+#define COLOR_WARN "\033[38;2;255;191;0m"      // Gold/Amber
+#define COLOR_ERROR "\033[38;2;255;92;92m"     // Bright Red
+#define BOLD "\033[1m"                   // Bold text
+#define DIM "\033[2m"                    // Dim text
+
 
 class Logger {
 public:
@@ -40,7 +44,7 @@ public:
   Logger() = delete;
 
   static bool initialize(const std::string &filename = "") {
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::lock_guard lock(m_mutex);
     if (m_initialized) {
       std::cerr << "Logger already initialized" << std::endl;
       return false;
@@ -74,10 +78,8 @@ public:
 
     if (level < m_logLevel) return;
 
-    const std::string message =
-        formatMessage(level, file, line, std::forward<Args>(args)...);
-    const std::string coloredMessage =
-        applyColor(level, message);
+    const std::string message = formatMessage(level, file, line, std::forward<Args>(args)...);
+    const std::string coloredMessage = applyColor(level, message);
 
     std::lock_guard lock(m_mutex);
     if (m_consoleConfig.enabled) {
@@ -146,9 +148,7 @@ private:
     if (const std::size_t firstBracketPos = msg.find("] [");
         firstBracketPos != std::string::npos) {
       return WHITE + msg.substr(0, firstBracketPos + 2) + // White timestamp
-             color +
-             msg.substr(firstBracketPos +
-                        2) + // Colored message (including file name)
+             color + msg.substr(firstBracketPos + 2) + // Colored message (including file name)
              RESET;
     }
 
@@ -177,7 +177,7 @@ private:
 
     // White timestamp + log level + file:line + message
     if (m_consoleConfig.showTimestamps) {
-      struct tm timeInfo{};
+      tm timeInfo{};
       localtime_s(&timeInfo, &time);
       ss << "[" << std::put_time(&timeInfo, "%Y-%m-%d %H:%M:%S") << "] ";
     }

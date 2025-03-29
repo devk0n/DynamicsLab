@@ -15,6 +15,9 @@ int main() {
   Logger::setConsoleConfig(config);
   Logger::setLogLevel(Logger::Level::Debug);
   LOG_INFO("Logger initialized.");
+  LOG_DEBUG("Logger initialized.");
+  LOG_WARN("Logger initialized.");
+  LOG_ERROR("Logger initialized.");
 
   Application app;
   if (!app.initialize()) {
@@ -26,4 +29,5 @@ int main() {
 
   LOG_DEBUG("Application terminated.");
 
+  return 0;
 }
