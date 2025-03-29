@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <utility>
+
 #include "Proton.h"
 
 namespace Proton {
@@ -11,19 +11,9 @@ class Body {
 public:
   Body(
       UniqueID ID,
-      int index,
-      double mass,
-      const Vector3d& inertia,
-      Vector3d position,
-      const Vector4d& orientation)
+      int index)
       : m_ID(ID),
-        m_index(index),
-        m_mass(mass),
-        m_inverseMass(mass > std::numeric_limits<double>::epsilon() ? 1.0 / mass : 0.0),
-        m_inertia(inertia),
-        m_inverseInertia(calculateInverseInertia(inertia)),
-        m_position(std::move(position)),
-        m_orientation(orientation.normalized()) {
+        m_index(index) {
     updateInertiaWorld();
   }
 
@@ -54,10 +44,7 @@ public:
     m_orientation = orientation.normalized();
     updateInertiaWorld();
   }
-
-  void setAngularVelocity(const Vector3d &angularVelocity) noexcept {
-    m_angularVelocity = angularVelocity;
-  }
+  void setAngularVelocity(const Vector3d &angularVelocity) noexcept { m_angularVelocity = angularVelocity; }
 
   // Force operations
   void addForce(const Vector3d &force) noexcept { m_force.noalias() += force; }
@@ -74,6 +61,15 @@ public:
   [[nodiscard]] bool isFixed() const noexcept { return m_fixed; }
   void setSize(const Vector3d &size) noexcept { m_size = size; }
   [[nodiscard]] const Vector3d &getSize() const noexcept { return m_size; }
+  void setMass(const double mass) noexcept {
+    m_mass = mass;
+    m_inverseMass = (mass > std::numeric_limits<double>::epsilon() ? 1.0 / mass : 0.0);
+  }
+  void setInertia(const Vector3d &inertia) noexcept {
+    m_inertia = inertia;
+    m_inverseInertia = calculateInverseInertia(inertia);
+    updateInertiaWorld();
+  }
 
   // Visualization conversion
   [[nodiscard]] glm::vec3 getPositionVec3() const noexcept {
@@ -122,10 +118,10 @@ private:
 
   // Physical properties
   Vector3d m_size = Vector3d::Ones();
-  double m_mass = 0.0;
-  double m_inverseMass = 0.0;
-  Vector3d m_inertia = Vector3d::Zero();
-  Vector3d m_inverseInertia = Vector3d::Zero();
+  double m_mass = 1.0;
+  double m_inverseMass = 1.0;
+  Vector3d m_inertia = Vector3d::Ones();
+  Vector3d m_inverseInertia = Vector3d::Ones();
   Matrix3d m_inverseInertiaWorld = Matrix3d::Zero();
 
   // State variables

@@ -12,12 +12,7 @@ class Dynamics {
 public:
 
   // Body management
-  UniqueID addBody(
-    const double &mass,
-    const Vector3d &inertia,
-    const Vector3d &position,
-    const Vector4d &orientation
-  );
+  UniqueID addBody();
 
   Body* getBody(UniqueID ID);
   [[nodiscard]] const Body *getBody(UniqueID ID) const;

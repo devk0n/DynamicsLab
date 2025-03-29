@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.30)
 project(DynamicsLab)
 
+# —————————————————————————————————————————————————————————————
+
 # Set CMake policies to NEW to eliminate warnings
 set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON CACHE BOOL "" FORCE)
 option(CMAKE_WARN_DEPRECATED OFF)
@@ -31,10 +33,10 @@ endif()
 
 # Eigen
 FetchContent_Declare(
-    Eigen
-    GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
-    GIT_TAG 3.4.0)
-
+        Eigen
+        GIT_REPOSITORY https://gitlab.com/libeigen/eigen.git
+        GIT_TAG 3.4.0
+)
 # Eigen configuration options to eliminate warnings
 set(EIGEN_TEST_CXX11 OFF CACHE BOOL "Disable C++11 tests in Eigen" FORCE)
 set(EIGEN_BUILD_DOC OFF CACHE BOOL "Don't build Eigen docs" FORCE)
@@ -47,7 +49,11 @@ FetchContent_MakeAvailable(Eigen)
 # —————————————————————————————————————————————————————————————
 
 # GLFW
-FetchContent_Declare(glfw GIT_REPOSITORY https://github.com/glfw/glfw.git GIT_TAG 3.4)
+FetchContent_Declare(
+        glfw
+        GIT_REPOSITORY https://github.com/glfw/glfw.git
+        GIT_TAG 3.4
+)
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
@@ -99,10 +105,10 @@ target_include_directories(implot PUBLIC ${implot_SOURCE_DIR})
 
 # Fetch ImGuizmo
 FetchContent_Declare(
-    imguizmo
-    GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo.git
-    GIT_TAG master
-    GIT_SHALLOW TRUE
+        imguizmo
+        GIT_REPOSITORY https://github.com/CedricGuillemet/ImGuizmo.git
+        GIT_TAG master
+        GIT_SHALLOW TRUE
 )
 FetchContent_MakeAvailable(imguizmo)
 
@@ -124,7 +130,11 @@ target_link_libraries(implot PRIVATE imgui)
 # —————————————————————————————————————————————————————————————
 
 # GLM
-FetchContent_Declare(glm GIT_REPOSITORY https://github.com/g-truc/glm.git GIT_TAG 1.0.1)
+FetchContent_Declare(
+        glm
+        GIT_REPOSITORY https://github.com/g-truc/glm.git
+        GIT_TAG 1.0.1
+)
 FetchContent_MakeAvailable(glm)
 
 # —————————————————————————————————————————————————————————————
@@ -168,13 +178,16 @@ set(SOURCES
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+
     ${CMAKE_CURRENT_SOURCE_DIR}/include/core
     ${CMAKE_CURRENT_SOURCE_DIR}/include/scenes
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/physics
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/physics/constraints
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/physics/objects
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/physics/forces
     ${CMAKE_CURRENT_SOURCE_DIR}/include/utilities
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/physics
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/physics/forces
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/physics/objects
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/physics/builders
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/physics/constraints
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

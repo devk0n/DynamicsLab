@@ -1,7 +1,6 @@
 #include "Primary.h"
 
 #include "RevoluteJoint.h"
-
 #include "BallJoint.h"
 #include "GravityForce.h"
 #include "InputManager.h"
@@ -13,42 +12,20 @@
 #include "Logger.h"
 #include "FrameTimer.h"
 #include "Torque.h"
+#include "DynamicsBuilder.h"
 
 using namespace Proton;
 
 void Primary::setupDynamics() {
+  DynamicsBuilder builder(m_system);
 
-  UniqueID body0 = m_system.addBody(
-    6,
-    {1, 1, 1},
-    {0, 0, 1},
-    {1, 0, 0, 0}
-  );
+  Body* chassis = builder.createCube().build();
 
-  UniqueID body1 = m_system.addBody(
-    6,
-    {1, 0.5, 0.5},
-    {0, 0, 1},
-    {1, 0, 0, 0}
-  );
+  builder.createGravity()
+    .setGravity(0, 0, -9.81)
+    .addBody(chassis)
+    .build();
 
-  Body* b0 = m_system.getBody(body0);
-  Body* b1 = m_system.getBody(body1);
-
-  b1->setSize({1, 0.2, 0.2});
-  b1->setAngularVelocity({25,0,0});
-
-  auto gravity = std::make_shared<GravityForce>(Vector3d(0, 0, -9.81));
-  gravity->addBody(b1);
-  m_system.addForceGenerator(gravity);
-
-  m_system.addConstraint(std::make_shared<BallJoint>(
-    b0, Vector3d( 0.5, 0, 0),
-    b1, Vector3d(-0.5, 0, 0)
-  ));
-
-  b0->setFixed(true);
-  b0->setSize({0.1, 0.1, 0.1});
 }
 
 bool Primary::load() {

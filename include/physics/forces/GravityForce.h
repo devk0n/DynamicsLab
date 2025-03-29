@@ -6,7 +6,6 @@
 
 #include "Body.h"
 #include "Proton.h"
-
 #include "ForceGenerator.h"
 
 namespace Proton {
@@ -17,14 +16,19 @@ public:
 
   void addBody(Body* body) { m_targets.emplace(body->getID(), body); }
 
-  void apply(double dt) override {
-    for (const auto &body: m_targets | std::views::values) {
-      body->addForce(body->getMass() * m_gravity);
+  [[nodiscard]] const Vector3d& getGravity() const { return m_gravity; }
+  void setGravity(const Vector3d& gravity) { m_gravity = gravity; }
+
+  void GravityForce::apply(double dt) override {
+    if (m_targets.empty() || m_gravity.norm() == 0) return;
+    for (const auto &body : m_targets | std::views::values) {
+      Vector3d force = body->getMass() * m_gravity;
+      body->addForce(force);
     }
   }
 
 private:
-  Vector3d m_gravity{0.0, 0.0, -9.81};
+  Vector3d m_gravity{0.0, 0.0, 0.0};
   std::unordered_map<UniqueID, Body*> m_targets{};
 };
 

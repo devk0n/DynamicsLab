@@ -223,31 +223,21 @@ VectorXd Dynamics::getVelocityState() const {
   return velocityState;
 }
 
-UniqueID Dynamics::addBody(
-    const double &mass,
-    const Vector3d &inertia,
-    const Vector3d &position,
-    const Vector4d &orientation) {
+UniqueID Dynamics::addBody() {
   UniqueID ID = m_nextID++;
-  m_bodies.emplace_back(std::make_unique<Body>(
-    ID,
-    m_numBodies,
-    mass,
-    inertia,
-    position,
-    orientation
-  ));
+  m_bodies.emplace_back(std::make_unique<Body>(ID, m_numBodies));
   m_bodyIndex.try_emplace(ID, m_bodies.size() - 1);
   m_numBodies++;
+  LOG_DEBUG("Added Body with ID: ", ID);
   return ID;
 }
 
-Body *Dynamics::getBody(const UniqueID ID) {
+Body* Dynamics::getBody(const UniqueID ID) {
   auto it = m_bodyIndex.find(ID);
-  if (it != m_bodyIndex.end()) {
-    if (it->second < m_bodies.size()) {
-      return m_bodies[it->second].get();
-    }
+  if (it != m_bodyIndex.end() && it->second < m_bodies.size()) {
+    Body* b = m_bodies[it->second].get();
+    LOG_DEBUG("Retrieved Body with ID: ", ID, " at pointer ", static_cast<void *>(b));
+    return b;
   }
   LOG_WARN("Body ID ", ID, " not found.");
   return nullptr;
