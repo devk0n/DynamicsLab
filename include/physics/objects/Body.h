@@ -1,10 +1,9 @@
 #ifndef BODY_H
 #define BODY_H
 
-#include <Logger.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-
+#include <utility>
 #include "Proton.h"
 
 namespace Proton {
@@ -15,39 +14,38 @@ public:
       int index,
       double mass,
       const Vector3d& inertia,
-      const Vector3d& position,
+      Vector3d position,
       const Vector4d& orientation)
-        : m_ID(ID),
-          m_index(index),
-          m_mass(mass),
-          m_inverseMass(mass > std::numeric_limits<double>::epsilon() ? 1.0 / mass : 0.0),
-          m_inertia(inertia),
-          m_inverseInertia(calculateInverseInertia(inertia)),
-          m_position(position),
-          m_orientation(orientation.normalized()) {
+      : m_ID(ID),
+        m_index(index),
+        m_mass(mass),
+        m_inverseMass(mass > std::numeric_limits<double>::epsilon() ? 1.0 / mass : 0.0),
+        m_inertia(inertia),
+        m_inverseInertia(calculateInverseInertia(inertia)),
+        m_position(std::move(position)),
+        m_orientation(orientation.normalized()) {
     updateInertiaWorld();
   }
 
   // Update inertia tensor in world space
   void updateInertiaWorld() {
-    m_inverseInertiaWorld = Proton::updateInertiaWorld(
-      m_orientation, m_inverseInertia);
+    m_inverseInertiaWorld = Proton::updateInertiaWorld(m_orientation, m_inverseInertia);
   }
 
   // Getters
-  UniqueID getID() const noexcept { return m_ID; }
-  int getIndex() const noexcept { return m_index; }
+  [[nodiscard]] UniqueID getID() const noexcept { return m_ID; }
+  [[nodiscard]] int getIndex() const noexcept { return m_index; }
 
-  const Vector3d &getPosition() const noexcept { return m_position; }
-  const Vector3d &getLinearVelocity() const noexcept { return m_velocity; }
-  const Vector4d &getOrientation() const noexcept { return m_orientation; }
-  const Vector3d &getAngularVelocity() const noexcept { return m_angularVelocity; }
+  [[nodiscard]] const Vector3d &getPosition() const noexcept { return m_position; }
+  [[nodiscard]] const Vector3d &getLinearVelocity() const noexcept { return m_velocity; }
+  [[nodiscard]] const Vector4d &getOrientation() const noexcept { return m_orientation; }
+  [[nodiscard]] const Vector3d &getAngularVelocity() const noexcept { return m_angularVelocity; }
 
-  double getMass() const noexcept { return m_mass; }
-  double getInverseMass() const noexcept { return m_inverseMass; }
-  const Vector3d &getInertia() const noexcept { return m_inertia; }
-  const Vector3d &getInverseInertia() const noexcept { return m_inverseInertia; }
-  const Matrix3d &getInertiaWorld() const noexcept { return m_inverseInertiaWorld; }
+  [[nodiscard]] double getMass() const noexcept { return m_mass; }
+  [[nodiscard]] double getInverseMass() const noexcept { return m_inverseMass; }
+  [[nodiscard]] const Vector3d &getInertia() const noexcept { return m_inertia; }
+  [[nodiscard]] const Vector3d &getInverseInertia() const noexcept { return m_inverseInertia; }
+  [[nodiscard]] const Matrix3d &getInertiaWorld() const noexcept { return m_inverseInertiaWorld; }
 
   // Setters
   void setPosition(const Vector3d &position) noexcept { m_position = position; }
@@ -64,43 +62,43 @@ public:
   // Force operations
   void addForce(const Vector3d &force) noexcept { m_force.noalias() += force; }
   void clearForces() noexcept { m_force.setZero(); }
-  const Vector3d &getForce() const noexcept { return m_force; }
+  [[nodiscard]] const Vector3d &getForce() const noexcept { return m_force; }
 
   // Torque operations
   void addTorque(const Vector3d &torque) noexcept { m_torque.noalias() += torque; }
   void clearTorque() noexcept { m_torque.setZero(); }
-  const Vector3d &getTorque() const noexcept { return m_torque; }
+  [[nodiscard]] const Vector3d &getTorque() const noexcept { return m_torque; }
 
   // Configuration
   void setFixed(bool fixed) noexcept { m_fixed = fixed; }
-  bool isFixed() const noexcept { return m_fixed; }
+  [[nodiscard]] bool isFixed() const noexcept { return m_fixed; }
   void setSize(const Vector3d &size) noexcept { m_size = size; }
-  const Vector3d &getSize() const noexcept { return m_size; }
+  [[nodiscard]] const Vector3d &getSize() const noexcept { return m_size; }
 
   // Visualization conversion
   [[nodiscard]] glm::vec3 getPositionVec3() const noexcept {
-    return glm::vec3(
+    return {
       static_cast<float>(m_position.x()),
       static_cast<float>(m_position.y()),
       static_cast<float>(m_position.z())
-    );
+    };
   }
 
   [[nodiscard]] glm::vec3 getSizeVec3() const noexcept {
-    return glm::vec3(
+    return {
       static_cast<float>(m_size.x()),
       static_cast<float>(m_size.y()),
       static_cast<float>(m_size.z())
-    );
+    };
   }
 
   [[nodiscard]] glm::quat getOrientationQuat() const noexcept {
-    return glm::quat(
+    return {
       static_cast<float>(m_orientation.x()),
       static_cast<float>(m_orientation.y()),
       static_cast<float>(m_orientation.z()),
       static_cast<float>(m_orientation.w())
-    );
+    };
   }
 
   auto calculateKineticEnergy() {
@@ -112,11 +110,11 @@ public:
 
 private:
   static Vector3d calculateInverseInertia(const Vector3d &inertia) noexcept {
-    return Vector3d(
+    return {
       inertia.x() > 0.0 ? 1.0 / inertia.x() : 0.0,
       inertia.y() > 0.0 ? 1.0 / inertia.y() : 0.0,
       inertia.z() > 0.0 ? 1.0 / inertia.z() : 0.0
-    );
+    };
   }
 
   UniqueID m_ID;
@@ -143,5 +141,4 @@ private:
   bool m_fixed = false;
 };
 } // Proton
-
 #endif // BODY_H

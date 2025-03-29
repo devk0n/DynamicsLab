@@ -49,11 +49,27 @@ inline Vector4d integrateQuaternion(const Vector4d& q, const Vector3d& omega, do
   return q_new;
 }
 
+inline Vector4d integrateQuaternionExp(const Vector4d& q, const Vector3d& omega, double dt) {
+  double angle = omega.norm() * dt;
+  if (angle < 1e-8) return q;
+  Vector3d axis = omega.normalized();
+  double half = 0.5 * angle;
+  double sin_half = std::sin(half);
+  Vector4d delta_q;
+  delta_q << std::cos(half), sin_half * axis;
+  Vector4d result;
+  result << q[0] * delta_q[0] - q.segment<3>(1).dot(delta_q.segment<3>(1)),
+            q[0] * delta_q.segment<3>(1) + delta_q[0] * q.segment<3>(1) + q.segment<3>(1).cross(delta_q.segment<3>(1));
+  result.normalize();
+  return result;
+}
+
+
 inline Matrix3d skew(const Vector3d& v) {
   Matrix3d S;
-  S <<     0,   -v.z(),  v.y(),
-         v.z(),     0,  -v.x(),
-        -v.y(),  v.x(),     0;
+  S <<      0, -v.z(),  v.y(),
+        v.z(),      0, -v.x(),
+       -v.y(),  v.x(),      0;
   return S;
 }
 
@@ -129,12 +145,12 @@ inline Vector4d eulerToQuaternionDegrees(const Vector3d& eulerAnglesDegrees) {
   double pitch = eulerAnglesDegrees.y() * degToRad;
   double yaw   = eulerAnglesDegrees.z() * degToRad;
 
-  double cy = std::cos(yaw * 0.5);
-  double sy = std::sin(yaw * 0.5);
+  double cy = std::cos(yaw   * 0.5);
+  double sy = std::sin(yaw   * 0.5);
   double cp = std::cos(pitch * 0.5);
   double sp = std::sin(pitch * 0.5);
-  double cr = std::cos(roll * 0.5);
-  double sr = std::sin(roll * 0.5);
+  double cr = std::cos(roll  * 0.5);
+  double sr = std::sin(roll  * 0.5);
 
   Vector4d q;
   q[0] = cr * cp * cy + sr * sp * sy;

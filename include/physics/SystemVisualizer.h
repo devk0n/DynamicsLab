@@ -222,9 +222,7 @@ private:
 
     // Initially allocate buffer (size will be updated dynamically)
     glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
-                          static_cast<void *>(nullptr));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void *>(nullptr));
     glEnableVertexAttribArray(0);
 
     glBindVertexArray(0);
@@ -236,39 +234,39 @@ private:
       // Positions          // Normals
       // Back face
       -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, // Bottom-left
-      0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,  // Bottom-right
-      0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,   // Top-right
-      -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f,  // Top-left
+       0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,  // Bottom-right
+       0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f,   // Top-right
+      -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, -1.0f,  // Top-left
 
       // Front face
       -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, // Bottom-left
-      0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,  // Bottom-right
-      0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,   // Top-right
-      -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f,  // Top-left
+       0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f,  // Bottom-right
+       0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f,   // Top-right
+      -0.5f,  0.5f, 0.5f, 0.0f, 0.0f, 1.0f,  // Top-left
 
       // Left face
-      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f,   // Top-right
-      -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f,  // Top-left
+      -0.5f,  0.5f,  0.5f, -1.0f, 0.0f, 0.0f,   // Top-right
+      -0.5f,  0.5f, -0.5f, -1.0f, 0.0f, 0.0f,  // Top-left
       -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, // Bottom-left
-      -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f,  // Bottom-right
+      -0.5f, -0.5f,  0.5f, -1.0f, 0.0f, 0.0f,  // Bottom-right
 
       // Right face
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f,   // Top-left
-      0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  // Top-right
+      0.5f,  0.5f,  0.5f, 1.0f, 0.0f, 0.0f,   // Top-left
+      0.5f,  0.5f, -0.5f, 1.0f, 0.0f, 0.0f,  // Top-right
       0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, // Bottom-right
-      0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f,  // Bottom-left
+      0.5f, -0.5f,  0.5f, 1.0f, 0.0f, 0.0f,  // Bottom-left
 
       // Bottom face
       -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, // Bottom-right
-      0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,  // Bottom-left
-      0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,   // Top-left
-      -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f,  // Top-right
+       0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f,  // Bottom-left
+       0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f,   // Top-left
+      -0.5f, -0.5f,  0.5f, 0.0f, -1.0f, 0.0f,  // Top-right
 
       // Top face
       -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // Top-left
-      0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // Top-right
-      0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f,   // Bottom-right
-      -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f   // Bottom-left
+       0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // Top-right
+       0.5f, 0.5f,  0.5f, 0.0f, 1.0f, 0.0f,   // Bottom-right
+      -0.5f, 0.5f,  0.5f, 0.0f, 1.0f, 0.0f   // Bottom-left
     };
 
     // Define the indices for the cube

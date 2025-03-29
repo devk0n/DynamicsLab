@@ -79,6 +79,24 @@ target_link_libraries(imgui glfw OpenGL::GL glad)
 
 # —————————————————————————————————————————————————————————————
 
+# Fetch ImPlot
+FetchContent_Declare(
+    implot
+    GIT_REPOSITORY https://github.com/epezent/implot.git
+    GIT_TAG v0.16
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(implot)
+
+add_library(implot STATIC
+    ${implot_SOURCE_DIR}/implot.cpp
+    ${implot_SOURCE_DIR}/implot_items.cpp
+    ${implot_SOURCE_DIR}/implot_demo.cpp
+)
+target_include_directories(implot PUBLIC ${implot_SOURCE_DIR})
+
+# —————————————————————————————————————————————————————————————
+
 # Fetch ImGuizmo
 FetchContent_Declare(
     imguizmo
@@ -96,10 +114,12 @@ target_include_directories(imguizmo PUBLIC ${imguizmo_SOURCE_DIR})
 # Add these two lines to connect ImGuizmo with ImGui
 target_include_directories(imguizmo PUBLIC
     ${imguizmo_SOURCE_DIR}
-    ${imgui_SOURCE_DIR}  # Add ImGui headers
+    ${implot_SOURCE_DIR}
+    ${imgui_SOURCE_DIR}
 )
 
-target_link_libraries(imguizmo PRIVATE imgui)  # Link to ImGui library
+target_link_libraries(imguizmo PRIVATE imgui)
+target_link_libraries(implot PRIVATE imgui)
 
 # —————————————————————————————————————————————————————————————
 
@@ -144,8 +164,6 @@ set(SOURCES
     source/physics/constraints/SphericalJoint.cpp
     source/physics/constraints/RevoluteJoint.cpp
     source/physics/constraints/UniversalJoint.cpp
-include/physics/SystemBuilder.h
-
 )
 
 include_directories(
@@ -170,6 +188,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Eigen3::Eigen
     imgui
     imguizmo
+    implot
 )
 
 target_include_directories(${PROJECT_NAME} PRIVATE

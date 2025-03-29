@@ -17,6 +17,8 @@
 
 #include <ImGuizmo.h>
 
+#include <implot.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 

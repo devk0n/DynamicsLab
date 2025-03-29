@@ -24,12 +24,10 @@ bool WindowManager::initialize() {
   calculateWindowSize(videoMode);
   setOpenGLHints();
 
-  if (!createWindow())
-    return false;
+  if (!createWindow()) return false;
   centerWindow(m_window.get(), videoMode);
 
-  if (!initializeGLAD())
-    return false;
+  if (!initializeGLAD()) return false;
   logDebugInfo(videoMode);
 
   return true;
@@ -85,6 +83,7 @@ bool WindowManager::createWindow() {
 
   m_window.reset(window);
   glfwMakeContextCurrent(m_window.get());
+
   return true;
 }
 

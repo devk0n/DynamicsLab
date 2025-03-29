@@ -108,7 +108,7 @@ void Dynamics::step(double dt) const {
       Vector4d q = q_n.segment<4>(i * 7 + 3);
       Vector3d omega = 0.5 * (dq_n.segment<3>(i * 6 + 3) + dq_new.segment<3>(i * 6 + 3));
 
-      Vector4d q_updated = integrateQuaternion(q, omega, dt);
+      Vector4d q_updated = integrateQuaternionExp(q, omega, dt);
       q_new.segment<4>(i * 7 + 3) = q_updated;
 
     }
@@ -124,8 +124,8 @@ void Dynamics::step(double dt) const {
 }
 
 void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_dq, double dt) const {
-  constexpr int maxProjectionIters = 10;
-  constexpr double projectionTol = 1e-8;
+  constexpr int maxProjectionIters = 3;
+  constexpr double projectionTol = 1e-5;
 
   for (int iter = 0; iter < maxProjectionIters; ++iter) {
     // Update body states for constraint evaluation
@@ -143,7 +143,7 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
     // Compute constraints
     VectorXd phi = VectorXd::Zero(m_numConstraints);
     VectorXd Jdq = VectorXd::Zero(m_numConstraints);
-    MatrixXd J = MatrixXd::Zero(m_numConstraints, dof_dq);
+    MatrixXd J   = MatrixXd::Zero(m_numConstraints, dof_dq);
 
     int row = 0;
     for (const auto& c : m_constraints) {
@@ -176,7 +176,7 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
         q_next.segment<3>(i * 7) -= delta_q.segment<3>(i * 6);
         Vector3d delta_theta = delta_q.segment<3>(i * 6 + 3);
         Vector4d q = q_next.segment<4>(i * 7 + 3);
-        q_next.segment<4>(i * 7 + 3) = integrateQuaternion(q, delta_theta, dt);
+        q_next.segment<4>(i * 7 + 3) = integrateQuaternionExp(q, delta_theta, dt);
 
         // Velocity correction
         dq_next.segment<3>(i * 6) -= delta_dq.segment<3>(i * 6);
@@ -224,11 +224,10 @@ VectorXd Dynamics::getVelocityState() const {
 }
 
 UniqueID Dynamics::addBody(
-  const double &mass,
-  const Vector3d &inertia,
-  const Vector3d &position,
-  const Vector4d &orientation
-) {
+    const double &mass,
+    const Vector3d &inertia,
+    const Vector3d &position,
+    const Vector4d &orientation) {
   UniqueID ID = m_nextID++;
   m_bodies.emplace_back(std::make_unique<Body>(
     ID,
@@ -246,23 +245,23 @@ UniqueID Dynamics::addBody(
 Body *Dynamics::getBody(const UniqueID ID) {
   auto it = m_bodyIndex.find(ID);
   if (it != m_bodyIndex.end()) {
-    // Check if the index is valid
     if (it->second < m_bodies.size()) {
       return m_bodies[it->second].get();
     }
   }
-  return nullptr; // Return nullptr if the body is not found
+  LOG_WARN("Body ID ", ID, " not found.");
+  return nullptr;
 }
 
 const Body *Dynamics::getBody(const UniqueID ID) const {
   auto it = m_bodyIndex.find(ID);
   if (it != m_bodyIndex.end()) {
-    // Check if the index is valid
     if (it->second < m_bodies.size()) {
       return m_bodies[it->second].get();
     }
   }
-  return nullptr; // Return nullptr if the body is not found
+  LOG_WARN("Body ID ", ID, " not found.");
+  return nullptr;
 }
 
 } // Proton

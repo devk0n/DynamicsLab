@@ -17,7 +17,7 @@ public:
   void apply(double dt) override {
     for (const auto &body: m_targets | std::views::values) {
       if (body->getMass() <= 0.0) continue;
-      body->addTorque(Vector3d(1, 0, 0));
+      body->addTorque(Vector3d(0, 0, 30));
     }
   }
 

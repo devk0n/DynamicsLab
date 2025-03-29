@@ -2,6 +2,7 @@
 #define GRAVITY_FORCE_GENERATOR_H
 
 #include <ranges>
+#include <utility>
 
 #include "Body.h"
 #include "Proton.h"
@@ -12,7 +13,7 @@ namespace Proton {
 
 class GravityForce final : public ForceGenerator {
 public:
-  explicit GravityForce(const Vector3d &gravity) : m_gravity(gravity) {}
+  explicit GravityForce(Vector3d gravity) : m_gravity(std::move(gravity)) {}
 
   void addBody(Body* body) { m_targets.emplace(body->getID(), body); }
 
@@ -24,7 +25,7 @@ public:
 
 private:
   Vector3d m_gravity{0.0, 0.0, -9.81};
-  std::unordered_map<UniqueID, Body*> m_targets;
+  std::unordered_map<UniqueID, Body*> m_targets{};
 };
 
 } // Proton

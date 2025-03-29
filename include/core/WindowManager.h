@@ -12,6 +12,7 @@ struct WindowData {
   int          height{0};
   std::string  title;
   GLFWmonitor* primaryMonitor{nullptr};
+
 };
 
 class WindowManager {
@@ -40,6 +41,8 @@ private:
   void logDebugInfo(const GLFWvidmode* videoMode) const;
 
   bool createWindow();
+
+  void setResizeCallback(std::function<void(int, int)> callback);
 
   static bool initializeGLAD();
   static void setOpenGLHints();

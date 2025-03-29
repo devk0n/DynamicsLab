@@ -15,7 +15,6 @@ public:
       : Scene(ctx),
         m_systemVisualizer(ctx.renderer->getShaderManager()) {}
 
-
   bool load() override;
   void update(double dt) override;
   void render() override;
@@ -36,7 +35,6 @@ private:
   void handleCameraMovement(double dt);
 
   void setupDynamics();
-
 };
 
 #endif // PRIMARY_H

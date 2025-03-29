@@ -6,6 +6,7 @@ bool ImGuiManager::initialize(GLFWwindow *window) {
   // Create ImGui context
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
+  ImPlot::CreateContext();
 
   // Set up ImGui style (optional)
   ImGui::StyleColorsDark();
@@ -43,9 +44,8 @@ void ImGuiManager::endFrame() const {
 }
 
 void ImGuiManager::shutdown() {
-  if (!m_initialized)
-    return;
-
+  if (!m_initialized) return;
+  ImPlot::DestroyContext();
   ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplGlfw_Shutdown();
   ImGui::DestroyContext();

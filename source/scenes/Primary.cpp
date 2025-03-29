@@ -1,7 +1,6 @@
 #include "Primary.h"
 
-#include <RevoluteJoint.h>
-#include <set>
+#include "RevoluteJoint.h"
 
 #include "BallJoint.h"
 #include "GravityForce.h"
@@ -14,8 +13,6 @@
 #include "Logger.h"
 #include "FrameTimer.h"
 #include "Torque.h"
-#include "UniversalJoint.h"
-#include "SpringForce.h"
 
 using namespace Proton;
 
@@ -24,49 +21,34 @@ void Primary::setupDynamics() {
   UniqueID body0 = m_system.addBody(
     6,
     {1, 1, 1},
-    {-1, 0, 0},
-    Vector4d(1, 0, 0, 0)
+    {0, 0, 1},
+    {1, 0, 0, 0}
   );
 
   UniqueID body1 = m_system.addBody(
     6,
-    {1, 1, 1},
-    {1, 0, 0},
-    Vector4d(1, 0, 0, 0)
-  );
-
-  UniqueID body2 = m_system.addBody(
-    60,
-    {10, 10, 10},
-    {2, 3 * cosd(70), 3 * sind(70)},
-    eulerToQuaternionDegrees({0, -70, 90})
+    {1, 0.5, 0.5},
+    {0, 0, 1},
+    {1, 0, 0, 0}
   );
 
   Body* b0 = m_system.getBody(body0);
   Body* b1 = m_system.getBody(body1);
-  Body* b2 = m_system.getBody(body2);
 
-  b1->setSize({2, 0.4, 0.4});
-  b2->setSize({6, 0.3, 0.3});
+  b1->setSize({1, 0.2, 0.2});
+  b1->setAngularVelocity({25,0,0});
 
   auto gravity = std::make_shared<GravityForce>(Vector3d(0, 0, -9.81));
   gravity->addBody(b1);
-  gravity->addBody(b2);
   m_system.addForceGenerator(gravity);
 
-  m_system.addConstraint(std::make_shared<RevoluteJoint>(
-    b0, Vector3d(1, 0, 0), Vector3d(0, 1, 0),
-    b1, Vector3d(-1, 0, 0), Vector3d(1, 0, 0), Vector3d(0, 0, 1)
-  ));
-
-  m_system.addConstraint(std::make_shared<UniversalJoint>(
-    b1, Vector3d(1, 0, 0), Vector3d(0, 1, 0),
-    b2, Vector3d(-3, 0, 0), Vector3d(0, 1, 0)
+  m_system.addConstraint(std::make_shared<BallJoint>(
+    b0, Vector3d( 0.5, 0, 0),
+    b1, Vector3d(-0.5, 0, 0)
   ));
 
   b0->setFixed(true);
   b0->setSize({0.1, 0.1, 0.1});
-
 }
 
 bool Primary::load() {
@@ -74,9 +56,9 @@ bool Primary::load() {
   setupDynamics();
 
   LOG_INFO("Initializing Primary Scene");
-  m_camera.setPosition(glm::vec3(10.0f, 8.0f, 4.0f));
-  m_camera.lookAt(glm::vec3(0.0f, 0.0f, 0.0f));
-  m_camera.setMovementSpeed(20.0f);
+  m_camera.setPosition(glm::vec3(5.0f, 3.2f, 3.2f));
+  m_camera.lookAt(glm::vec3(0.0f, 0.0f, 2.0f));
+  m_camera.setMovementSpeed(5.0f);
 
   if (!m_ctx.renderer->getShaderManager()
       .loadShader("cubeShader",
@@ -103,11 +85,13 @@ void Primary::update(double dt) {
   if (m_ctx.input->isKeyPressed(GLFW_KEY_SPACE)) { toggle(m_run); }
 
   if (m_ctx.input->isKeyPressed(GLFW_KEY_L)) {
-    Body* b2 = m_system.getBody(1);
-    b2->calculateKineticEnergy();
+    Body* b1 = m_system.getBody(0);
+    m_camera.lookAt(b1->getPositionVec3());
   }
 
-  if (m_run) { m_system.step(dt); }
+  if (m_run) {
+    m_system.step(dt);
+  }
 }
 
 void Primary::render() {
@@ -147,6 +131,7 @@ void Primary::showUI() {
   ImGui::Text("FPS: %.0f (%.2f ms)", m_displayedFps, ImGui::GetIO().DeltaTime * 1000);
   ImGui::Text("Elapsed Time: %02d:%02d:%02d.%03d", hours, minutes, seconds, milliseconds);
   ImGui::Text("Delta Time: %.0f µs", m_ctx.frameTimer->getDeltaTime() * 1000000);
+  ImGui::Text("Status: %s", m_run ? "Running" : "Stopped");
   ImGui::End();
 }
 
