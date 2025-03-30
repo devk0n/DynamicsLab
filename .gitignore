@@ -1,6 +1,8 @@
 # Ignore build directories
 /build-debug
 /build-release
+/build-debug/_deps/
+/build-release/_deps/
 
 # Ignore IDE configuration
 /.idea

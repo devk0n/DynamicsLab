@@ -5,7 +5,6 @@
 #include "Renderer.h"
 #include "Camera.h"
 #include "Scene.h"
-#include "Proton.h"
 #include "SystemVisualizer.h"
 #include "Dynamics.h"
 
