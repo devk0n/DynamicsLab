@@ -35,7 +35,6 @@ public:
     return m_forceElements;
   }
 
-
   // Constraint handling
   void addConstraint(const std::shared_ptr<Constraint>& constraint) {
     m_constraints.emplace_back(constraint);
@@ -60,7 +59,7 @@ private:
     const MatrixXd& M, const MatrixXd& K,
     const MatrixXd& P, const VectorXd& F_ext,
     const VectorXd& gamma, double dt
-  ) ;
+  );
   void integrateStateMidpoint(
     const VectorXd& q_n, const VectorXd& dq_n,
     const VectorXd& dq_new, double dt,
