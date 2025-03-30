@@ -14,24 +14,24 @@ void Primary::setupDynamics() {
   Body* chassis = builder.createCube()
     .mass(100)
     .inertia(1, 1, 1)
-    .position(0, 1, 8)
-    .build();
-
-  Body* anchor = builder.createCube()
+    .position(0, 2, 8)
     .fixed(true)
     .build();
 
-  builder.createGravity(0, 0, -9.81)
-    .addBody(chassis)
+  Body* wheel = builder.createCube()
+    .mass(10)
+    .inertia(1, 1, 1)
+    .position(0, 1, 6)
     .build();
 
-  builder.createSpring()
+  builder.createGravity(0, 0, -9.81)
+    .addBody(wheel)
+    .build();
+
+  builder.createSphericalJoint()
     .withBodyA(chassis)
-    .withBodyB(anchor)
-    .withLocalPointA(0, 0, -0.5)
-    .withStiffness(50)
-    .withDamping(0)
-    .withRestLength(7)
+    .withBodyB(wheel)
+    .withAutoDistance(true)
     .build();
 
 }

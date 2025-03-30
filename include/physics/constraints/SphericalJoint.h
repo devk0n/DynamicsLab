@@ -40,8 +40,8 @@ public:
 private:
   Body* m_bodyA;
   Body* m_bodyB;
-  Vector3d m_localPointA;
-  Vector3d m_localPointB;
+  Vector3d m_localPointA{0, 0, 0};
+  Vector3d m_localPointB{0, 0, 0};
   double m_distance{};
 };
 } // Proton

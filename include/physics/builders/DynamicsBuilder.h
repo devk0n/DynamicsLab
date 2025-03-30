@@ -3,7 +3,8 @@
 
 #include "Dynamics.h"
 #include "BodyBuilder.h"
-#include "ConstraintBuilder.h"
+#include "SphericalJointBuilder.h"
+#include "BallJointBuilder.h"
 #include "GravityBuilder.h"
 #include "SpringBuilder.h"
 
@@ -20,26 +21,26 @@ public:
     return {m_dynamics, body};
   }
 
-  template<typename ConstraintType>
-  [[nodiscard]] ConstraintBuilder<ConstraintType> createConstraint() {
-    return ConstraintBuilder<ConstraintType>(m_dynamics);
+  [[nodiscard]] SphericalJointBuilder createSphericalJoint() const {
+    return SphericalJointBuilder(m_dynamics);
+  }
+
+  [[nodiscard]] BallJointBuilder createBallJoint() const {
+    return BallJointBuilder(m_dynamics);
   }
 
   [[nodiscard]] SpringBuilder createSpring() const {
     return SpringBuilder(m_dynamics);
   }
 
-  [[nodiscard]] GravityBuilder createGravity(double gx, double gy, double gz) const {
+  [[nodiscard]] GravityBuilder createGravity(double gx = 0, double gy = 0, double gz = 0) const {
     return {m_dynamics, gx, gy, gz};
-  }
-
-  [[nodiscard]] GravityBuilder createGravity() const {
-    return {m_dynamics, 0, 0, 0};
   }
 
 private:
   Dynamics& m_dynamics;
-
 };
-} // Proton
+
+} // namespace Proton
+
 #endif // DYNAMICS_BUILDER_H
