@@ -1,7 +1,7 @@
 #ifndef SYSTEM_VISUALIZER_H
 #define SYSTEM_VISUALIZER_H
 
-#include <glm/glm.hpp>
+#include <RevoluteJoint.h>#include <glm/glm.hpp>
 #include "Spring.h"
 #include "DistanceConstraint.h"
 #include "BallJoint.h"
@@ -191,7 +191,7 @@ private:
           spring->getBodyB(), spring->getLocalPointB());
 
         glm::vec4 color = calculateSpringColor(static_cast<float>(spring->getRestLength()),
-                                               glm::length(worldB - worldA));
+                                               length(worldB - worldA));
 
         // Add both points to the buffer
         springVertices.push_back({worldA, color});
@@ -234,15 +234,14 @@ private:
         constraintVertices.push_back({
           dc->getBodyB()->getPositionVec3(), {1.0f, 1.0f, 0.0f, 1.0f}
         });
-      } else if (auto *sj = dynamic_cast<Proton::BallJoint *>(constraint.
-        get())) {
+      } else if (auto *bj = dynamic_cast<Proton::BallJoint *>(constraint.get())) {
+        processJoint(bj, constraintVertices);
+      } else if (auto *sj = dynamic_cast<Proton::SphericalJoint *>(constraint.get())) {
         processJoint(sj, constraintVertices);
-      } else if (auto *sj = dynamic_cast<Proton::SphericalJoint *>(constraint.
-        get())) {
-        processJoint(sj, constraintVertices);
-      } else if (auto *uj = dynamic_cast<Proton::UniversalJoint *>(constraint.
-        get())) {
+      } else if (auto *uj = dynamic_cast<Proton::UniversalJoint *>(constraint.get())) {
         processUniversalJoint(uj, constraintVertices);
+      } else if (auto *rj = dynamic_cast<Proton::RevoluteJoint *>(constraint.get())) {
+        processRevoluteJoint(rj, constraintVertices);
       }
     }
 
@@ -338,6 +337,69 @@ private:
     vertices.push_back({pos2, {1.0f, 0.5f, 0.0f, 1.0f}});
     vertices.push_back(
       {pos2 - axisScale * worldAxis2, {1.0f, 0.5f, 0.0f, 1.0f}});
+  }
+
+  static void processRevoluteJoint(
+    const Proton::RevoluteJoint *rj,
+    std::vector<VertexData> &vertices) {
+    glm::vec3 pos1 = getWorldAttachmentPoint(rj->getBodyA(),
+                                           rj->getLocalPointA());
+    glm::vec3 pos2 = getWorldAttachmentPoint(rj->getBodyB(),
+                                           rj->getLocalPointB());
+
+    // Local vectors
+    vertices.push_back({
+        rj->getBodyA()->getPositionVec3(), {0.0f, 1.0f, 1.0f, 1.0f}
+    });
+    vertices.push_back({pos1, {0.0f, 1.0f, 1.0f, 1.0f}});
+    vertices.push_back({
+        rj->getBodyB()->getPositionVec3(), {0.0f, 1.0f, 1.0f, 1.0f}
+    });
+    vertices.push_back({pos2, {0.0f, 1.0f, 1.0f, 1.0f}});
+
+    // Draw the axis lines
+    constexpr float axisScale = 0.5f;
+    glm::vec3 worldAxis1 = rj->getBodyA()->getOrientationQuat() *
+                         glm::vec3(rj->getAxisA().x(), rj->getAxisA().y(),
+                                 rj->getAxisA().z());
+    glm::vec3 worldAxis2 = rj->getBodyB()->getOrientationQuat() *
+                         glm::vec3(rj->getAxisB().x(), rj->getAxisB().y(),
+                                 rj->getAxisB().z());
+
+    // Calculate the perpendicular axis (last axis of the frame)
+    glm::vec3 perpendicularAxis1 = cross(worldAxis1, glm::vec3(1.0f, 0.0f, 0.0f));
+    if (length(perpendicularAxis1) < 0.001f) { // If parallel to X-axis
+        perpendicularAxis1 = cross(worldAxis1, glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+    perpendicularAxis1 = normalize(perpendicularAxis1);
+
+    glm::vec3 perpendicularAxis2 = cross(worldAxis2, glm::vec3(1.0f, 0.0f, 0.0f));
+    if (length(perpendicularAxis2) < 0.001f) { // If parallel to X-axis
+        perpendicularAxis2 = cross(worldAxis2, glm::vec3(0.0f, 1.0f, 0.0f));
+    }
+    perpendicularAxis2 = normalize(perpendicularAxis2);
+
+    // Primary axis (original rotation axis)
+    vertices.push_back({pos1, {1.0f, 0.5f, 0.0f, 1.0f}}); // Orange
+    vertices.push_back({pos1 + axisScale * worldAxis1, {1.0f, 0.5f, 0.0f, 1.0f}});
+    vertices.push_back({pos1, {1.0f, 0.5f, 0.0f, 1.0f}});
+    vertices.push_back({pos1 - axisScale * worldAxis1, {1.0f, 0.5f, 0.0f, 1.0f}});
+
+    vertices.push_back({pos2, {1.0f, 0.5f, 0.0f, 1.0f}});
+    vertices.push_back({pos2 + axisScale * worldAxis2, {1.0f, 0.5f, 0.0f, 1.0f}});
+    vertices.push_back({pos2, {1.0f, 0.5f, 0.0f, 1.0f}});
+    vertices.push_back({pos2 - axisScale * worldAxis2, {1.0f, 0.5f, 0.0f, 1.0f}});
+
+    // Perpendicular axis (last axis of the frame)
+    vertices.push_back({pos1, {0.5f, 1.0f, 0.0f, 1.0f}}); // Green
+    vertices.push_back({pos1 + axisScale * perpendicularAxis1, {0.5f, 1.0f, 0.0f, 1.0f}});
+    vertices.push_back({pos1, {0.5f, 1.0f, 0.0f, 1.0f}});
+    vertices.push_back({pos1 - axisScale * perpendicularAxis1, {0.5f, 1.0f, 0.0f, 1.0f}});
+
+    vertices.push_back({pos2, {0.5f, 1.0f, 0.0f, 1.0f}});
+    vertices.push_back({pos2 + axisScale * perpendicularAxis2, {0.5f, 1.0f, 0.0f, 1.0f}});
+    vertices.push_back({pos2, {0.5f, 1.0f, 0.0f, 1.0f}});
+    vertices.push_back({pos2 - axisScale * perpendicularAxis2, {0.5f, 1.0f, 0.0f, 1.0f}});
   }
 
   void drawLines(const std::vector<VertexData> &vertices,
