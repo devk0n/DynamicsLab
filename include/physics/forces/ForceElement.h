@@ -11,9 +11,9 @@ public:
 
   // Compute force and Jacobian for implicit integration
   virtual void computeForceAndJacobian(
-      Eigen::VectorXd& F_ext,    // Output force vector
-      Eigen::MatrixXd& K,        // Output stiffness matrix
-      int dof_dq                 // Total number of velocity DOFs
+      Eigen::VectorXd& F_ext,     // Output force vector
+      Eigen::MatrixXd& K,         // Output stiffness matrix
+      int dof_dq                  // Total number of velocity DOFs
   ) = 0;
 };
 

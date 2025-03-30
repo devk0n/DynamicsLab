@@ -97,11 +97,11 @@ void Dynamics::initializeState(VectorXd& q, VectorXd& dq) const {
 void Dynamics::updateMidpointState(const VectorXd& q_mid, const VectorXd& dq_mid) const {
   for (int i = 0; i < m_numBodies; ++i) {
     auto& body = m_bodies[i];
-
-    if (body->isFixed()) continue;
-
     body->clearForces();
     body->clearTorque();
+    if (body->isFixed()) continue;
+
+
 
     body->setPosition(q_mid.segment<3>(i * 7));
     body->setOrientation(q_mid.segment<4>(i * 7 + 3).normalized());
@@ -294,7 +294,6 @@ Body* Dynamics::getBody(const UniqueID ID) {
   auto it = m_bodyIndex.find(ID);
   if (it != m_bodyIndex.end() && it->second < m_bodies.size()) {
     Body* b = m_bodies[it->second].get();
-    LOG_DEBUG("Retrieved Body with ID: ", ID, " at pointer ", static_cast<void *>(b));
     return b;
   }
   LOG_WARN("Body ID ", ID, " not found.");

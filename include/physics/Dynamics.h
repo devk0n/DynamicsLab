@@ -54,7 +54,7 @@ private:
   void updateMidpointState(const VectorXd& q_mid, const VectorXd& dq_mid) const;
   void computeExternalForces(VectorXd& F_ext) const;
   void assembleMassMatrix(Eigen::Ref<MatrixXd> M) const;
-  void applyForceElements(VectorXd& F_ext, MatrixXd& K) const;
+  void applyForceElements(VectorXd &F_ext, MatrixXd &K) const;
   void assembleConstraints(MatrixXd& P, VectorXd& gamma) const;
   [[nodiscard]] static VectorXd solveKKTSystem(
     const MatrixXd& M, const MatrixXd& K,

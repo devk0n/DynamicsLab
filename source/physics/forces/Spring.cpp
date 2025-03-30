@@ -87,35 +87,35 @@ void Spring::computeForceAndJacobian(
   Matrix6d KBA = Matrix6d::Zero();
 
   // Linear-linear
-  KAA.topLeftCorner<3, 3>() = dFdx;
-  KBB.topLeftCorner<3, 3>() = dFdx;
-  KAB.topLeftCorner<3, 3>() = -dFdx;
-  KBA.topLeftCorner<3, 3>() = -dFdx;
+  KAA.topLeftCorner<3,3>() =  dFdx;
+  KBB.topLeftCorner<3,3>() =  dFdx;
+  KAB.topLeftCorner<3,3>() = -dFdx;
+  KBA.topLeftCorner<3,3>() = -dFdx;
 
   // Linear-angular and angular-linear
-  KAA.topRightCorner<3, 3>() = -dFdx * rAx;
-  KAA.bottomLeftCorner<3, 3>() = -rAx.transpose() * dFdx;
+  KAA.topRightCorner<3,3>()     = -dFdx * rAx;
+  KAA.bottomLeftCorner<3,3>()   = -rAx.transpose() * dFdx;
 
-  KBB.topRightCorner<3, 3>() = dFdx * rBx;
-  KBB.bottomLeftCorner<3, 3>() = rBx.transpose() * dFdx;
+  KBB.topRightCorner<3,3>()     =  dFdx * rBx;
+  KBB.bottomLeftCorner<3,3>()   =  rBx.transpose() * dFdx;
 
-  KAB.topRightCorner<3, 3>() = dFdx * rBx;
-  KAB.bottomLeftCorner<3, 3>() = -rAx.transpose() * dFdx;
+  KAB.topRightCorner<3,3>()     =  dFdx * rBx;
+  KAB.bottomLeftCorner<3,3>()   = -rAx.transpose() * dFdx;
 
-  KBA.topRightCorner<3, 3>() = -dFdx * rAx;
-  KBA.bottomLeftCorner<3, 3>() = rBx.transpose() * dFdx;
+  KBA.topRightCorner<3,3>()     = -dFdx * rAx;
+  KBA.bottomLeftCorner<3,3>()   =  rBx.transpose() * dFdx;
 
   // Angular-angular
-  KAA.bottomRightCorner<3, 3>() = rAx.transpose() * dFdx * rAx;
-  KBB.bottomRightCorner<3, 3>() = rBx.transpose() * dFdx * rBx;
-  KAB.bottomRightCorner<3, 3>() = -rAx.transpose() * dFdx * rBx;
-  KBA.bottomRightCorner<3, 3>() = -rBx.transpose() * dFdx * rAx;
+  KAA.bottomRightCorner<3,3>() = rAx.transpose() * dFdx * rAx;
+  KBB.bottomRightCorner<3,3>() = rBx.transpose() * dFdx * rBx;
+  KAB.bottomRightCorner<3,3>() = -rAx.transpose() * dFdx * rBx;
+  KBA.bottomRightCorner<3,3>() = -rBx.transpose() * dFdx * rAx;
 
   // Apply blocks to global K
-  K.block<6, 6>(iA, iA) += KAA;
-  K.block<6, 6>(iB, iB) += KBB;
-  K.block<6, 6>(iA, iB) += KAB;
-  K.block<6, 6>(iB, iA) += KBA;
+  K.block<6,6>(iA, iA) += KAA;
+  K.block<6,6>(iB, iB) += KBB;
+  K.block<6,6>(iA, iB) += KAB;
+  K.block<6,6>(iB, iA) += KBA;
 }
 
 } // Proton

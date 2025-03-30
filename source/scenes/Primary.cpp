@@ -72,7 +72,7 @@ void Primary::update(double dt) {
 
   if (m_ctx.input->isKeyPressed(GLFW_KEY_SPACE)) { toggle(m_run); }
 
-  if (m_ctx.input->isKeyPressed(GLFW_KEY_L)) {
+  if (m_ctx.input->isKeyHeld(GLFW_KEY_L)) {
     Body* b1 = m_system.getBody(0);
     m_camera.lookAt(b1->getPositionVec3());
   }
