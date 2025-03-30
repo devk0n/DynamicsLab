@@ -10,9 +10,9 @@
 
 namespace Proton {
 
-class GravityForce final : public ForceGenerator {
+class Gravity final : public ForceGenerator {
 public:
-  explicit GravityForce(Vector3d gravity) : m_gravity(std::move(gravity)) {}
+  explicit Gravity(Vector3d gravity) : m_gravity(std::move(gravity)) {}
 
   void addBody(Body* body) { m_targets.emplace(body->getID(), body); }
 

@@ -5,6 +5,7 @@
 #include "BodyBuilder.h"
 #include "ConstraintBuilder.h"
 #include "GravityBuilder.h"
+#include "SpringBuilder.h"
 
 namespace Proton {
 
@@ -22,6 +23,10 @@ public:
   template<typename ConstraintType>
   [[nodiscard]] ConstraintBuilder<ConstraintType> createConstraint() {
     return ConstraintBuilder<ConstraintType>(m_dynamics);
+  }
+
+  [[nodiscard]] SpringBuilder createSpring() const {
+    return SpringBuilder(m_dynamics);
   }
 
   [[nodiscard]] GravityBuilder createGravity(double gx, double gy, double gz) const {

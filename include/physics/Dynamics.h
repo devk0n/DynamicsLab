@@ -23,6 +23,10 @@ public:
     m_forceGenerators.emplace_back(generator);
   }
 
+  [[nodiscard]] const std::vector<std::shared_ptr<ForceGenerator>>& getForceGenerators() const {
+    return m_forceGenerators;
+  }
+
   // Constraint handling
   void addConstraint(const std::shared_ptr<Constraint>& constraint) {
     m_constraints.emplace_back(constraint);

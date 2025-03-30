@@ -174,6 +174,8 @@ set(SOURCES
     source/physics/constraints/SphericalJoint.cpp
     source/physics/constraints/RevoluteJoint.cpp
     source/physics/constraints/UniversalJoint.cpp
+include/physics/builders/SpringBuilder.h
+source/physics/forces/Spring.cpp
 )
 
 include_directories(

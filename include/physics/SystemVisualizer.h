@@ -3,6 +3,7 @@
 
 #include <glm/glm.hpp>
 
+#include "Spring.h"
 #include "DistanceConstraint.h"
 #include "BallJoint.h"
 #include "Dynamics.h"
@@ -63,6 +64,80 @@ public:
 
       m_shaderManager.setUniform("model", modelMatrix); // Set model matrix
       drawCube();                                       // Render the cube
+    }
+
+    // Prepare spring visualization
+    m_shaderManager.useShader("lineShader");
+    m_shaderManager.setUniform("view", viewMatrix);
+    m_shaderManager.setUniform("projection", projectionMatrix);
+    m_shaderManager.setUniform("model", glm::mat4(1.0f));
+
+    std::vector<float> springData; // Interleaved: position (3) + color (4)
+
+    for (const auto& forceGen : system.getForceGenerators()) {
+        if (auto* spring = dynamic_cast<Proton::Spring*>(forceGen.get())) {
+            // Get world positions of attachment points
+            glm::vec3 worldA = spring->getBodyA()->getPositionVec3() +
+                              spring->getBodyA()->getOrientationQuat() *
+                              glm::vec3(spring->getLocalPointA().x(),
+                                       spring->getLocalPointA().y(),
+                                       spring->getLocalPointA().z());
+
+            glm::vec3 worldB = spring->getBodyB()->getPositionVec3() +
+                              spring->getBodyB()->getOrientationQuat() *
+                              glm::vec3(spring->getLocalPointB().x(),
+                                       spring->getLocalPointB().y(),
+                                       spring->getLocalPointB().z());
+
+            // Calculate compression/stretch ratio
+            float currentLength = glm::length(worldB - worldA);
+            float ratio = currentLength / spring->getRestLength();
+
+            // Color gradient: red (0.7) -> yellow (1.0) -> green (1.3)
+            glm::vec4 color;
+            if (ratio < 1.0f) {
+                // Red to yellow
+                float t = (ratio - 0.7f) / 0.3f;
+                t = glm::clamp(t, 0.0f, 1.0f);
+                color = glm::mix(
+                    glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),  // Red
+                    glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),   // Yellow
+                    t
+                );
+            } else {
+                // Yellow to green
+                float t = (ratio - 1.0f) / 0.3f;
+                t = glm::clamp(t, 0.0f, 1.0f);
+                color = glm::mix(
+                    glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),   // Yellow
+                    glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),    // Green
+                    t
+                );
+            }
+
+            // Add both points to the buffer (same color for whole spring)
+            for (const auto& point : {worldA, worldB}) {
+                // Position
+                springData.push_back(point.x);
+                springData.push_back(point.y);
+                springData.push_back(point.z);
+                // Color
+                springData.push_back(color.r);
+                springData.push_back(color.g);
+                springData.push_back(color.b);
+                springData.push_back(color.a);
+            }
+        }
+    }
+
+    // Draw all springs
+    if (!springData.empty()) {
+        glBindVertexArray(m_lineVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
+        glBufferData(GL_ARRAY_BUFFER, springData.size() * sizeof(float), springData.data(), GL_DYNAMIC_DRAW);
+        glLineWidth(3.0f);
+        glDrawArrays(GL_LINES, 0, springData.size() / 7); // 7 floats per vertex
+        glBindVertexArray(0);
     }
 
     // Render constraints
@@ -204,6 +279,7 @@ public:
     glLineWidth(2.0f);
     glDrawArrays(GL_LINES, 0, linePoints.size());
     glBindVertexArray(0);
+
   }
 
 private:
@@ -220,10 +296,16 @@ private:
     glBindVertexArray(m_lineVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
 
-    // Initially allocate buffer (size will be updated dynamically)
+    // Initialize with empty buffer (will be updated dynamically)
     glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), static_cast<void *>(nullptr));
+
+    // Position attribute (3 floats)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+
+    // Color attribute (4 floats, starts at offset 3)
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
   }

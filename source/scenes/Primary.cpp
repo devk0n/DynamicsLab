@@ -11,21 +11,21 @@ void Primary::setupDynamics() {
   DynamicsBuilder builder(m_system);
 
   Body* chassis = builder.createCube()
-    .size(1.6, 0.6, 0.3)
-    .position(0, 0, 0.6)
+    .mass(1)
+    .position(0, 0, 2)
     .build();
 
-  Body* leftWheel = builder.createCube()
-    .size(0.2, 0.2, 0.2)
-    .position(-0.8, 0, 0)
+  Body* anchor = builder.createCube()
+    .size(0.1, 0.1, 0.1)
+    .position(0, 0, 10)
     .fixed(true)
     .build();
 
-  builder.createConstraint<BallJoint>()
+  builder.createSpring()
     .withBodyA(chassis)
-    .withBodyB(leftWheel)
-    .withLocalPointA(-0.8, 0, 0)
-    .withLocalPointB(0.1, 0, 0)
+    .withBodyB(anchor)
+    .withStiffness(5)
+    .withRestLength(10)
     .build();
 
   builder.createGravity(0, 0, -9.81)
