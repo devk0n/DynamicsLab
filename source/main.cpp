@@ -1,33 +1,36 @@
-#include "Application.h"
 #include "Logger.h"
+#include "Application.h"
 
 int main() {
-
-  // Initialize logger
+  // ───────────── Logger Setup ─────────────
   if (!Logger::initialize("log.txt")) {
-    return 1;
+    std::cerr << "Failed to initialize Logger.\n";
+    return EXIT_FAILURE;
   }
+
   ConsoleConfig config;
-  config.showTimestamps = false;  // Disable timestamps
-  config.showFileNames = true;    // Disable file names
-  config.showLevel = false;       // Disable level
-  config.enabled = true;          // Disable console logger
+  config.showTimestamps = false;
+  config.showFileNames  = true;
+  config.showLevel      = false;
+  config.enabled        = true;
   Logger::setConsoleConfig(config);
   Logger::setLogLevel(Logger::Level::Debug);
+
   LOG_INFO("Logger initialized.");
   LOG_DEBUG("Logger initialized.");
   LOG_WARN("Logger initialized.");
   LOG_ERROR("Logger initialized.");
 
+  // ───────────── Application Start ─────────────
   Application app;
+
   if (!app.initialize()) {
-    LOG_ERROR("Failed to initialize application.");
-    return 1;
+    LOG_ERROR("Failed to initialize Application.");
+    return EXIT_FAILURE;
   }
 
   app.run();
 
-  LOG_DEBUG("Application terminated.");
-
-  return 0;
+  LOG_INFO("Application terminated successfully.");
+  return EXIT_SUCCESS;
 }
