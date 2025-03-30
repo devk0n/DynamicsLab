@@ -4,7 +4,6 @@
 namespace Proton {
 class ForceGenerator {
 public:
-
   virtual ~ForceGenerator() = default;
   virtual void apply(double dt) = 0;
 

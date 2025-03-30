@@ -4,6 +4,7 @@
 #include "InputManager.h"
 #include "WindowManager.h"
 #include "DynamicsBuilder.h"
+#include "PCH.h"
 
 using namespace Proton;
 
@@ -17,23 +18,23 @@ void Primary::setupDynamics() {
     .build();
 
   Body* anchor = builder.createCube()
-    .size(0.1, 0.1, 0.1)
-    .position(0, 0, 10)
     .fixed(true)
+    .build();
+
+  builder.createGravity(0, 0, -9.81)
+    .addBody(chassis)
+    .build();
+
+  builder.createGravity(0, 0, 10)
+    .addBody(anchor)
     .build();
 
   builder.createSpring()
     .withBodyA(chassis)
     .withBodyB(anchor)
-    .withLocalPointA(1, 0, 0)  // Attach at centers
-    .withLocalPointB(1, 0, 0)
-    .withStiffness(100.0)      // Start with lower stiffness
-    .withDamping(100)          // Small damping
-    .withRestLength(1.0)       // Shorter than initial distance
-    .build();
-
-  builder.createGravity(0, 0, -9.81)
-    .addBody(chassis)
+    .withStiffness(5000)
+    .withDamping(100)
+    .withRestLength(7)
     .build();
 
 }
