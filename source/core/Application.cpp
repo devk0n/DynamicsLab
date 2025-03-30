@@ -120,53 +120,45 @@ void Application::Impl::run() const {
   LOG_INFO("Application started");
   m_frameTimer->update();
 
-
   while (!m_windowManager->shouldClose()) {
     m_frameTimer->update();
     m_frameTimer->clearTimings();
-
     {
-      ScopedTimer t("PollEvents", m_frameTimer->getTimings());
+      ScopedTimer t("PollEvents", *m_frameTimer);
       WindowManager::pollEvents();
     }
     {
-      ScopedTimer t("PollEvents", m_frameTimer->getTimings());
-      WindowManager::pollEvents();
-    }
-    {
-      ScopedTimer t("BeginFrame", m_frameTimer->getTimings());
+      ScopedTimer t("BeginFrame", *m_frameTimer);
       Renderer::beginFrame();
     }
     {
-      ScopedTimer t("UpdateScene", m_frameTimer->getTimings());
+      ScopedTimer t("UpdateScene", *m_frameTimer);
       m_sceneManager->update(m_frameTimer->getDeltaTime());
     }
     {
-      ScopedTimer t("UpdateInput", m_frameTimer->getTimings());
+      ScopedTimer t("UpdateInput", *m_frameTimer);
       m_inputManager->update();
     }
     {
-      ScopedTimer t("EndFrame", m_frameTimer->getTimings());
+      ScopedTimer t("EndFrame", *m_frameTimer);
       Renderer::endFrame();
     }
     {
-      ScopedTimer t("ImGuiBegin", m_frameTimer->getTimings());
+      ScopedTimer t("ImGuiBegin", *m_frameTimer);
       m_imguiManager->beginFrame();
     }
     {
-      ScopedTimer t("RenderScene", m_frameTimer->getTimings());
+      ScopedTimer t("RenderScene", *m_frameTimer);
       m_sceneManager->render();
     }
     {
-      ScopedTimer t("ImGuiEnd", m_frameTimer->getTimings());
+      ScopedTimer t("ImGuiEnd", *m_frameTimer);
       m_imguiManager->endFrame();
     }
     {
-      ScopedTimer t("SwapBuffers", m_frameTimer->getTimings());
+      ScopedTimer t("SwapBuffers", *m_frameTimer);
       m_windowManager->swapBuffers();
     }
-
   }
-
   LOG_INFO("Application closed");
 }

@@ -119,12 +119,21 @@ void Primary::showUI() {
   ImGui::Text("Elapsed Time: %02d:%02d:%02d.%03d", hours, minutes, seconds, milliseconds);
   ImGui::Text("Delta Time: %.0f µs", m_ctx.frameTimer->getDeltaTime() * 1000000);
   ImGui::Text("Status: %s", m_run ? "Running" : "Stopped");
-  for (const auto& [label, duration] : m_ctx.frameTimer->getTimings()) {
-    ImGui::Text("%-15s : %.3f ms", label.c_str(), duration);
-  }
+  renderTimings(m_ctx.frameTimer->getTimings());
   ImGui::End();
 
+}
 
+void Primary::renderTimings(const std::vector<std::pair<std::string, double>>& timings) {
+  std::unordered_map<std::string, double> merged;
+
+  for (const auto& [label, time] : timings) {
+    merged[label] += time; // or use max(time, merged[label]) for peak
+  }
+
+  for (const auto& [label, total] : merged) {
+    ImGui::Text("%-20s : %7.3f ms", label.c_str(), total);
+  }
 }
 
 void Primary::handleCameraMovement(const double dt) {

@@ -9,8 +9,8 @@
 
 class ScopedTimer {
 public:
-  ScopedTimer(std::string  label, std::vector<std::pair<std::string, double>>& records)
-    : m_label(std::move(label)), m_records(records), m_start(glfwGetTime()) {}
+  ScopedTimer(const std::string& label, FrameTimer& timer)
+  : m_label(label), m_records(timer.getTimings()), m_start(glfwGetTime()) {}
 
   ~ScopedTimer() {
     double end = glfwGetTime();

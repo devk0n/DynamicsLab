@@ -32,6 +32,10 @@ private:
   mutable bool m_run = false;
 
   void showUI();
+
+  static void renderTimings(
+    const std::vector<std::pair<std::string, double>> &timings);
+
   void handleCameraMovement(double dt);
 
   void setupDynamics();
