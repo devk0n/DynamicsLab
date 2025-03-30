@@ -14,6 +14,8 @@ public:
       Body* bodyB, Vector3d localPointB, Vector3d axisB
   );
 
+  UniversalJoint() : Constraint(4), m_bodyA(nullptr), m_bodyB(nullptr) {}
+
   void computePositionError(VectorXd& phi, int startRow) const override;
   void computeJacobian(MatrixXd& jacobian, int startRow) const override;
   void computeAccelerationCorrection(VectorXd& gamma, int startRow) const override;
@@ -27,7 +29,7 @@ public:
 
   void setBodyA(Body* bodyA) { m_bodyA = bodyA; }
   void setBodyB(Body* bodyB) { m_bodyB = bodyB; }
-  void setlocalPointA(Vector3d localA) { m_localPointA = std::move(localA); }
+  void setLocalPointA(Vector3d localA) { m_localPointA = std::move(localA); }
   void setLocalPointB(Vector3d localB) { m_localPointB = std::move(localB); }
   void setAxisA(Vector3d axisA) { m_axisA = std::move(axisA); }
   void setAxisB(Vector3d axisB) { m_axisB = std::move(axisB); }

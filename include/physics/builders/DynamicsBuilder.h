@@ -7,6 +7,8 @@
 #include "BallJointBuilder.h"
 #include "GravityBuilder.h"
 #include "SpringBuilder.h"
+#include "UniversalJointBuilder.h"
+#include "RevoluteJointBuilder.h"
 
 namespace Proton {
 
@@ -27,6 +29,14 @@ public:
 
   [[nodiscard]] BallJointBuilder createBallJoint() const {
     return BallJointBuilder(m_dynamics);
+  }
+
+  [[nodiscard]] UniversalJointBuilder createUniversalJoint() const {
+    return UniversalJointBuilder(m_dynamics);
+  }
+
+  [[nodiscard]] RevoluteJointBuilder createRevoluteJoint() const {
+    return RevoluteJointBuilder(m_dynamics);
   }
 
   [[nodiscard]] SpringBuilder createSpring() const {

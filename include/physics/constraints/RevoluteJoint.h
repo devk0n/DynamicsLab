@@ -13,6 +13,8 @@ public:
       Body* bodyB, Vector3d localPointB, Vector3d axisB, Vector3d axisC
   );
 
+  RevoluteJoint() : Constraint(5), m_bodyA(nullptr), m_bodyB(nullptr) {}
+
   void computePositionError(VectorXd &phi, int startRow) const override;
   void computeJacobian(MatrixXd &jacobian, int startRow) const override;
   void computeAccelerationCorrection(VectorXd &gamma, int startRow) const override;
@@ -25,7 +27,13 @@ public:
   [[nodiscard]] Vector3d getAxisB() const { return m_axisB; }
   [[nodiscard]] Vector3d getAxisC() const { return m_axisC; }
 
-
+  void setBodyA(Body* bodyA) { m_bodyA = bodyA; }
+  void setBodyB(Body* bodyB) { m_bodyB = bodyB; }
+  void setLocalPointA(Vector3d localA) { m_localPointA = std::move(localA); }
+  void setLocalPointB(Vector3d localB) { m_localPointB = std::move(localB); }
+  void setAxisA(Vector3d axisA) { m_axisA = std::move(axisA); }
+  void setAxisB(Vector3d axisB) { m_axisB = std::move(axisB); }
+  void setAxisC(Vector3d axisC) { m_axisC = std::move(axisC); }
 
 private:
   Body* m_bodyA;
