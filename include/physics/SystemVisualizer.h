@@ -2,7 +2,6 @@
 #define SYSTEM_VISUALIZER_H
 
 #include <glm/glm.hpp>
-
 #include "Spring.h"
 #include "DistanceConstraint.h"
 #include "BallJoint.h"
@@ -15,374 +14,124 @@
 class SystemVisualizer {
 public:
   explicit SystemVisualizer(ShaderManager &shaderManager)
-    : m_shaderManager(shaderManager) {
+      : m_shaderManager(shaderManager) {
     LOG_DEBUG("SystemVisualizer created");
-    // Initialize the cube mesh (vertices, VAO, VBO, etc.)
     initializeCube();
     initializeLine();
   }
 
   ~SystemVisualizer() {
     LOG_DEBUG("SystemVisualizer destroyed");
-    // Clean up the cube mesh (delete VAO, VBO, etc.)
     cleanupCube();
   }
 
   void render(
-    const Proton::Dynamics &system,
-    const glm::vec3 &cameraPosition,
-    const glm::mat4 &viewMatrix,
-    const glm::mat4 &projectionMatrix) const {
-    m_shaderManager.useShader("cubeShader");
-
-    // Set light and material properties
-    m_shaderManager.setUniform("lightPos", glm::vec3(200.0f, 400.0f, 100.0f));
-    // Light position
-    m_shaderManager.setUniform("viewPos", cameraPosition); // Camera position
-    m_shaderManager.setUniform("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
-    // White light
-
-    // Set transformation matrices
-    m_shaderManager.setUniform("view", viewMatrix);
-    m_shaderManager.setUniform("projection", projectionMatrix);
-
-    // Render each body
-    for (const auto& body: system.getBodies()) {
-      auto modelMatrix = glm::mat4(1.0f); // Start with an identity matrix
-
-      // Apply translation
-      modelMatrix = translate(modelMatrix, body->getPositionVec3());
-
-      // Apply orientation (rotation)
-      glm::quat orientation = body->getOrientationQuat();
-      modelMatrix = modelMatrix * mat4_cast(orientation);
-      // Convert quaternion to matrix and apply
-
-      modelMatrix = glm::scale(modelMatrix, body->getSizeVec3());
-
-      m_shaderManager.setUniform("objectColor", glm::vec4(0.6118, 0.2510, 0.4039, 1.0)); // glm::vec4(0.98, 0.98, 0.96, 1.0)
-
-      m_shaderManager.setUniform("model", modelMatrix); // Set model matrix
-      drawCube();                                       // Render the cube
-    }
-
-    // Prepare spring visualization
-    m_shaderManager.useShader("lineShader");
-    m_shaderManager.setUniform("view", viewMatrix);
-    m_shaderManager.setUniform("projection", projectionMatrix);
-    m_shaderManager.setUniform("model", glm::mat4(1.0f));
-
-    std::vector<float> springData; // Interleaved: position (3) + color (4)
-
-    for (const auto& forceGen : system.getForceGenerators()) {
-        if (auto* spring = dynamic_cast<Proton::Spring*>(forceGen.get())) {
-            // Get world positions of attachment points
-            glm::vec3 worldA = spring->getBodyA()->getPositionVec3() +
-                              spring->getBodyA()->getOrientationQuat() *
-                              glm::vec3(spring->getLocalPointA().x(),
-                                       spring->getLocalPointA().y(),
-                                       spring->getLocalPointA().z());
-
-            glm::vec3 worldB = spring->getBodyB()->getPositionVec3() +
-                              spring->getBodyB()->getOrientationQuat() *
-                              glm::vec3(spring->getLocalPointB().x(),
-                                       spring->getLocalPointB().y(),
-                                       spring->getLocalPointB().z());
-
-            // Calculate compression/stretch ratio
-            float currentLength = glm::length(worldB - worldA);
-            float ratio = currentLength / spring->getRestLength();
-
-            // Color gradient: red (0.7) -> yellow (1.0) -> green (1.3)
-            glm::vec4 color;
-            if (ratio < 1.0f) {
-                // Red to yellow
-                float t = (ratio - 0.7f) / 0.3f;
-                t = glm::clamp(t, 0.0f, 1.0f);
-                color = glm::mix(
-                    glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),  // Red
-                    glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),   // Yellow
-                    t
-                );
-            } else {
-                // Yellow to green
-                float t = (ratio - 1.0f) / 0.3f;
-                t = glm::clamp(t, 0.0f, 1.0f);
-                color = glm::mix(
-                    glm::vec4(1.0f, 1.0f, 0.0f, 1.0f),   // Yellow
-                    glm::vec4(0.0f, 1.0f, 0.0f, 1.0f),    // Green
-                    t
-                );
-            }
-
-            // Add both points to the buffer (same color for whole spring)
-            for (const auto& point : {worldA, worldB}) {
-                // Position
-                springData.push_back(point.x);
-                springData.push_back(point.y);
-                springData.push_back(point.z);
-                // Color
-                springData.push_back(color.r);
-                springData.push_back(color.g);
-                springData.push_back(color.b);
-                springData.push_back(color.a);
-            }
-        }
-    }
-
-    // Draw all springs
-    if (!springData.empty()) {
-        glBindVertexArray(m_lineVAO);
-        glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
-        glBufferData(GL_ARRAY_BUFFER, springData.size() * sizeof(float), springData.data(), GL_DYNAMIC_DRAW);
-        glLineWidth(3.0f);
-        glDrawArrays(GL_LINES, 0, springData.size() / 7); // 7 floats per vertex
-        glBindVertexArray(0);
-    }
-
-    // Render constraints
-    m_shaderManager.useShader("lineShader");
-    m_shaderManager.setUniform("view", viewMatrix);
-    m_shaderManager.setUniform("projection", projectionMatrix);
-    m_shaderManager.setUniform("model", glm::mat4(1.0f)); // Identity matrix
-    m_shaderManager.setUniform("lineColor", glm::vec4(1.0f, 1.0f, 0.0f, 1.0f));
-
-    std::vector<glm::vec3> linePoints;
-    for (const auto& constraint : system.getConstraints()) {
-      if (auto* dc = dynamic_cast<Proton::DistanceConstraint*>(constraint.get())) {
-        // Distance constraint: line between body positions
-        auto pos1 = dc->getBodyA()->getPositionVec3();
-        auto pos2 = dc->getBodyB()->getPositionVec3();
-        linePoints.push_back(pos1);
-        linePoints.push_back(pos2);
-      } else if (auto* sj = dynamic_cast<Proton::BallJoint*>(constraint.get())) {
-        // Get local attachment points
-        Eigen::Vector3d local1 = sj->getLocalPointA();
-        Eigen::Vector3d local2 = sj->getLocalPointB();
-
-        // Convert Eigen vectors to glm
-        glm::vec3 glmLocal1(local1.x(), local1.y(), local1.z());
-        glm::vec3 glmLocal2(local2.x(), local2.y(), local2.z());
-
-        // Get body positions and orientations
-        glm::vec3 body1Pos = sj->getBodyA()->getPositionVec3();
-        glm::quat body1Rot = sj->getBodyA()->getOrientationQuat();
-        glm::vec3 body2Pos = sj->getBodyB()->getPositionVec3();
-        glm::quat body2Rot = sj->getBodyB()->getOrientationQuat();
-
-        // Calculate world positions of attachment points
-        glm::vec3 pos1 = body1Pos + body1Rot * glmLocal1;
-        glm::vec3 pos2 = body2Pos + body2Rot * glmLocal2;
-
-        // Connection line between attachment points
-        // linePoints.push_back(pos1);
-        // linePoints.push_back(pos2);
-
-        // Local vector for body 1 (from body origin to attachment point)
-        linePoints.push_back(body1Pos);
-        linePoints.push_back(pos1);
-
-        // Local vector for body 2 (from body origin to attachment point)
-        linePoints.push_back(body2Pos);
-        linePoints.push_back(pos2);
-      } else if (auto* sj = dynamic_cast<Proton::SphericalJoint*>(constraint.get())) {
-        // Get local attachment points
-        Eigen::Vector3d local1 = sj->getLocalPointA();
-        Eigen::Vector3d local2 = sj->getLocalPointB();
-
-        // Convert Eigen vectors to glm
-        glm::vec3 glmLocal1(local1.x(), local1.y(), local1.z());
-        glm::vec3 glmLocal2(local2.x(), local2.y(), local2.z());
-
-        // Get body positions and orientations
-        glm::vec3 body1Pos = sj->getBodyA()->getPositionVec3();
-        glm::quat body1Rot = sj->getBodyA()->getOrientationQuat();
-        glm::vec3 body2Pos = sj->getBodyB()->getPositionVec3();
-        glm::quat body2Rot = sj->getBodyB()->getOrientationQuat();
-
-        // Calculate world positions of attachment points
-        glm::vec3 pos1 = body1Pos + body1Rot * glmLocal1;
-        glm::vec3 pos2 = body2Pos + body2Rot * glmLocal2;
-
-        // Connection line between attachment points
-        linePoints.push_back(pos1);
-        linePoints.push_back(pos2);
-
-        // Local vector for body 1 (from body origin to attachment point)
-        linePoints.push_back(body1Pos);
-        linePoints.push_back(pos1);
-
-        // Local vector for body 2 (from body origin to attachment point)
-        linePoints.push_back(body2Pos);
-        linePoints.push_back(pos2);
-      } else if (auto* uj = dynamic_cast<Proton::UniversalJoint*>(constraint.get())) {
-        // Get local attachment points
-        Eigen::Vector3d local1 = uj->getLocalPointA();
-        Eigen::Vector3d local2 = uj->getLocalPointB();
-
-        // Convert Eigen vectors to glm
-        glm::vec3 glmLocal1(local1.x(), local1.y(), local1.z());
-        glm::vec3 glmLocal2(local2.x(), local2.y(), local2.z());
-
-        // Get body positions and orientations
-        glm::vec3 body1Pos = uj->getBodyA()->getPositionVec3();
-        glm::quat body1Rot = uj->getBodyA()->getOrientationQuat();
-        glm::vec3 body2Pos = uj->getBodyB()->getPositionVec3();
-        glm::quat body2Rot = uj->getBodyB()->getOrientationQuat();
-
-        // Calculate world positions of attachment points
-        glm::vec3 pos1 = body1Pos + body1Rot * glmLocal1;
-        glm::vec3 pos2 = body2Pos + body2Rot * glmLocal2;
-
-        // Local vector for body 1 (from body origin to attachment point)
-        linePoints.push_back(body1Pos);
-        linePoints.push_back(pos1);
-
-        // Local vector for body 2 (from body origin to attachment point)
-        linePoints.push_back(body2Pos);
-        linePoints.push_back(pos2);
-
-        // --- Draw the axis lines ---
-        // Get axis directions (assuming UniversalJoint provides these getters)
-        Eigen::Vector3d axis1 = uj->getAxisA();
-        Eigen::Vector3d axis2 = uj->getAxisB();
-
-        // Convert to glm vectors
-        glm::vec3 glmAxis1(axis1.x(), axis1.y(), axis1.z());
-        glm::vec3 glmAxis2(axis2.x(), axis2.y(), axis2.z());
-
-        // Transform axes to world space using body rotations
-        glm::vec3 worldAxis1 = body1Rot * glmAxis1;
-        glm::vec3 worldAxis2 = body2Rot * glmAxis2;
-
-        // Choose a scale factor for visualizing the axis length
-        float axisScale = 0.5f;
-
-        // Draw axis line from attachment point for body1
-        linePoints.push_back(pos1);
-        linePoints.push_back(pos1 + axisScale * worldAxis1);
-        linePoints.push_back(pos1 - axisScale * worldAxis1);
-
-        // Draw axis line from attachment point for body2
-        linePoints.push_back(pos2);
-        linePoints.push_back(pos2 + axisScale * worldAxis2);
-        linePoints.push_back(pos2 - axisScale * worldAxis2);
-      }
-
-    }
-
-    // Draw lines
-    glBindVertexArray(m_lineVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
-    glBufferData(GL_ARRAY_BUFFER, linePoints.size() * sizeof(glm::vec3),
-                 linePoints.data(), GL_DYNAMIC_DRAW);
-    glLineWidth(2.0f);
-    glDrawArrays(GL_LINES, 0, linePoints.size());
-    glBindVertexArray(0);
-
+      const Proton::Dynamics &system,
+      const glm::vec3 &cameraPosition,
+      const glm::mat4 &viewMatrix,
+      const glm::mat4 &projectionMatrix) const {
+    renderBodies(system, cameraPosition, viewMatrix, projectionMatrix);
+    renderSprings(system, viewMatrix, projectionMatrix);
+    renderConstraints(system, viewMatrix, projectionMatrix);
   }
 
 private:
   ShaderManager &m_shaderManager;
-
   unsigned int m_cubeVAO{}, m_cubeVBO{}, m_cubeEBO{};
-
   GLuint m_lineVAO{}, m_lineVBO{};
 
+  // Helper structs
+  struct VertexData {
+    glm::vec3 position;
+    glm::vec4 color;
+  };
+
+  // Initialization methods
   void initializeLine() {
     glGenVertexArrays(1, &m_lineVAO);
     glGenBuffers(1, &m_lineVBO);
 
     glBindVertexArray(m_lineVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
-
-    // Initialize with empty buffer (will be updated dynamically)
     glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
 
     // Position attribute (3 floats)
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), static_cast<void *>(nullptr));
     glEnableVertexAttribArray(0);
 
-    // Color attribute (4 floats, starts at offset 3)
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(float), (void*)(3 * sizeof(float)));
+    // Color attribute (4 floats)
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(VertexData), reinterpret_cast<void *>(offsetof(VertexData, color)));
     glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
   }
 
   void initializeCube() {
-    // Define the vertices of a cube
     constexpr float vertices[] = {
       // Positions            // Normals
       // Back face
-      -0.5f, -0.5f, -0.5f,     0.0f, 0.0f, -1.0f, // Bottom-left
-       0.5f, -0.5f, -0.5f,     0.0f, 0.0f, -1.0f, // Bottom-right
-       0.5f,  0.5f, -0.5f,     0.0f, 0.0f, -1.0f, // Top-right
-      -0.5f,  0.5f, -0.5f,     0.0f, 0.0f, -1.0f, // Top-left
+      -0.5f, -0.5f, -0.5f,     0.0f, 0.0f, -1.0f,
+       0.5f, -0.5f, -0.5f,     0.0f, 0.0f, -1.0f,
+       0.5f,  0.5f, -0.5f,     0.0f, 0.0f, -1.0f,
+      -0.5f,  0.5f, -0.5f,     0.0f, 0.0f, -1.0f,
 
       // Front face
-      -0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f, // Bottom-left
-       0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f, // Bottom-right
-       0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f, // Top-right
-      -0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f, // Top-left
+      -0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,
+       0.5f, -0.5f,  0.5f,     0.0f, 0.0f, 1.0f,
+       0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f,
+      -0.5f,  0.5f,  0.5f,     0.0f, 0.0f, 1.0f,
 
       // Left face
-      -0.5f,  0.5f,  0.5f,    -1.0f, 0.0f, 0.0f, // Top-right
-      -0.5f,  0.5f, -0.5f,    -1.0f, 0.0f, 0.0f, // Top-left
-      -0.5f, -0.5f, -0.5f,    -1.0f, 0.0f, 0.0f, // Bottom-left
-      -0.5f, -0.5f,  0.5f,    -1.0f, 0.0f, 0.0f, // Bottom-right
+      -0.5f,  0.5f,  0.5f,    -1.0f, 0.0f, 0.0f,
+      -0.5f,  0.5f, -0.5f,    -1.0f, 0.0f, 0.0f,
+      -0.5f, -0.5f, -0.5f,    -1.0f, 0.0f, 0.0f,
+      -0.5f, -0.5f,  0.5f,    -1.0f, 0.0f, 0.0f,
 
       // Right face
-       0.5f,  0.5f,  0.5f,     1.0f, 0.0f, 0.0f, // Top-left
-       0.5f,  0.5f, -0.5f,     1.0f, 0.0f, 0.0f, // Top-right
-       0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f, // Bottom-right
-       0.5f, -0.5f,  0.5f,     1.0f, 0.0f, 0.0f, // Bottom-left
+       0.5f,  0.5f,  0.5f,     1.0f, 0.0f, 0.0f,
+       0.5f,  0.5f, -0.5f,     1.0f, 0.0f, 0.0f,
+       0.5f, -0.5f, -0.5f,     1.0f, 0.0f, 0.0f,
+       0.5f, -0.5f,  0.5f,     1.0f, 0.0f, 0.0f,
 
       // Bottom face
-      -0.5f, -0.5f, -0.5f,     0.0f, -1.0f, 0.0f, // Bottom-right
-       0.5f, -0.5f, -0.5f,     0.0f, -1.0f, 0.0f, // Bottom-left
-       0.5f, -0.5f,  0.5f,     0.0f, -1.0f, 0.0f, // Top-left
-      -0.5f, -0.5f,  0.5f,     0.0f, -1.0f, 0.0f, // Top-right
+      -0.5f, -0.5f, -0.5f,     0.0f, -1.0f, 0.0f,
+       0.5f, -0.5f, -0.5f,     0.0f, -1.0f, 0.0f,
+       0.5f, -0.5f,  0.5f,     0.0f, -1.0f, 0.0f,
+      -0.5f, -0.5f,  0.5f,     0.0f, -1.0f, 0.0f,
 
       // Top face
-      -0.5f,  0.5f, -0.5f,     0.0f, 1.0f, 0.0f, // Top-left
-       0.5f,  0.5f, -0.5f,     0.0f, 1.0f, 0.0f, // Top-right
-       0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 0.0f, // Bottom-right
-      -0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 0.0f  // Bottom-left
+      -0.5f,  0.5f, -0.5f,     0.0f, 1.0f, 0.0f,
+       0.5f,  0.5f, -0.5f,     0.0f, 1.0f, 0.0f,
+       0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 0.0f,
+      -0.5f,  0.5f,  0.5f,     0.0f, 1.0f, 0.0f
     };
 
-    // Define the indices for the cube
     const unsigned int indices[] = {
-       0,  1,  2,  2,  3,  0, // Back face
-       4,  5,  6,  6,  7,  4, // Front face
-       8,  9, 10, 10, 11,  8, // Left face
-      12, 13, 14, 14, 15, 12, // Right face
-      16, 17, 18, 18, 19, 16, // Bottom face
-      20, 21, 22, 22, 23, 20  // Top face
+      0,  1,  2,  2,  3,  0, // Back face
+      4,  5,  6,  6,  7,  4, // Front face
+      8,  9, 10, 10, 11,  8, // Left face
+     12, 13, 14, 14, 15, 12, // Right face
+     16, 17, 18, 18, 19, 16, // Bottom face
+     20, 21, 22, 22, 23, 20  // Top face
     };
 
-    // Generate and bind the VAO and VBO
     glGenVertexArrays(1, &m_cubeVAO);
     glGenBuffers(1, &m_cubeVBO);
     glGenBuffers(1, &m_cubeEBO);
 
     glBindVertexArray(m_cubeVAO);
 
-    // Bind vertex data
     glBindBuffer(GL_ARRAY_BUFFER, m_cubeVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // Bind index data
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_cubeEBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
                  GL_STATIC_DRAW);
 
-    // Position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
                           static_cast<void *>(nullptr));
     glEnableVertexAttribArray(0);
 
-    // Normal attribute
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
                           reinterpret_cast<void *>(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
@@ -394,6 +143,212 @@ private:
     glDeleteVertexArrays(1, &m_cubeVAO);
     glDeleteBuffers(1, &m_cubeVBO);
     glDeleteBuffers(1, &m_cubeEBO);
+  }
+
+  // Rendering methods
+  void renderBodies(const Proton::Dynamics &system,
+                    const glm::vec3 &cameraPosition,
+                    const glm::mat4 &viewMatrix,
+                    const glm::mat4 &projectionMatrix) const {
+    m_shaderManager.useShader("cubeShader");
+
+    // Set common uniforms
+    m_shaderManager.setUniform("lightPos", glm::vec3(200.0f, 400.0f, 100.0f));
+    m_shaderManager.setUniform("viewPos", cameraPosition);
+    m_shaderManager.setUniform("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+    m_shaderManager.setUniform("view", viewMatrix);
+    m_shaderManager.setUniform("projection", projectionMatrix);
+    m_shaderManager.setUniform("objectColor",
+                               glm::vec4(0.6118, 0.2510, 0.4039, 1.0));
+
+    for (const auto &body: system.getBodies()) {
+      glm::mat4 modelMatrix(1.0f);
+      modelMatrix = translate(modelMatrix, body->getPositionVec3());
+      modelMatrix *= mat4_cast(body->getOrientationQuat());
+      modelMatrix = scale(modelMatrix, body->getSizeVec3());
+
+      m_shaderManager.setUniform("model", modelMatrix);
+      drawCube();
+    }
+  }
+
+  void renderSprings(const Proton::Dynamics &system,
+                     const glm::mat4 &viewMatrix,
+                     const glm::mat4 &projectionMatrix) const {
+    m_shaderManager.useShader("lineShader");
+    m_shaderManager.setUniform("view", viewMatrix);
+    m_shaderManager.setUniform("projection", projectionMatrix);
+    m_shaderManager.setUniform("model", glm::mat4(1.0f));
+
+    std::vector<VertexData> springVertices;
+
+    for (const auto &forceGen: system.getForceGenerators()) {
+      if (auto *spring = dynamic_cast<Proton::Spring *>(forceGen.get())) {
+        // Get world positions of attachment points
+        glm::vec3 worldA = getWorldAttachmentPoint(
+          spring->getBodyA(), spring->getLocalPointA());
+        glm::vec3 worldB = getWorldAttachmentPoint(
+          spring->getBodyB(), spring->getLocalPointB());
+
+        glm::vec4 color = calculateSpringColor(static_cast<float>(spring->getRestLength()),
+                                               glm::length(worldB - worldA));
+
+        // Add both points to the buffer
+        springVertices.push_back({worldA, color});
+        springVertices.push_back({worldB, color});
+
+        // Add visualization of local points (optional)
+        springVertices.push_back({
+          spring->getBodyA()->getPositionVec3(), {1.0f, 0.0f, 1.0f, 1.0f}
+        });
+        springVertices.push_back({worldA, {1.0f, 0.0f, 1.0f, 1.0f}});
+        springVertices.push_back({
+          spring->getBodyB()->getPositionVec3(), {1.0f, 0.0f, 1.0f, 1.0f}
+        });
+        springVertices.push_back({worldB, {1.0f, 0.0f, 1.0f, 1.0f}});
+      }
+    }
+
+    if (!springVertices.empty()) {
+      drawLines(springVertices, 3.0f);
+    }
+  }
+
+  void renderConstraints(const Proton::Dynamics &system,
+                         const glm::mat4 &viewMatrix,
+                         const glm::mat4 &projectionMatrix) const {
+    m_shaderManager.useShader("lineShader");
+    m_shaderManager.setUniform("view", viewMatrix);
+    m_shaderManager.setUniform("projection", projectionMatrix);
+    m_shaderManager.setUniform("model", glm::mat4(1.0f));
+
+    std::vector<VertexData> constraintVertices;
+
+    for (const auto &constraint: system.getConstraints()) {
+      if (auto *dc = dynamic_cast<Proton::DistanceConstraint *>(constraint.
+        get())) {
+        // Distance constraint: line between body positions
+        constraintVertices.push_back({
+          dc->getBodyA()->getPositionVec3(), {1.0f, 1.0f, 0.0f, 1.0f}
+        });
+        constraintVertices.push_back({
+          dc->getBodyB()->getPositionVec3(), {1.0f, 1.0f, 0.0f, 1.0f}
+        });
+      } else if (auto *sj = dynamic_cast<Proton::BallJoint *>(constraint.
+        get())) {
+        processJoint(sj, constraintVertices);
+      } else if (auto *sj = dynamic_cast<Proton::SphericalJoint *>(constraint.
+        get())) {
+        processJoint(sj, constraintVertices);
+      } else if (auto *uj = dynamic_cast<Proton::UniversalJoint *>(constraint.
+        get())) {
+        processUniversalJoint(uj, constraintVertices);
+      }
+    }
+
+    if (!constraintVertices.empty()) {
+      drawLines(constraintVertices, 2.0f);
+    }
+  }
+
+  // Helper methods
+  static glm::vec3 getWorldAttachmentPoint(
+      const Proton::Body *body,
+      const Eigen::Vector3d &localPoint) {
+    return body->getPositionVec3() +
+           body->getOrientationQuat() *
+           glm::vec3(localPoint.x(), localPoint.y(), localPoint.z());
+  }
+
+  [[nodiscard]] static glm::vec4 calculateSpringColor(float restLength, float currentLength) {
+    float ratio = currentLength / restLength;
+
+    if (ratio < 1.0f) {
+      float t = glm::clamp((ratio - 0.7f) / 0.3f, 0.0f, 1.0f);
+      return glm::mix(glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), // Red
+                      glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), // Yellow
+                      t);
+    }
+
+    float t = glm::clamp((ratio - 1.0f) / 0.3f, 0.0f, 1.0f);
+    return glm::mix(glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), // Yellow
+                    glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), // Green
+                    t);
+  }
+
+  template<typename JointType>
+  static void processJoint(JointType *joint, std::vector<VertexData> &vertices) {
+    glm::vec3 pos1 = getWorldAttachmentPoint(joint->getBodyA(),
+                                             joint->getLocalPointA());
+    glm::vec3 pos2 = getWorldAttachmentPoint(joint->getBodyB(),
+                                             joint->getLocalPointB());
+
+    // Connection line between attachment points
+    vertices.push_back({pos1, {1.0f, 1.0f, 0.0f, 1.0f}});
+    vertices.push_back({pos2, {1.0f, 1.0f, 0.0f, 1.0f}});
+
+    // Local vectors from body origin to attachment point
+    vertices.push_back({
+      joint->getBodyA()->getPositionVec3(), {0.0f, 1.0f, 1.0f, 1.0f}
+    });
+    vertices.push_back({pos1, {0.0f, 1.0f, 1.0f, 1.0f}});
+    vertices.push_back({
+      joint->getBodyB()->getPositionVec3(), {0.0f, 1.0f, 1.0f, 1.0f}
+    });
+    vertices.push_back({pos2, {0.0f, 1.0f, 1.0f, 1.0f}});
+  }
+
+  static void processUniversalJoint(
+      const Proton::UniversalJoint *uj,
+      std::vector<VertexData> &vertices) {
+    glm::vec3 pos1 = getWorldAttachmentPoint(uj->getBodyA(),
+                                             uj->getLocalPointA());
+    glm::vec3 pos2 = getWorldAttachmentPoint(uj->getBodyB(),
+                                             uj->getLocalPointB());
+
+    // Local vectors
+    vertices.push_back({
+      uj->getBodyA()->getPositionVec3(), {0.0f, 1.0f, 1.0f, 1.0f}
+    });
+    vertices.push_back({pos1, {0.0f, 1.0f, 1.0f, 1.0f}});
+    vertices.push_back({
+      uj->getBodyB()->getPositionVec3(), {0.0f, 1.0f, 1.0f, 1.0f}
+    });
+    vertices.push_back({pos2, {0.0f, 1.0f, 1.0f, 1.0f}});
+
+    // Draw the axis lines
+    constexpr float axisScale = 0.5f;
+    glm::vec3 worldAxis1 = uj->getBodyA()->getOrientationQuat() *
+                           glm::vec3(uj->getAxisA().x(), uj->getAxisA().y(),
+                                     uj->getAxisA().z());
+    glm::vec3 worldAxis2 = uj->getBodyB()->getOrientationQuat() *
+                           glm::vec3(uj->getAxisB().x(), uj->getAxisB().y(),
+                                     uj->getAxisB().z());
+
+    // Axis lines
+    vertices.push_back({pos1, {1.0f, 0.5f, 0.0f, 1.0f}});
+    vertices.push_back(
+      {pos1 + axisScale * worldAxis1, {1.0f, 0.5f, 0.0f, 1.0f}});
+    vertices.push_back({pos1, {1.0f, 0.5f, 0.0f, 1.0f}});
+    vertices.push_back(
+      {pos1 - axisScale * worldAxis1, {1.0f, 0.5f, 0.0f, 1.0f}});
+    vertices.push_back({pos2, {1.0f, 0.5f, 0.0f, 1.0f}});
+    vertices.push_back(
+      {pos2 + axisScale * worldAxis2, {1.0f, 0.5f, 0.0f, 1.0f}});
+    vertices.push_back({pos2, {1.0f, 0.5f, 0.0f, 1.0f}});
+    vertices.push_back(
+      {pos2 - axisScale * worldAxis2, {1.0f, 0.5f, 0.0f, 1.0f}});
+  }
+
+  void drawLines(const std::vector<VertexData> &vertices,
+                 float lineWidth) const {
+    glBindVertexArray(m_lineVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(VertexData),
+                 vertices.data(), GL_DYNAMIC_DRAW);
+    glLineWidth(lineWidth);
+    glDrawArrays(GL_LINES, 0, vertices.size());
+    glBindVertexArray(0);
   }
 
   void drawCube() const {

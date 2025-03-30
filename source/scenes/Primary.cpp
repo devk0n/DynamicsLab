@@ -12,7 +12,7 @@ void Primary::setupDynamics() {
 
   Body* chassis = builder.createCube()
     .mass(1)
-    .position(0, 0, 2)
+    .position(0, 0, 8)
     .build();
 
   Body* anchor = builder.createCube()
@@ -24,6 +24,8 @@ void Primary::setupDynamics() {
   builder.createSpring()
     .withBodyA(chassis)
     .withBodyB(anchor)
+    .withLocalPointA(1, 1, 1)
+    .withLocalPointB(1, 1, 1)
     .withStiffness(5)
     .withRestLength(10)
     .build();
