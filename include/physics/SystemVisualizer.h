@@ -182,7 +182,7 @@ private:
 
     std::vector<VertexData> springVertices;
 
-    for (const auto &forceGen: system.getForceGenerators()) {
+    for (const auto &forceGen: system.getForceElements()) {
       if (auto *spring = dynamic_cast<Proton::Spring *>(forceGen.get())) {
         // Get world positions of attachment points
         glm::vec3 worldA = getWorldAttachmentPoint(

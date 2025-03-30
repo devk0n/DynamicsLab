@@ -11,7 +11,8 @@ void Primary::setupDynamics() {
   DynamicsBuilder builder(m_system);
 
   Body* chassis = builder.createCube()
-    .mass(1)
+    .mass(100)
+    .inertia(10, 10, 10)
     .position(0, 0, 8)
     .build();
 
@@ -24,11 +25,11 @@ void Primary::setupDynamics() {
   builder.createSpring()
     .withBodyA(chassis)
     .withBodyB(anchor)
-    .withLocalPointA(1, 1, 1)
-    .withLocalPointB(1, 1, 1)
-    .withStiffness(500)
-    .withDamping(1555)
-    .withRestLength(1)
+    .withLocalPointA(1, 0, 0)  // Attach at centers
+    .withLocalPointB(1, 0, 0)
+    .withStiffness(100.0)      // Start with lower stiffness
+    .withDamping(100)          // Small damping
+    .withRestLength(1.0)       // Shorter than initial distance
     .build();
 
   builder.createGravity(0, 0, -9.81)
@@ -42,8 +43,8 @@ bool Primary::load() {
   setupDynamics();
 
   LOG_INFO("Initializing Primary Scene");
-  m_camera.setPosition({5.0f, 3.2f, 3.2f});
-  m_camera.lookAt({0.0f, 0.0f, 2.0f});
+  m_camera.setPosition({5.0f, 3.2f, 9.2f});
+  m_camera.lookAt({0.0f, 0.0f, 6.0f});
   m_camera.setMovementSpeed(5.0f);
 
   if (!m_ctx.renderer->getShaderManager()

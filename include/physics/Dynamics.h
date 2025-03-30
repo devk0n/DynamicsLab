@@ -27,6 +27,15 @@ public:
     return m_forceGenerators;
   }
 
+  void addForceElement(const std::shared_ptr<ForceElement>& element) {
+    m_forceElements.emplace_back(element);
+  }
+
+  [[nodiscard]] const std::vector<std::shared_ptr<ForceElement>>& getForceElements() const {
+    return m_forceElements;
+  }
+
+
   // Constraint handling
   void addConstraint(const std::shared_ptr<Constraint>& constraint) {
     m_constraints.emplace_back(constraint);
@@ -54,6 +63,9 @@ private:
 
   // Force generators
   std::vector<std::shared_ptr<ForceGenerator>> m_forceGenerators;
+
+  // Force elements
+  std::vector<std::shared_ptr<ForceElement>> m_forceElements;
 
   // Constraints
   std::vector<std::shared_ptr<Constraint>> m_constraints;

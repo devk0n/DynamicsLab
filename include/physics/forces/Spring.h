@@ -4,11 +4,11 @@
 #include <utility>
 
 #include "Body.h"
-#include "ForceGenerator.h"
+#include "ForceElement.h"
 
 namespace Proton {
 
-class Spring final : public ForceGenerator {
+class Spring final : public ForceElement {
 public:
   Spring(
       Body* bodyA, Vector3d localPointA,
@@ -20,7 +20,14 @@ public:
 
   Spring();
 
-  void apply(double dt) override;
+  void computeForceAndJacobian(
+      Eigen::VectorXd& F_ext,
+      Eigen::MatrixXd& K,
+      int dof_dq
+  ) override;
+
+  [[nodiscard]] Vector3d computeRelativeVelocity() const;
+  void updateEffectiveParameters();
 
   [[nodiscard]] Body* getBodyA() const { return m_bodyA; }
   [[nodiscard]] Body* getBodyB() const { return m_bodyB; }

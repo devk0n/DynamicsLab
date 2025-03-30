@@ -73,6 +73,13 @@ void Dynamics::step(double dt) const {
       M.block<3, 3>(i * 6 + 3, i * 6 + 3) = body->getInertiaWorld();
     }
 
+    Eigen::MatrixXd K = Eigen::MatrixXd::Zero(dof_dq, dof_dq);
+
+    // Apply all force elements
+    for (const auto& fe : m_forceElements) {
+      fe->computeForceAndJacobian(F_ext, K, dof_dq);
+    }
+
     // Constraints
     MatrixXd P = MatrixXd::Zero(m_numConstraints, dof_dq);
     VectorXd gamma = VectorXd::Zero(m_numConstraints);
@@ -86,7 +93,7 @@ void Dynamics::step(double dt) const {
     // Solve KKT system
     MatrixXd KKT(dof_dq + m_numConstraints, dof_dq + m_numConstraints);
     KKT.setZero();
-    KKT.topLeftCorner(dof_dq, dof_dq) = M;
+    KKT.topLeftCorner(dof_dq, dof_dq) = M - dt * dt * K;
     KKT.topRightCorner(dof_dq, m_numConstraints) = P.transpose();
     KKT.bottomLeftCorner(m_numConstraints, dof_dq) = P;
 

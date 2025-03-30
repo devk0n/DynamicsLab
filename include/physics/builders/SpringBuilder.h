@@ -48,7 +48,7 @@ public:
   }
 
   std::shared_ptr<Spring> build() {
-    m_dynamics.addForceGenerator(m_spring);
+    m_dynamics.addForceElement(m_spring);
     return m_spring;
   }
 

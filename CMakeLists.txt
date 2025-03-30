@@ -176,6 +176,7 @@ set(SOURCES
     source/physics/constraints/UniversalJoint.cpp
 include/physics/builders/SpringBuilder.h
 source/physics/forces/Spring.cpp
+include/physics/forces/ForceElement.h
 )
 
 include_directories(
