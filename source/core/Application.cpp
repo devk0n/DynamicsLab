@@ -8,6 +8,7 @@
 #include "InputManager.h"
 #include "Logger.h"
 #include "FrameTimer.h"
+#include "ScopedTimer.h"
 
 struct Application::Impl {
   std::unique_ptr<Context> m_ctx;
@@ -119,19 +120,52 @@ void Application::Impl::run() const {
   LOG_INFO("Application started");
   m_frameTimer->update();
 
+
   while (!m_windowManager->shouldClose()) {
     m_frameTimer->update();
-    WindowManager::pollEvents();
-    m_renderer->beginFrame();
-    m_sceneManager->update(m_frameTimer->getDeltaTime());
-    m_inputManager->update();
-    m_renderer->endFrame();
+    m_frameTimer->clearTimings();
 
-    m_imguiManager->beginFrame();
-    m_sceneManager->render();
-    m_imguiManager->endFrame();
+    {
+      ScopedTimer t("PollEvents", m_frameTimer->getTimings());
+      WindowManager::pollEvents();
+    }
+    {
+      ScopedTimer t("PollEvents", m_frameTimer->getTimings());
+      WindowManager::pollEvents();
+    }
+    {
+      ScopedTimer t("BeginFrame", m_frameTimer->getTimings());
+      Renderer::beginFrame();
+    }
+    {
+      ScopedTimer t("UpdateScene", m_frameTimer->getTimings());
+      m_sceneManager->update(m_frameTimer->getDeltaTime());
+    }
+    {
+      ScopedTimer t("UpdateInput", m_frameTimer->getTimings());
+      m_inputManager->update();
+    }
+    {
+      ScopedTimer t("EndFrame", m_frameTimer->getTimings());
+      Renderer::endFrame();
+    }
+    {
+      ScopedTimer t("ImGuiBegin", m_frameTimer->getTimings());
+      m_imguiManager->beginFrame();
+    }
+    {
+      ScopedTimer t("RenderScene", m_frameTimer->getTimings());
+      m_sceneManager->render();
+    }
+    {
+      ScopedTimer t("ImGuiEnd", m_frameTimer->getTimings());
+      m_imguiManager->endFrame();
+    }
+    {
+      ScopedTimer t("SwapBuffers", m_frameTimer->getTimings());
+      m_windowManager->swapBuffers();
+    }
 
-    m_windowManager->swapBuffers();
   }
 
   LOG_INFO("Application closed");

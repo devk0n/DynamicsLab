@@ -66,13 +66,11 @@ inline Vector4d integrateQuaternionExp(const Vector4d& q, const Vector3d& omega,
   return result;
 }
 
-
 inline Matrix3d skew(const Vector3d& v) {
-  Matrix3d S;
-  S <<      0, -v.z(),  v.y(),
-        v.z(),      0, -v.x(),
-       -v.y(),  v.x(),      0;
-  return S;
+  return (Matrix3d() <<
+     0,   -v.z(),  v.y(),
+     v.z(),   0,  -v.x(),
+    -v.y(), v.x(),   0).finished();
 }
 
 inline MatrixG matrixG(Vector4d e) {

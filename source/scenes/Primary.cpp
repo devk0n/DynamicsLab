@@ -119,7 +119,12 @@ void Primary::showUI() {
   ImGui::Text("Elapsed Time: %02d:%02d:%02d.%03d", hours, minutes, seconds, milliseconds);
   ImGui::Text("Delta Time: %.0f µs", m_ctx.frameTimer->getDeltaTime() * 1000000);
   ImGui::Text("Status: %s", m_run ? "Running" : "Stopped");
+  for (const auto& [label, duration] : m_ctx.frameTimer->getTimings()) {
+    ImGui::Text("%-15s : %.3f ms", label.c_str(), duration);
+  }
   ImGui::End();
+
+
 }
 
 void Primary::handleCameraMovement(const double dt) {

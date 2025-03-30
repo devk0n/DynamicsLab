@@ -177,6 +177,7 @@ set(SOURCES
 include/physics/builders/SpringBuilder.h
 source/physics/forces/Spring.cpp
 include/physics/forces/ForceElement.h
+include/core/ScopedTimer.h
 )
 
 include_directories(

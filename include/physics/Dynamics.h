@@ -50,9 +50,22 @@ public:
 
 private:
 
-  [[nodiscard]] VectorXd getPositionState() const;
-  [[nodiscard]] VectorXd getVelocityState() const;
-
+  void initializeState(VectorXd& q, VectorXd& dq) const;
+  void updateMidpointState(const VectorXd& q_mid, const VectorXd& dq_mid) const;
+  void computeExternalForces(VectorXd& F_ext) const;
+  void assembleMassMatrix(Eigen::Ref<MatrixXd> M) const;
+  void applyForceElements(VectorXd& F_ext, MatrixXd& K) const;
+  void assembleConstraints(MatrixXd& P, VectorXd& gamma) const;
+  [[nodiscard]] static VectorXd solveKKTSystem(
+    const MatrixXd& M, const MatrixXd& K,
+    const MatrixXd& P, const VectorXd& F_ext,
+    const VectorXd& gamma, double dt
+  ) ;
+  void integrateStateMidpoint(
+    const VectorXd& q_n, const VectorXd& dq_n,
+    const VectorXd& dq_new, double dt,
+    VectorXd& q_next
+  ) const;
   void writeBack(VectorXd q_next, VectorXd dq_next) const;
   void projectConstraints(VectorXd &q_next, VectorXd &dq_next, int dof_dq, double dt) const;
 
