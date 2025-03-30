@@ -14,7 +14,8 @@ public:
       Body* bodyA, Vector3d localPointA,
       Body* bodyB, Vector3d localPointB,
       double restLength,
-      double stiffness
+      double stiffness,
+      double damping
   );
 
   Spring();
@@ -27,6 +28,7 @@ public:
   [[nodiscard]] Vector3d getLocalPointB() const { return m_localPointB; }
   [[nodiscard]] double getRestLength() const { return m_restLength; }
   [[nodiscard]] double getStiffness() const { return m_stiffness; }
+  [[nodiscard]] double getDamping() const { return m_damping; }
 
   void setBodyA(Body* bodyA) { m_bodyA = bodyA; }
   void setBodyB(Body* bodyB) { m_bodyB = bodyB; }
@@ -34,6 +36,7 @@ public:
   void setLocalPointB(Vector3d localB) { m_localPointB = std::move(localB); }
   void setRestLength(double restLength) { m_restLength = restLength; }
   void setStiffness(double stiffness) { m_stiffness = stiffness; }
+  void setDamping(double damping) { m_damping = damping; }
 
 private:
   Body* m_bodyA;
@@ -42,6 +45,7 @@ private:
   Vector3d m_localPointB{0, 0, 0};
   double m_restLength = 0;
   double m_stiffness = 0;
+  double m_damping = 0;
 };
 } // Proton
 

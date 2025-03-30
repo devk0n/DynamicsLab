@@ -26,8 +26,9 @@ void Primary::setupDynamics() {
     .withBodyB(anchor)
     .withLocalPointA(1, 1, 1)
     .withLocalPointB(1, 1, 1)
-    .withStiffness(5)
-    .withRestLength(10)
+    .withStiffness(500)
+    .withDamping(1555)
+    .withRestLength(1)
     .build();
 
   builder.createGravity(0, 0, -9.81)

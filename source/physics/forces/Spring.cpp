@@ -5,13 +5,15 @@ Spring::Spring(
       Body* bodyA, Vector3d localPointA,
       Body* bodyB, Vector3d localPointB,
       const double restLength,
-      const double stiffness)
+      const double stiffness,
+      const double damping)
       : m_bodyA(bodyA),
         m_bodyB(bodyB),
         m_localPointA(std::move(localPointA)),
         m_localPointB(std::move(localPointB)),
         m_restLength(restLength),
-        m_stiffness(stiffness) {}
+        m_stiffness(stiffness),
+        m_damping(damping) {}
 
 Spring::Spring()
     : m_bodyA(nullptr),
@@ -31,18 +33,31 @@ void Spring::apply(double dt) {
 
   Vector3d direction = delta / currentLength;
 
-  // 3. Apply Hooke's law (F = -k * (x - L₀))
-  double springForce = m_stiffness * (currentLength - m_restLength);
-  Vector3d force = direction * springForce;
+  // 3. Calculate relative velocity at attachment points
+  Vector3d velA = m_bodyA->getLinearVelocity() +
+                 m_bodyA->getAngularVelocity().cross(worldPointA - m_bodyA->getPosition());
+  Vector3d velB = m_bodyB->getLinearVelocity() +
+                 m_bodyB->getAngularVelocity().cross(worldPointB - m_bodyB->getPosition());
+  Vector3d relativeVel = velB - velA;
 
-  // 4. Apply equal and opposite forces at the attachment points
+  // 4. Project relative velocity onto spring direction
+  double velAlongSpring = relativeVel.dot(direction);
+
+  // 5. Apply Hooke's law (F = -k * (x - L₀)) and damping (F_damp = -d * v)
+  double springForce = m_stiffness * (currentLength - m_restLength);
+  double dampingForce = m_damping * velAlongSpring;
+  double totalForce = springForce + dampingForce;
+
+  Vector3d force = direction * totalForce;
+
+  // 6. Apply equal and opposite forces at the attachment points
   m_bodyA->addForce(force);
   m_bodyB->addForce(-force);
 
+  // 7. Apply torques
   Vector3d torqueA = (worldPointA - m_bodyA->getPosition()).cross(force);
   Vector3d torqueB = (worldPointB - m_bodyB->getPosition()).cross(-force);
   m_bodyA->addTorque(torqueA);
   m_bodyB->addTorque(torqueB);
-
 }
 } // Proton

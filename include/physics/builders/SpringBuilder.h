@@ -42,6 +42,11 @@ public:
     return *this;
   }
 
+  SpringBuilder& withDamping(double damping) {
+    m_spring->setDamping(damping);
+    return *this;
+  }
+
   std::shared_ptr<Spring> build() {
     m_dynamics.addForceGenerator(m_spring);
     return m_spring;
