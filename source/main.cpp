@@ -7,7 +7,7 @@ int main() {
   if (!Logger::initialize("log.txt")) {
     return 1;
   }
-  Logger::ConsoleConfig config;
+  ConsoleConfig config;
   config.showTimestamps = false;  // Disable timestamps
   config.showFileNames = true;    // Disable file names
   config.showLevel = false;       // Disable level

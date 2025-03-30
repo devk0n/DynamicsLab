@@ -1,12 +1,12 @@
 #ifndef OPENGL_CORE_H
 #define OPENGL_CORE_H
 
-// Check if GLFW was already included, which would be an error
+// Prevent incorrect include order
 #ifdef _GLFW3_H
-#error "GLFW was included before GLAD! Please include OpenGLCore.h before any GLFW headers."
+#error "GLFW was included before GLAD. Fix include order by including OpenGLCore.h first in your source files."
 #endif
 
-// Include GLAD first to load OpenGL function pointers
+// GLAD must be included before GLFW
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
