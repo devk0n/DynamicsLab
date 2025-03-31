@@ -47,7 +47,15 @@ public:
     return *this;
   }
 
+  SpringBuilder& withAutoDistance(bool autoDistance) {
+    m_autoDistance = autoDistance;
+    return *this;
+  }
+
   std::shared_ptr<Spring> build() {
+    if (m_autoDistance) {
+      m_spring->computeDistance();
+    }
     m_dynamics.addForceElement(m_spring);
     return m_spring;
   }
@@ -55,6 +63,7 @@ public:
 private:
   Dynamics &m_dynamics;
   std::shared_ptr<Spring> m_spring;
+  bool m_autoDistance;
 };
 } // Proton
 #endif // SPRING_BUILDER_H

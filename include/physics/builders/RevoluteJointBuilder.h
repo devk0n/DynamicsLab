@@ -42,12 +42,8 @@ public:
     return *this;
   }
 
-  RevoluteJointBuilder& withAxisC(double x, double y, double z) {
-    m_constraint->setAxisC(Vector3d(x, y, z));
-    return *this;
-  }
-
   std::shared_ptr<RevoluteJoint> build() {
+    m_constraint->calculateConstraintAxes();
     m_dynamics.addConstraint(m_constraint);
     return m_constraint;
   }

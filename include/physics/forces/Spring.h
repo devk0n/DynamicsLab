@@ -20,14 +20,13 @@ public:
 
   Spring();
 
+  void computeDistance();
+
   void computeForceAndJacobian(
       Eigen::VectorXd& F_ext,
       Eigen::MatrixXd& K,
       int dof_dq
   ) override;
-
-  [[nodiscard]] Vector3d computeRelativeVelocity() const;
-  void updateEffectiveParameters();
 
   [[nodiscard]] Body* getBodyA() const { return m_bodyA; }
   [[nodiscard]] Body* getBodyB() const { return m_bodyB; }

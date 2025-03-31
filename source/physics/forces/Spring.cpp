@@ -19,6 +19,17 @@ Spring::Spring()
     : m_bodyA(nullptr),
       m_bodyB(nullptr) {}
 
+void Spring::computeDistance() {
+  // Compute each anchor’s world‑space position
+  const auto A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const Vector3d world1 = m_bodyA->getPosition() + A1 * m_localPointA;
+  const Vector3d world2 = m_bodyB->getPosition() + A2 * m_localPointB;
+
+  // Initialize the resting distance automatically
+  m_restLength = (world2 - world1).norm();
+}
+
 void Spring::computeForceAndJacobian(
     Eigen::VectorXd& F_ext,
     Eigen::MatrixXd& K,

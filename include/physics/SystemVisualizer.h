@@ -1,7 +1,7 @@
 #ifndef SYSTEM_VISUALIZER_H
 #define SYSTEM_VISUALIZER_H
 
-#include <RevoluteJoint.h>#include <glm/glm.hpp>
+#include "RevoluteJoint.h"
 #include "Spring.h"
 #include "DistanceConstraint.h"
 #include "BallJoint.h"
@@ -340,67 +340,58 @@ private:
   }
 
   static void processRevoluteJoint(
-    const Proton::RevoluteJoint *rj,
-    std::vector<VertexData> &vertices) {
-    glm::vec3 pos1 = getWorldAttachmentPoint(rj->getBodyA(),
-                                           rj->getLocalPointA());
-    glm::vec3 pos2 = getWorldAttachmentPoint(rj->getBodyB(),
-                                           rj->getLocalPointB());
-
-    // Local vectors
-    vertices.push_back({
-        rj->getBodyA()->getPositionVec3(), {0.0f, 1.0f, 1.0f, 1.0f}
-    });
-    vertices.push_back({pos1, {0.0f, 1.0f, 1.0f, 1.0f}});
-    vertices.push_back({
-        rj->getBodyB()->getPositionVec3(), {0.0f, 1.0f, 1.0f, 1.0f}
-    });
-    vertices.push_back({pos2, {0.0f, 1.0f, 1.0f, 1.0f}});
-
-    // Draw the axis lines
+      const Proton::RevoluteJoint* rj,
+      std::vector<VertexData>& vertices) {
+    // Constants
     constexpr float axisScale = 0.5f;
-    glm::vec3 worldAxis1 = rj->getBodyA()->getOrientationQuat() *
-                         glm::vec3(rj->getAxisA().x(), rj->getAxisA().y(),
-                                 rj->getAxisA().z());
-    glm::vec3 worldAxis2 = rj->getBodyB()->getOrientationQuat() *
-                         glm::vec3(rj->getAxisB().x(), rj->getAxisB().y(),
-                                 rj->getAxisB().z());
+    const glm::vec4 cyanColor(0.0f, 1.0f, 1.0f, 1.0f);
+    const glm::vec4 orangeColor(1.0f, 0.5f, 0.0f, 1.0f);
+    const glm::vec4 greenColor(0.5f, 1.0f, 0.0f, 1.0f);
 
-    // Calculate the perpendicular axis (last axis of the frame)
-    glm::vec3 perpendicularAxis1 = cross(worldAxis1, glm::vec3(1.0f, 0.0f, 0.0f));
-    if (length(perpendicularAxis1) < 0.001f) { // If parallel to X-axis
-        perpendicularAxis1 = cross(worldAxis1, glm::vec3(0.0f, 1.0f, 0.0f));
-    }
-    perpendicularAxis1 = normalize(perpendicularAxis1);
+    // Get attachment points in world space
+    const glm::vec3 pos1 = getWorldAttachmentPoint(rj->getBodyA(), rj->getLocalPointA());
+    const glm::vec3 pos2 = getWorldAttachmentPoint(rj->getBodyB(), rj->getLocalPointB());
 
-    glm::vec3 perpendicularAxis2 = cross(worldAxis2, glm::vec3(1.0f, 0.0f, 0.0f));
-    if (length(perpendicularAxis2) < 0.001f) { // If parallel to X-axis
-        perpendicularAxis2 = cross(worldAxis2, glm::vec3(0.0f, 1.0f, 0.0f));
-    }
-    perpendicularAxis2 = normalize(perpendicularAxis2);
+    // Draw body-to-anchor lines (cyan)
+    vertices.push_back(VertexData{rj->getBodyA()->getPositionVec3(), cyanColor});
+    vertices.push_back(VertexData{pos1, cyanColor});
+    vertices.push_back(VertexData{rj->getBodyB()->getPositionVec3(), cyanColor});
+    vertices.push_back(VertexData{pos2, cyanColor});
 
-    // Primary axis (original rotation axis)
-    vertices.push_back({pos1, {1.0f, 0.5f, 0.0f, 1.0f}}); // Orange
-    vertices.push_back({pos1 + axisScale * worldAxis1, {1.0f, 0.5f, 0.0f, 1.0f}});
-    vertices.push_back({pos1, {1.0f, 0.5f, 0.0f, 1.0f}});
-    vertices.push_back({pos1 - axisScale * worldAxis1, {1.0f, 0.5f, 0.0f, 1.0f}});
+    // Get world-space rotation axes
+    const glm::quat rotA = rj->getBodyA()->getOrientationQuat();
+    const glm::quat rotB = rj->getBodyB()->getOrientationQuat();
+    const glm::vec3 worldAxisA = rotA * glm::vec3(rj->getAxisA().x(),
+                                                 rj->getAxisA().y(),
+                                                 rj->getAxisA().z());
+    const glm::vec3 worldAxisB = rotB * glm::vec3(rj->getAxisB().x(),
+                                                 rj->getAxisB().y(),
+                                                 rj->getAxisB().z());
 
-    vertices.push_back({pos2, {1.0f, 0.5f, 0.0f, 1.0f}});
-    vertices.push_back({pos2 + axisScale * worldAxis2, {1.0f, 0.5f, 0.0f, 1.0f}});
-    vertices.push_back({pos2, {1.0f, 0.5f, 0.0f, 1.0f}});
-    vertices.push_back({pos2 - axisScale * worldAxis2, {1.0f, 0.5f, 0.0f, 1.0f}});
+    // Calculate perpendicular axes using the joint's constraint axes
+    const glm::vec3 worldConstr1A = rotA * glm::vec3(rj->getAxisM().x(),
+                                                    rj->getAxisM().y(),
+                                                    rj->getAxisM().z());
+    const glm::vec3 worldConstr2A = rotA * glm::vec3(rj->getAxisN().x(),
+                                                    rj->getAxisN().y(),
+                                                    rj->getAxisN().z());
 
-    // Perpendicular axis (last axis of the frame)
-    vertices.push_back({pos1, {0.5f, 1.0f, 0.0f, 1.0f}}); // Green
-    vertices.push_back({pos1 + axisScale * perpendicularAxis1, {0.5f, 1.0f, 0.0f, 1.0f}});
-    vertices.push_back({pos1, {0.5f, 1.0f, 0.0f, 1.0f}});
-    vertices.push_back({pos1 - axisScale * perpendicularAxis1, {0.5f, 1.0f, 0.0f, 1.0f}});
+    // Draw rotation axes (orange)
+    auto drawAxis = [&](const glm::vec3& pos, const glm::vec3& axis, const glm::vec4& color) {
+        vertices.push_back(VertexData{pos, color});
+        vertices.push_back(VertexData{pos + axisScale * axis, color});
+        vertices.push_back(VertexData{pos, color});
+        vertices.push_back(VertexData{pos - axisScale * axis, color});
+    };
 
-    vertices.push_back({pos2, {0.5f, 1.0f, 0.0f, 1.0f}});
-    vertices.push_back({pos2 + axisScale * perpendicularAxis2, {0.5f, 1.0f, 0.0f, 1.0f}});
-    vertices.push_back({pos2, {0.5f, 1.0f, 0.0f, 1.0f}});
-    vertices.push_back({pos2 - axisScale * perpendicularAxis2, {0.5f, 1.0f, 0.0f, 1.0f}});
-  }
+    // Draw primary rotation axes
+    drawAxis(pos1, worldAxisA, orangeColor);
+    drawAxis(pos2, worldAxisB, orangeColor);
+
+    // Draw constraint axes (green)
+    drawAxis(pos1, worldConstr1A, greenColor);
+    drawAxis(pos2, worldConstr2A, greenColor);
+}
 
   void drawLines(const std::vector<VertexData> &vertices,
                  float lineWidth) const {

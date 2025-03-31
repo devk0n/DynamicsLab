@@ -11,33 +11,33 @@ using namespace Proton;
 void Primary::setupDynamics() {
   DynamicsBuilder builder(m_system);
 
+  // Create chassis and upright
   Body* chassis = builder.createCube()
-    .mass(100)
-    .inertia(1, 1, 1)
-    .position(0, 0, 5)
-    .size(1.0, 0.2, 0.2)
+    .mass(150)  // kg
+    .position(0, 0, 0)
+    .size(0.5, 0.5, 0.3)
     .fixed(true)
     .build();
 
-  Body* wheel = builder.createCube()
-    .mass(10)
-    .inertia(1, 1, 1)
-    .position(2, 0, 5)
-    .size(1.0, 0.2, 0.2)
-    .build();
-
-  builder.createGravity(0, 0, -9.81)
-    .addBody(wheel)
+  Body* upperWishbone = builder.createCube()
+    .mass(4)
+    .position(1, 0.75, 0)
+    .orientation(0, 0, 90)
+    .size(0.5, 0.4, 0.05)
     .build();
 
   builder.createRevoluteJoint()
-    .withBodyA(chassis).withLocalPointA(1, 0, 0)
-    .withBodyB(wheel).withLocalPointB(-1, 0, 0)
-    .withAxisA(0, 1, 0)
-    .withAxisB(1, 0, 0)
-    .withAxisC(0, 0, 1)
+    .withBodyA(chassis)
+    .withBodyB(upperWishbone)
+    .withLocalPointA(1, 0.5, 0)  // Attachment point on chassis
+    .withLocalPointB(-0.25, 0, 0)  // Attachment point on wishbone
+    .withAxisA(0, 1, 0)           // Both axes now point in the same direction
+    .withAxisB(0, 1, 0)           // (assuming Y is the desired rotation axis)
     .build();
 
+  builder.createGravity(0, 0, -9.81)
+    .addBody(upperWishbone)
+    .build();
 }
 
 bool Primary::load() {
@@ -45,8 +45,8 @@ bool Primary::load() {
   setupDynamics();
 
   LOG_INFO("Initializing Primary Scene");
-  m_camera.setPosition({5.0f, 3.2f, 9.2f});
-  m_camera.lookAt({0.0f, 0.0f, 6.0f});
+  m_camera.setPosition({5.0f, 3.2f, 3.2f});
+  m_camera.lookAt({0.0f, 0.0f, 0.0f});
   m_camera.setMovementSpeed(5.0f);
 
   if (!m_ctx.renderer->getShaderManager()
