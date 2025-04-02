@@ -63,7 +63,7 @@ public:
   [[nodiscard]] const Vector3d &getSize() const noexcept { return m_size; }
   void setMass(const double mass) noexcept {
     m_mass = mass;
-    m_inverseMass = (mass > std::numeric_limits<double>::epsilon() ? 1.0 / mass : 0.0);
+    m_inverseMass = 1.0 / mass;
   }
   void setInertia(const Vector3d &inertia) noexcept {
     m_inertia = inertia;

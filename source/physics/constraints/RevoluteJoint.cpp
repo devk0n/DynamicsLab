@@ -13,68 +13,39 @@ RevoluteJoint::RevoluteJoint(
         m_localPointB(std::move(localPointB)),
         m_axisA(std::move(axisA)),
         m_axisB(std::move(axisB)) {
-  calculateConstraintAxes();
-}
-
-void RevoluteJoint::calculateConstraintAxes() {
-  // Find a vector not parallel to m_axisB
-  auto temp = Vector3d(1, 0, 0);
-  if (m_axisB.cross(temp).norm() < 1e-6) {
-    temp = Vector3d(0, 1, 0);
-  }
-
-  m_axisN = m_axisB.cross(temp).normalized();
-  m_axisM = m_axisB.cross(m_axisN).normalized();
+  m_axisM = m_axisA.cross(Vector3d(1, 0, 0)).normalized();  // Perpendicular to axisA
+  m_axisN = m_axisA.cross(m_axisM).normalized();             // Perpendicular to both axisA and axisM
 }
 
 void RevoluteJoint::computePositionError(VectorXd &phi, int startRow) const {
-  const auto& rA = m_bodyA->getPosition();
-  const auto& rB = m_bodyB->getPosition();
-  const auto A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  const auto A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  auto r1 = m_bodyA->getPosition();
+  auto r2 = m_bodyB->getPosition();
+
+  auto A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  auto A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
   // Point constraint (3 rows)
-  phi.segment<3>(startRow) =
-      rA + A1 * m_localPointA - rB - A2 * m_localPointB;
+  phi.segment<3>(startRow) = r1 + A1 * m_localPointA - r2 - A2 * m_localPointB;
 
-  // Axis alignment constraints (2 rows)
-  const Vector3d worldAxisA = A1 * m_axisA;
-  const Vector3d worldAxisM = A2 * m_axisM;
-  const Vector3d worldAxisN = A2 * m_axisN;
-
-  phi[startRow + 3] = worldAxisA.dot(worldAxisM);  // Should be 0
-  phi[startRow + 4] = worldAxisA.dot(worldAxisN);  // Should be 0
+  phi.segment<1>(startRow + 3) = (A1 * m_axisA).eval().transpose() * (A2 * m_axisM).eval();
+  phi.segment<1>(startRow + 4) = (A1 * m_axisA).eval().transpose() * (A2 * m_axisN).eval();
 }
 
 void RevoluteJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
   const auto A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
   const auto A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
-  // World space points and axes
-  const Vector3d worldPointA = A1 * m_localPointA;
-  const Vector3d worldPointB = A2 * m_localPointB;
-  const Vector3d worldAxisA = A1 * m_axisA;
-  const Vector3d worldAxisM = A2 * m_axisM;
-  const Vector3d worldAxisN = A2 * m_axisN;
+  // Point constraint Jacobian
+  jacobian.block<3,3>(startRow, m_bodyA->getIndex() * 6)      =   Matrix3d::Identity();
+  jacobian.block<3,3>(startRow, m_bodyA->getIndex() * 6 + 3)  = - A1 * skew(m_localPointA);
+  jacobian.block<3,3>(startRow, m_bodyB->getIndex() * 6)      = - Matrix3d::Identity();
+  jacobian.block<3,3>(startRow, m_bodyB->getIndex() * 6 + 3)  =   A2 * skew(m_localPointB);
 
-  // Point constraint Jacobian (3 rows)
-  jacobian.block<3,3>(startRow, m_bodyA->getIndex() * 6) = Matrix3d::Identity();
-  jacobian.block<3,3>(startRow, m_bodyA->getIndex() * 6 + 3) = -skew(worldPointA);
-  jacobian.block<3,3>(startRow, m_bodyB->getIndex() * 6) = -Matrix3d::Identity();
-  jacobian.block<3,3>(startRow, m_bodyB->getIndex() * 6 + 3) = skew(worldPointB);
-
-  // Perpendicularity constraints Jacobian (2 rows)
-  // d(axisA·axisM)/dθ
-  jacobian.block<1,3>(startRow + 3, m_bodyA->getIndex() * 6 + 3) =
-      -worldAxisM.transpose() * skew(worldAxisA);
-  jacobian.block<1,3>(startRow + 3, m_bodyB->getIndex() * 6 + 3) =
-      -worldAxisA.transpose() * skew(worldAxisM);
-
-  // d(axisA·axisN)/dθ
-  jacobian.block<1,3>(startRow + 4, m_bodyA->getIndex() * 6 + 3) =
-      -worldAxisN.transpose() * skew(worldAxisA);
-  jacobian.block<1,3>(startRow + 4, m_bodyB->getIndex() * 6 + 3) =
-      -worldAxisA.transpose() * skew(worldAxisN);
+  // Perpendicularity constraints Jacobian
+  jacobian.block<1,3>(startRow + 3, m_bodyA->getIndex() * 6 + 3) = (A2 * m_axisM).transpose() * (A1 * skew(m_axisA));
+  jacobian.block<1,3>(startRow + 3, m_bodyB->getIndex() * 6 + 3) = (A1 * m_axisA).transpose() * (A2 * skew(m_axisM));
+  jacobian.block<1,3>(startRow + 4, m_bodyA->getIndex() * 6 + 3) = (A2 * m_axisN).transpose() * (A1 * skew(m_axisA));
+  jacobian.block<1,3>(startRow + 4, m_bodyB->getIndex() * 6 + 3) = (A1 * m_axisA).transpose() * (A2 * skew(m_axisN));
 }
 
 void RevoluteJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow) const {

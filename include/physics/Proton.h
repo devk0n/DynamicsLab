@@ -9,10 +9,12 @@ namespace Proton {
 
 using UniqueID = std::uint16_t;
 
+using Vector2d = Eigen::Vector2d;
 using Vector3d = Eigen::Vector3d;
 using Vector4d = Eigen::Vector4d;
 using VectorXd = Eigen::VectorXd;
 
+using Matrix2d = Eigen::Matrix2d;
 using Matrix3d = Eigen::Matrix3d;
 using Matrix4d = Eigen::Matrix4d;
 using Matrix5d = Eigen::Matrix<double, 5, 5>;

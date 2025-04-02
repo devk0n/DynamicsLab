@@ -23,6 +23,7 @@ void Dynamics::step(double dt) const {
   // Initialize next state with current state
   VectorXd q_next = q_n;
   VectorXd dq_next = dq_n;
+  VectorXd q_prev = q_n, dq_prev = dq_n;
 
   constexpr int maxIters = 10;   // Max number of nonlinear solver iterations
   constexpr double tol = 1e-8;   // Convergence tolerance
@@ -71,8 +72,10 @@ void Dynamics::step(double dt) const {
     dq_next = dq_new;
 
     // Check for convergence
-    double err = (dq_new - dq_next).norm() + (q_next - q_n).norm();
+    double err = (q_next - q_prev).norm() + (dq_next - dq_prev).norm();
     if (err < tol) break;
+    q_prev = q_next;
+    dq_prev = dq_next;
   }
 
   // Project any constraint violations (e.g., enforce joints)
@@ -99,15 +102,14 @@ void Dynamics::updateMidpointState(const VectorXd& q_mid, const VectorXd& dq_mid
     auto& body = m_bodies[i];
     body->clearForces();
     body->clearTorque();
+    body->updateInertiaWorld();
     if (body->isFixed()) continue;
-
-
 
     body->setPosition(q_mid.segment<3>(i * 7));
     body->setOrientation(q_mid.segment<4>(i * 7 + 3).normalized());
     body->setLinearVelocity(dq_mid.segment<3>(i * 6));
     body->setAngularVelocity(dq_mid.segment<3>(i * 6 + 3));
-    body->updateInertiaWorld();
+
   }
 }
 
@@ -203,10 +205,9 @@ void Dynamics::integrateStateMidpoint(
 
 // Projects positions and velocities to satisfy constraints exactly
 void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_dq, double dt) const {
-  constexpr int maxProjectionIters = 3;
-  constexpr double projectionTol = 1e-5;
 
-  for (int iter = 0; iter < maxProjectionIters; ++iter) {
+
+  for (int iter = 0; iter < m_maxProjectionIters; ++iter) {
     // Update bodies to new state
     for (int i = 0; i < m_numBodies; ++i) {
       if (m_bodies[i]->isFixed()) continue;
@@ -233,7 +234,7 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
     }
 
     double totalError = phi.squaredNorm() + Jdq.squaredNorm();
-    if (totalError < projectionTol) break;
+    if (totalError < m_projectionTol) break;
 
     if (m_numConstraints > 0) {
       // Solve for Lagrange multipliers using normal equations
@@ -255,7 +256,7 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
         q_next.segment<3>(i * 7) -= delta_q.segment<3>(i * 6);
         Vector3d delta_theta = delta_q.segment<3>(i * 6 + 3);
         Vector4d q = q_next.segment<4>(i * 7 + 3);
-        q_next.segment<4>(i * 7 + 3) = integrateQuaternionExp(q, delta_theta, dt);
+        q_next.segment<4>(i * 7 + 3) = integrateQuaternionExp(q, delta_theta, 1.0);
 
         dq_next.segment<3>(i * 6) -= delta_dq.segment<3>(i * 6);
         dq_next.segment<3>(i * 6 + 3) -= delta_dq.segment<3>(i * 6 + 3);

@@ -19,8 +19,6 @@ public:
   void computeJacobian(MatrixXd &jacobian, int startRow) const override;
   void computeAccelerationCorrection(VectorXd &gamma, int startRow) const override;
 
-  void calculateConstraintAxes();
-
   [[nodiscard]] Body* getBodyA() const { return m_bodyA; }
   [[nodiscard]] Body* getBodyB() const { return m_bodyB; }
   [[nodiscard]] Vector3d getLocalPointA() const { return m_localPointA; }

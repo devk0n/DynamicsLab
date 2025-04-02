@@ -14,6 +14,10 @@ public:
       : Scene(ctx),
         m_systemVisualizer(ctx.renderer->getShaderManager()) {}
 
+  void problemA();
+
+  void problemB();
+
   bool load() override;
   void update(double dt) override;
   void render() override;

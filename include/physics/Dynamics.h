@@ -49,6 +49,9 @@ public:
 
 private:
 
+  const int m_maxProjectionIters = 30;
+  const double m_projectionTol = 1e-8;
+
   void initializeState(VectorXd& q, VectorXd& dq) const;
   void updateMidpointState(const VectorXd& q_mid, const VectorXd& dq_mid) const;
   void computeExternalForces(VectorXd& F_ext) const;

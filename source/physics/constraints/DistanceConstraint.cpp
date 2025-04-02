@@ -8,11 +8,12 @@ DistanceConstraint::DistanceConstraint(
     : Constraint(1),
       m_bodyA(bodyA),
       m_bodyB(bodyB) {
+  computeDistance();
+}
 
+void DistanceConstraint::computeDistance() {
   Vector3d d = m_bodyB->getPosition() - m_bodyA->getPosition();
-
   m_distance = d.norm();
-
 }
 
 void DistanceConstraint::computePositionError(VectorXd &phi, const int startRow) const {

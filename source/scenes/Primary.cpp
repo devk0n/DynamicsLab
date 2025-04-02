@@ -8,41 +8,68 @@
 
 using namespace Proton;
 
-void Primary::setupDynamics() {
+void Primary::problemA() {
   DynamicsBuilder builder(m_system);
 
-  // Create chassis and upright
-  Body* chassis = builder.createCube()
-    .mass(150)  // kg
-    .position(0, 0, 0)
-    .size(0.5, 0.5, 0.3)
+  Body* anchor = builder.createCube()
+    .size(0.5, 0.1, 0.1)
     .fixed(true)
     .build();
 
-  Body* upperWishbone = builder.createCube()
-    .mass(4)
-    .position(1, 0.75, 0)
-    .orientation(0, 0, 90)
-    .size(0.5, 0.4, 0.05)
+  Body* arm1 = builder.createCube()
+    .size(1, 0.4, 0.4)
+    .position(0.0, 0.5, 0.0)
+    .orientation(0.0, 0.0, 90.0)
     .build();
 
   builder.createRevoluteJoint()
-    .withBodyA(chassis)
-    .withBodyB(upperWishbone)
-    .withLocalPointA(1, 0.5, 0)  // Attachment point on chassis
-    .withLocalPointB(-0.25, 0, 0)  // Attachment point on wishbone
-    .withAxisA(0, 1, 0)           // Both axes now point in the same direction
-    .withAxisB(0, 1, 0)           // (assuming Y is the desired rotation axis)
+    .withBodyA(anchor)
+    .withBodyB(arm1)
+    .withLocalPointA(0, 0, 0)
+    .withLocalPointB(-0.5, 0, 0)
+    .withAxisA(1, 0, 0)
+    .withAxisM(1, 0, 0)
+    .withAxisN(0, 0, 1)
     .build();
 
   builder.createGravity(0, 0, -9.81)
-    .addBody(upperWishbone)
+    .addBody(arm1)
+    .build();
+}
+
+void Primary::problemB() {
+  DynamicsBuilder builder(m_system);
+
+  Body* anchor = builder.createCube()
+    .size(0.5, 0.1, 0.1)
+    .fixed(true)
+    .build();
+
+  Body* arm1 = builder.createCube()
+    .size(1, 0.4, 0.4)
+    .position(0.0, 0.5, 0.0)
+    .orientation(0.0, 0.0, 90.0)
+    .build();
+
+  builder.createRevoluteJoint()
+    .withBodyA(anchor)
+    .withBodyB(arm1)
+    .withLocalPointA(0, 0, 0)
+    .withLocalPointB(-0.5, 0, 0)
+    .withAxisA(1, 0, 0)
+    .withAxisM(1, 0, 0)
+    .withAxisN(0, 0, 1)
+    .build();
+
+  builder.createGravity(0, 0, -9.81)
+    .addBody(arm1)
     .build();
 }
 
 bool Primary::load() {
 
-  setupDynamics();
+  // problemA();
+  problemB();
 
   LOG_INFO("Initializing Primary Scene");
   m_camera.setPosition({5.0f, 3.2f, 3.2f});
