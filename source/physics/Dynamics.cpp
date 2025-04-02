@@ -206,7 +206,6 @@ void Dynamics::integrateStateMidpoint(
 // Projects positions and velocities to satisfy constraints exactly
 void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_dq, double dt) const {
 
-
   for (int iter = 0; iter < m_maxProjectionIters; ++iter) {
     // Update bodies to new state
     for (int i = 0; i < m_numBodies; ++i) {

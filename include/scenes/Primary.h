@@ -18,6 +18,8 @@ public:
 
   void problemB();
 
+  void problemC();
+
   bool load() override;
   void update(double dt) override;
   void render() override;

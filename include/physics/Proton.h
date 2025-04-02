@@ -143,9 +143,9 @@ inline double sind(double degrees) {
 
 inline Vector4d eulerToQuaternionDegrees(const Vector3d& eulerAnglesDegrees) {
   constexpr double degToRad = PI / 180.0;
-  double roll  = eulerAnglesDegrees.x() * degToRad;
+  double roll  = eulerAnglesDegrees.z() * degToRad;
   double pitch = eulerAnglesDegrees.y() * degToRad;
-  double yaw   = eulerAnglesDegrees.z() * degToRad;
+  double yaw   = eulerAnglesDegrees.x() * degToRad;
 
   double cy = std::cos(yaw   * 0.5);
   double sy = std::sin(yaw   * 0.5);
