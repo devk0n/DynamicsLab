@@ -157,8 +157,8 @@ void Primary::problemC() {
 bool Primary::load() {
 
   // problemA();
-  // problemB();
-  problemC();
+  problemB();
+  // problemC();
 
   LOG_INFO("Initializing Primary Scene");
   m_camera.setPosition({5.0f, 3.2f, 3.2f});
