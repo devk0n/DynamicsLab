@@ -205,7 +205,6 @@ void Dynamics::integrateStateMidpoint(
 
 // Projects positions and velocities to satisfy constraints exactly
 void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_dq, double dt) const {
-
   for (int iter = 0; iter < m_maxProjectionIters; ++iter) {
     // Update bodies to new state
     for (int i = 0; i < m_numBodies; ++i) {
@@ -252,14 +251,30 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
       for (int i = 0; i < m_numBodies; ++i) {
         if (m_bodies[i]->isFixed()) continue;
 
+        // Position correction (linear)
         q_next.segment<3>(i * 7) -= delta_q.segment<3>(i * 6);
+
+        // Orientation correction (quaternion)
         Vector3d delta_theta = delta_q.segment<3>(i * 6 + 3);
         Vector4d q = q_next.segment<4>(i * 7 + 3);
 
-        // q_next.segment<4>(i * 7 + 3) = applySmallRotationQuaternion(q, delta_theta);
-        // q_next.segment<4>(i * 7 + 3) = integrateQuaternionExp(q, delta_theta, dt); // TODO: Fixme
-        // q_next.segment<4>(i * 7 + 3) = integrateQuaternionExp(q, delta_theta, 1.0);
+        // Create small rotation quaternion from delta_theta
+        // For small angles, this approximation works well
+        double theta_norm = delta_theta.norm();
+        Vector4d delta_q_quat;
+        if (theta_norm > 1e-10) {
+          Vector3d axis = delta_theta / theta_norm;
+          double half_angle = -0.5 * theta_norm; // Note the negative sign for correction
+          delta_q_quat << cos(half_angle), sin(half_angle) * axis;
+        } else {
+          delta_q_quat << 1.0, 0.0, 0.0, 0.0;
+        }
 
+        // Apply the correction by quaternion multiplication
+        q_next.segment<4>(i * 7 + 3) = quaternionProduct(q, delta_q_quat);
+        q_next.segment<4>(i * 7 + 3).normalize();
+
+        // Velocity correction
         dq_next.segment<3>(i * 6) -= delta_dq.segment<3>(i * 6);
         dq_next.segment<3>(i * 6 + 3) -= delta_dq.segment<3>(i * 6 + 3);
       }
