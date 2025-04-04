@@ -21,7 +21,6 @@ void Primary::problemA() {
     .size(1, 0.4, 0.4)
     .inertia(0.00213333, 0.0277333, 0.0277333)
     .position(1.0, 0, 0.0)
-    .orientation(0, -90, 0)
     .build();
 
   builder.createSphericalJoint()
@@ -43,7 +42,7 @@ void Primary::problemA() {
   builder.createSphericalJoint()
     .withBodyA(anchor)
     .withBodyB(body1)
-    .withLocalPointA(0, 0.5, 0.8)
+    .withLocalPointA(0, 1, 1)
     .withLocalPointB(0.5, 0, 0)
     .withDistance(true)
     .build();
@@ -51,16 +50,8 @@ void Primary::problemA() {
   builder.createSphericalJoint()
     .withBodyA(anchor)
     .withBodyB(body1)
-    .withLocalPointA(0, -0.5, 0.8)
+    .withLocalPointA(0, -1, 1)
     .withLocalPointB(0.5, 0, 0)
-    .withDistance(true)
-    .build();
-
-  builder.createSphericalJoint()
-    .withBodyA(anchor)
-    .withBodyB(body1)
-    .withLocalPointA(0, 0.5, 0.3)
-    .withLocalPointB(0, 0.5, 0)
     .withDistance(true)
     .build();
 

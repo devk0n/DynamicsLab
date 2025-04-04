@@ -38,24 +38,27 @@ inline Matrix4d omegaMatrix(const Vector3d& w) {
 }
 
 inline Vector4d deltaThetaToQuaternion(const Vector3d& delta_theta) {
+
   double theta_sq = delta_theta.squaredNorm();
+
   if (theta_sq < 1e-10) {
-    return Vector4d(1, 0, 0, 0); // Identity quaternion
+    return {1, 0, 0, 0}; // Identity quaternion
   }
+
   double theta = sqrt(theta_sq);
-  Vector3d axis = delta_theta / theta;
+  // Vector3d axis = delta_theta / theta;
   double half_theta = 0.5 * theta;
   double sinc_theta = (abs(theta) > 1e-6) ? sin(half_theta) / theta : 0.5;
-  return Vector4d(cos(half_theta), sinc_theta * delta_theta.x(), sinc_theta * delta_theta.y(), sinc_theta * delta_theta.z());
+  return {cos(half_theta), sinc_theta * delta_theta.x(), sinc_theta * delta_theta.y(), sinc_theta * delta_theta.z()};
 }
 
 inline Vector4d quaternionMultiply(const Vector4d& a, const Vector4d& b) {
-  return Vector4d(
+  return {
       a.w() * b.w() - a.x() * b.x() - a.y() * b.y() - a.z() * b.z(),
       a.w() * b.x() + a.x() * b.w() + a.y() * b.z() - a.z() * b.y(),
       a.w() * b.y() - a.x() * b.z() + a.y() * b.w() + a.z() * b.x(),
       a.w() * b.z() + a.x() * b.y() - a.y() * b.x() + a.z() * b.w()
-  );
+  };
 }
 
 inline Vector4d applySmallRotationQuaternion(const Vector4d& q, const Vector3d& dTheta) {
@@ -88,6 +91,33 @@ inline Vector4d integrateQuaternion(const Vector4d& q, const Vector3d& omega, do
   Vector4d q_new = q + dt * dq;
   q_new.normalize();
   return q_new;
+}
+
+inline Vector4d quaternionProduct(const Vector4d& q1, const Vector4d& q2) {
+  Vector4d result;
+  // q1 = [w1, x1, y1, z1], q2 = [w2, x2, y2, z2]
+  result[0] = q1[0]*q2[0] - q1[1]*q2[1] - q1[2]*q2[2] - q1[3]*q2[3]; // w
+  result[1] = q1[0]*q2[1] + q1[1]*q2[0] + q1[2]*q2[3] - q1[3]*q2[2]; // x
+  result[2] = q1[0]*q2[2] - q1[1]*q2[3] + q1[2]*q2[0] + q1[3]*q2[1]; // y
+  result[3] = q1[0]*q2[3] + q1[1]*q2[2] - q1[2]*q2[1] + q1[3]*q2[0]; // z
+  return result;
+}
+
+inline Vector4d integrateQuaternion2(const Vector4d& q, const Vector3d& omega, double dt) {
+  Vector3d axis = omega.normalized();
+  double angle = omega.norm() * dt;
+  if (angle < 1e-8) return q; // Avoid division by zero
+
+  double halfAngle = 0.5 * angle;
+  double sinHalf = std::sin(halfAngle);
+  Vector4d deltaQ;
+  deltaQ << std::cos(halfAngle), sinHalf * axis;
+
+  // Quaternion multiplication (more numerically stable)
+  Vector4d result;
+  result[0] = q[0]*deltaQ[0] - q.segment<3>(1).dot(deltaQ.segment<3>(1));
+  result.segment<3>(1) = q[0]*deltaQ.segment<3>(1) + deltaQ[0]*q.segment<3>(1) + q.segment<3>(1).cross(deltaQ.segment<3>(1));
+  return result.normalized();
 }
 
 inline Vector4d integrateQuaternionExp(const Vector4d& q, const Vector3d& omega, double dt) {
