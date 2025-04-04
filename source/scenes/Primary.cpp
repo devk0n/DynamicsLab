@@ -16,24 +16,56 @@ void Primary::problemA() {
     .fixed(true)
     .build();
 
-  Body* arm1 = builder.createCube()
+  Body* body1 = builder.createCube()
+    .mass(80)
     .size(1, 0.4, 0.4)
-    .position(0.0, 0.5, 0.0)
-    .orientation(0.0, 0.0, 90.0)
+    .inertia(0.00213333, 0.0277333, 0.0277333)
+    .position(1.0, 0, 0.0)
+    .orientation(0, -90, 0)
     .build();
 
-  builder.createRevoluteJoint()
+  builder.createSphericalJoint()
     .withBodyA(anchor)
-    .withBodyB(arm1)
-    .withLocalPointA(0, 0, 0)
+    .withBodyB(body1)
+    .withLocalPointA(0, 1, 0)
     .withLocalPointB(-0.5, 0, 0)
-    .withAxisA(1, 0, 0)
-    .withAxisM(1, 0, 0)
-    .withAxisN(0, 0, 1)
+    .withDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(anchor)
+    .withBodyB(body1)
+    .withLocalPointA(0, -1, 0)
+    .withLocalPointB(-0.5, 0, 0)
+    .withDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(anchor)
+    .withBodyB(body1)
+    .withLocalPointA(0, 0.5, 0.8)
+    .withLocalPointB(0.5, 0, 0)
+    .withDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(anchor)
+    .withBodyB(body1)
+    .withLocalPointA(0, -0.5, 0.8)
+    .withLocalPointB(0.5, 0, 0)
+    .withDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(anchor)
+    .withBodyB(body1)
+    .withLocalPointA(0, 0.5, 0.3)
+    .withLocalPointB(0, 0.5, 0)
+    .withDistance(true)
     .build();
 
   builder.createGravity(0, 0, -9.81)
-    .addBody(arm1)
+    .addBody(body1)
     .build();
 }
 
@@ -41,35 +73,69 @@ void Primary::problemB() {
   DynamicsBuilder builder(m_system);
 
   Body* anchor = builder.createCube()
-    .size(0.5, 0.1, 0.1)
+    .size(0.01, 0.01, 0.01)
     .fixed(true)
     .build();
 
   Body* arm1 = builder.createCube()
-    .size(1, 0.4, 0.4)
-    .position(0.0, 0.5, 0.0)
-    .orientation(0.0, 0.0, 90.0)
+    .mass(8)
+    .size(0.2, 0.04, 0.04)
+    .position(0.1, 0.0, 0.0)
     .build();
 
-  builder.createRevoluteJoint()
+  Body* arm2 = builder.createCube()
+    .mass(12)
+    .size(0.6, 0.03, 0.03)
+    .orientation(58.43, -38.51, 0)
+    .position(0.322903645, 0.200, 0.186801215)
+    .build();
+
+  Body* arm3 = builder.createCube()
+    .mass(12)
+    .size(0.5, 0.03, 0.03)
+    .orientation(0, 26.92, 0)
+    .position(0.222903645, 0.400, 0.486801215)
+    .build();
+
+  builder.createBallJoint()
     .withBodyA(anchor)
     .withBodyB(arm1)
     .withLocalPointA(0, 0, 0)
-    .withLocalPointB(-0.5, 0, 0)
-    .withAxisA(1, 0, 0)
-    .withAxisM(1, 0, 0)
-    .withAxisN(0, 0, 1)
+    .withLocalPointB(-0.1, 0, 0)
+    .build();
+
+  builder.createBallJoint()
+    .withBodyA(arm1)
+    .withBodyB(arm2)
+    .withLocalPointA(0.1, 0, 0)
+    .withLocalPointB(-0.3, 0, 0)
+    .build();
+
+  builder.createBallJoint()
+    .withBodyA(arm2)
+    .withBodyB(arm3)
+    .withLocalPointA(0.3, 0.0, 0.0)
+    .withLocalPointB(0.25, 0.0, 0.0)
+    .build();
+
+  builder.createBallJoint()
+    .withBodyA(anchor)
+    .withBodyB(arm3)
+    .withLocalPointA(0, 0.4, 0.6)
+    .withLocalPointB(-0.25, 0, 0)
     .build();
 
   builder.createGravity(0, 0, -9.81)
     .addBody(arm1)
+    .addBody(arm2)
+    .addBody(arm3)
     .build();
 }
 
 bool Primary::load() {
 
-  // problemA();
-  problemB();
+  problemA();
+  // problemB();
 
   LOG_INFO("Initializing Primary Scene");
   m_camera.setPosition({5.0f, 3.2f, 3.2f});

@@ -37,13 +37,50 @@ inline Matrix4d omegaMatrix(const Vector3d& w) {
   return Omega;
 }
 
-inline Vector4d applySmallRotationQuaternion(const Vector4d& q, const Vector3d& deltaTheta) {
-  Matrix4d Omega = omegaMatrix(deltaTheta);
+inline Vector4d deltaThetaToQuaternion(const Vector3d& delta_theta) {
+  double theta_sq = delta_theta.squaredNorm();
+  if (theta_sq < 1e-10) {
+    return Vector4d(1, 0, 0, 0); // Identity quaternion
+  }
+  double theta = sqrt(theta_sq);
+  Vector3d axis = delta_theta / theta;
+  double half_theta = 0.5 * theta;
+  double sinc_theta = (abs(theta) > 1e-6) ? sin(half_theta) / theta : 0.5;
+  return Vector4d(cos(half_theta), sinc_theta * delta_theta.x(), sinc_theta * delta_theta.y(), sinc_theta * delta_theta.z());
+}
+
+inline Vector4d quaternionMultiply(const Vector4d& a, const Vector4d& b) {
+  return Vector4d(
+      a.w() * b.w() - a.x() * b.x() - a.y() * b.y() - a.z() * b.z(),
+      a.w() * b.x() + a.x() * b.w() + a.y() * b.z() - a.z() * b.y(),
+      a.w() * b.y() - a.x() * b.z() + a.y() * b.w() + a.z() * b.x(),
+      a.w() * b.z() + a.x() * b.y() - a.y() * b.x() + a.z() * b.w()
+  );
+}
+
+inline Vector4d applySmallRotationQuaternion(const Vector4d& q, const Vector3d& dTheta) {
+  // q is [w, x, y, z].
+  // dTheta is a small rotation in radians about some axis (in world space, typically).
+
+  // Build the 4×4 "Omega" matrix from dTheta
+  Matrix4d Omega = Matrix4d::Zero();
+  // For convenience:
+  double dx = dTheta.x(), dy = dTheta.y(), dz = dTheta.z();
+
+  Omega <<  0,   -dx,   -dy,   -dz,
+            dx,    0,    dz,   -dy,
+            dy,   -dz,    0,    dx,
+            dz,    dy,   -dx,    0;
+
+  // For a small rotation, d(q) = 0.5 * Omega * q
   Vector4d dq = 0.5 * Omega * q;
+
+  // Apply the correction
   Vector4d q_new = q + dq;
   q_new.normalize();
   return q_new;
 }
+
 
 inline Vector4d integrateQuaternion(const Vector4d& q, const Vector3d& omega, double dt) {
   Matrix4d Omega = omegaMatrix(omega);
