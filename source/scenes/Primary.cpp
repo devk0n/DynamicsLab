@@ -17,7 +17,7 @@ void Primary::problemA() {
     .build();
 
   Body* body1 = builder.createCube()
-    .mass(80)
+    .mass(8)
     .size(1, 0.4, 0.4)
     .inertia(0.00213333, 0.0277333, 0.0277333)
     .position(1.0, 0, 0.0)
@@ -57,6 +57,7 @@ void Primary::problemA() {
 
   builder.createGravity(0, 0, -9.81)
     .addBody(body1)
+    .addBody(anchor)
     .build();
 }
 
