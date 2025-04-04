@@ -255,7 +255,10 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
         q_next.segment<3>(i * 7) -= delta_q.segment<3>(i * 6);
         Vector3d delta_theta = delta_q.segment<3>(i * 6 + 3);
         Vector4d q = q_next.segment<4>(i * 7 + 3);
-        q_next.segment<4>(i * 7 + 3) = integrateQuaternionExp(q, delta_theta, 1.0);
+
+        // q_next.segment<4>(i * 7 + 3) = applySmallRotationQuaternion(q, delta_theta);
+        // q_next.segment<4>(i * 7 + 3) = integrateQuaternionExp(q, delta_theta, dt); // TODO: Fixme
+        // q_next.segment<4>(i * 7 + 3) = integrateQuaternionExp(q, delta_theta, 1.0);
 
         dq_next.segment<3>(i * 6) -= delta_dq.segment<3>(i * 6);
         dq_next.segment<3>(i * 6 + 3) -= delta_dq.segment<3>(i * 6 + 3);

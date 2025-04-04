@@ -49,7 +49,7 @@ public:
 
 private:
 
-  const int m_maxProjectionIters = 30;
+  const int m_maxProjectionIters = 3;
   const double m_projectionTol = 1e-8;
 
   void initializeState(VectorXd& q, VectorXd& dq) const;
