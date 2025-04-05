@@ -451,5 +451,4 @@ void Primary::handleCameraMovement(const double dt) {
   double xScrollOffset = 0.0, yScrollOffset = 0.0;
   m_ctx.input->getScrollDelta(xScrollOffset, yScrollOffset);
   m_camera.processScroll(static_cast<float>(yScrollOffset));
-  // Changed to yScrollOffset
 }

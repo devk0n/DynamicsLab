@@ -73,19 +73,25 @@ void SphericalJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow
 
   const auto omega1 = m_bodyA->getAngularVelocity();
   const auto omega2 = m_bodyB->getAngularVelocity();
-
   const auto r1d = m_bodyA->getLinearVelocity();
   const auto r2d = m_bodyB->getLinearVelocity();
 
   const auto d = r2 + A2 * m_localPointB - r1 - A1 * m_localPointA;
-  auto v = r2d + A2 * skew(omega2) * m_localPointB - r1d - A1 * skew(omega1) * m_localPointA;
+  const auto v = r2d + A2 * skew(omega2) * m_localPointB - r1d - A1 * skew(omega1) * m_localPointA;
 
-  auto vtv = (v.transpose() * v);
-  auto par = A2 * skew(omega2) * skew(omega2) * m_localPointB - (A1 * skew(omega1) * skew(omega1) * m_localPointA);
+  const double vtv = v.transpose() * v;
 
-  auto result = - 2 * vtv - 2 * (d.transpose() * par).eval();
+  const auto skewW2 = skew(omega2);
+  const auto skewW1 = skew(omega1);
 
-  gamma.segment<1>(startRow) = result;
-  gamma[startRow] = 0.0;
+  const auto termB = A2 * skewW2 * skewW2 * m_localPointB;
+  const auto termA = A1 * skewW1 * skewW1 * m_localPointA;
+  const auto par = termB - termA;
+
+  const double dot = d.transpose() * par;
+  const double result = -2.0 * vtv - 2.0 * dot;
+
+  gamma[startRow] = result;
 }
+
 } // Proton

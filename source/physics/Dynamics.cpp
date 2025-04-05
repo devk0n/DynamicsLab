@@ -5,7 +5,6 @@
 namespace Proton {
 
 // Main simulation step using implicit midpoint integration
-// Main simulation step using implicit midpoint integration
 void Dynamics::step(double dt) const {
   // Clamp timestep to ensure numerical stability
   if (dt > 0.01) {
@@ -206,7 +205,7 @@ void Dynamics::step(double dt) const {
     // Check for convergence
     double err = (q_next - q_prev).norm() + (dq_next - dq_prev).norm();
     if (err < m_tol) break;
-    q_prev  = q_next;
+    q_prev = q_next;
     dq_prev = dq_next;
   }
 
