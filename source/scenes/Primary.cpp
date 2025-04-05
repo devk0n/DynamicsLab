@@ -13,7 +13,7 @@ void Primary::problemA() {
 
   Body* chassis = builder.createCube()
     .size(3.0, 0.5, 0.5)
-    .mass(100)
+    .mass(300)
     .position(0, 0, 2)
     .angularVelocity(0, 0, 0)
     .build();
@@ -34,6 +34,7 @@ void Primary::problemA() {
     .mass(10)
     .size(0.25, 0.25, 0.5)
     .position(1.2, -1, 2)
+    .fixed(true)
     .build();
 
   Body* RR = builder.createCube()
@@ -42,7 +43,7 @@ void Primary::problemA() {
     .position(-1.2, -1, 2)
     .build();
 
-  builder.createGravity(0.0, 0.0, 24.5)
+  builder.createGravity(0.0, 0.0, -9.81)
     .addBody(LF)
     .addBody(LR)
     .addBody(RF)
@@ -59,7 +60,7 @@ void Primary::problemA() {
     .withLocalPointA(1.2, 0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(7500)
+    .withStiffness(750)
     .withDamping(250)
     .build();
 
@@ -69,7 +70,7 @@ void Primary::problemA() {
     .withLocalPointA(1.2, -0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(7500)
+    .withStiffness(750)
     .withDamping(250)
     .build();
 
@@ -79,7 +80,7 @@ void Primary::problemA() {
     .withLocalPointA(-1.2, -0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(7500)
+    .withStiffness(750)
     .withDamping(250)
     .build();
 
@@ -89,7 +90,7 @@ void Primary::problemA() {
     .withLocalPointA(-1.2, 0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(7500)
+    .withStiffness(700)
     .withDamping(250)
     .build();
 

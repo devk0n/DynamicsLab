@@ -1,4 +1,4 @@
-# DynamicsLab
+![Alt text](./assets/images/DynamicsLab.png)
 
 DynamicsLab is a modern C++ simulation engine for multi-body dynamics. It features a custom physics solver supporting a variety of constraints that enforce realistic mechanical connections between rigid bodies.
 
