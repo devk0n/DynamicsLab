@@ -57,10 +57,8 @@ void Spring::computeForceAndJacobian(
     Vector3d springForce = -m_stiffness * deltaL * n;
 
     // 2. Damping force with improved numerical stability
-    Vector3d velA = m_bodyA->getLinearVelocity() +
-                   m_bodyA->getAngularVelocity().cross(rA_world);
-    Vector3d velB = m_bodyB->getLinearVelocity() +
-                   m_bodyB->getAngularVelocity().cross(rB_world);
+    Vector3d velA = m_bodyA->getLinearVelocity() + m_bodyA->getAngularVelocity().cross(rA_world);
+    Vector3d velB = m_bodyB->getLinearVelocity() + m_bodyB->getAngularVelocity().cross(rB_world);
     Vector3d relVel = velB - velA;
 
     // Project velocity onto spring axis for stable damping
@@ -77,10 +75,10 @@ void Spring::computeForceAndJacobian(
     int iA = m_bodyA->getIndex() * 6;
     int iB = m_bodyB->getIndex() * 6;
 
-    F_ext.segment<3>(iA) -= totalForce;
-    F_ext.segment<3>(iB) += totalForce;
-    F_ext.segment<3>(iA + 3) += torqueA;
-    F_ext.segment<3>(iB + 3) += torqueB;
+    F_ext.segment<3>(iA)     -= totalForce;
+    F_ext.segment<3>(iB)     += totalForce;
+    F_ext.segment<3>(iA + 3) +=    torqueA;
+    F_ext.segment<3>(iB + 3) +=    torqueB;
 
     // 4. Improved Jacobian calculation
     Matrix3d I = Matrix3d::Identity();
@@ -103,22 +101,22 @@ void Spring::computeForceAndJacobian(
     Matrix6d KBA = Matrix6d::Zero();
 
     // Linear terms
-    KAA.topLeftCorner<3,3>() =  dFdx;
-    KBB.topLeftCorner<3,3>() =  dFdx;
-    KAB.topLeftCorner<3,3>() = -dFdx;
-    KBA.topLeftCorner<3,3>() = -dFdx;
+    KAA.topLeftCorner<3,3>() =   dFdx;
+    KBB.topLeftCorner<3,3>() =   dFdx;
+    KAB.topLeftCorner<3,3>() = - dFdx;
+    KBA.topLeftCorner<3,3>() = - dFdx;
 
     // Angular terms with stabilization
-    KAA.topRightCorner<3,3>() = -dFdx * rAx;
-    KAA.bottomLeftCorner<3,3>() = -rAx.transpose() * dFdx;
-    KBB.topRightCorner<3,3>() = dFdx * rBx;
-    KBB.bottomLeftCorner<3,3>() = rBx.transpose() * dFdx;
+    KAA.topRightCorner<3,3>()   = - dFdx * rAx;
+    KAA.bottomLeftCorner<3,3>() = - rAx.transpose() * dFdx;
+    KBB.topRightCorner<3,3>()   =   dFdx * rBx;
+    KBB.bottomLeftCorner<3,3>() =   rBx.transpose() * dFdx;
 
     // Cross terms
-    KAB.topRightCorner<3,3>() = dFdx * rBx;
-    KAB.bottomLeftCorner<3,3>() = -rAx.transpose() * dFdx;
-    KBA.topRightCorner<3,3>() = -dFdx * rAx;
-    KBA.bottomLeftCorner<3,3>() = rBx.transpose() * dFdx;
+    KAB.topRightCorner<3,3>()   =   dFdx * rBx;
+    KAB.bottomLeftCorner<3,3>() = - rAx.transpose() * dFdx;
+    KBA.topRightCorner<3,3>()   = - dFdx * rAx;
+    KBA.bottomLeftCorner<3,3>() =   rBx.transpose() * dFdx;
 
     // Apply to global matrix
     K.block<6,6>(iA, iA) += KAA;

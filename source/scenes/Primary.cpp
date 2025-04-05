@@ -11,53 +11,29 @@ using namespace Proton;
 void Primary::problemA() {
   DynamicsBuilder builder(m_system);
 
-  Body* anchor = builder.createCube()
-    .size(0.5, 0.1, 0.1)
-    .fixed(true)
+  Body* chassis = builder.createCube()
+    .size(3.0, 0.5, 0.5)
+    .mass(100)
+    .position(0, 0, 1)
     .build();
 
-  Body* body1 = builder.createCube()
-    .mass(8)
-    .size(1, 0.4, 0.4)
-    .inertia(0.00213333, 0.0277333, 0.0277333)
-    .position(1.0, 0, 0.0)
-    .build();
-
-  builder.createSphericalJoint()
-    .withBodyA(anchor)
-    .withBodyB(body1)
-    .withLocalPointA(0, 1, 0)
-    .withLocalPointB(-0.5, 0, 0)
-    .withDistance(true)
-    .build();
-
-  builder.createSphericalJoint()
-    .withBodyA(anchor)
-    .withBodyB(body1)
-    .withLocalPointA(0, -1, 0)
-    .withLocalPointB(-0.5, 0, 0)
-    .withDistance(true)
-    .build();
-
-  builder.createSphericalJoint()
-    .withBodyA(anchor)
-    .withBodyB(body1)
-    .withLocalPointA(0, 1, 1)
-    .withLocalPointB(0.5, 0, 0)
-    .withDistance(true)
-    .build();
-
-  builder.createSphericalJoint()
-    .withBodyA(anchor)
-    .withBodyB(body1)
-    .withLocalPointA(0, -1, 1)
-    .withLocalPointB(0.5, 0, 0)
-    .withDistance(true)
+  Body* LF = builder.createCube()
+    .mass(10)
+    .size(0.25, 0.25, 0.5)
+    .position(1.2, 1, 1)
     .build();
 
   builder.createGravity(0, 0, -9.81)
-    .addBody(body1)
-    .addBody(anchor)
+    .addBody(chassis)
+    .addBody(LF)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(LF)
+    .withLocalPointA(1.2, 0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withDistance(1)
     .build();
 }
 

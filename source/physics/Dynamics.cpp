@@ -74,7 +74,7 @@ void Dynamics::step(double dt) const {
     // Check for convergence
     double err = (q_next - q_prev).norm() + (dq_next - dq_prev).norm();
     if (err < tol) break;
-    q_prev = q_next;
+    q_prev  = q_next;
     dq_prev = dq_next;
   }
 
@@ -100,9 +100,11 @@ void Dynamics::initializeState(VectorXd& q, VectorXd& dq) const {
 void Dynamics::updateMidpointState(const VectorXd& q_mid, const VectorXd& dq_mid) const {
   for (int i = 0; i < m_numBodies; ++i) {
     auto& body = m_bodies[i];
+
     body->clearForces();
     body->clearTorque();
     body->updateInertiaWorld();
+
     if (body->isFixed()) continue;
 
     body->setPosition(q_mid.segment<3>(i * 7));
@@ -168,7 +170,7 @@ VectorXd Dynamics::solveKKTSystem(
   KKT.setZero();
 
   // Top-left: mass and stiffness
-  KKT.topLeftCorner(dof_dq, dof_dq).noalias() = M - dt * dt * K;
+  KKT.topLeftCorner(dof_dq, dof_dq).noalias() = M; // - dt * dt * K;
   // Top-right and bottom-left: constraint Jacobian
   KKT.topRightCorner(dof_dq, nc) = P.transpose();
   KKT.bottomLeftCorner(nc, dof_dq) = P;
