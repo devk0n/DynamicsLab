@@ -15,6 +15,7 @@ void Primary::problemA() {
     .size(3.0, 0.5, 0.5)
     .mass(100)
     .position(0, 0, 1)
+    .fixed(true)
     .build();
 
   Body* LF = builder.createCube()
@@ -23,17 +24,218 @@ void Primary::problemA() {
     .position(1.2, 1, 1)
     .build();
 
-  builder.createGravity(0, 0, -9.81)
-    .addBody(chassis)
+  Body* LR = builder.createCube()
+    .mass(10)
+    .size(0.25, 0.25, 0.5)
+    .position(-1.2, 1, 1)
+    .build();
+
+  Body* RF = builder.createCube()
+    .mass(10)
+    .size(0.25, 0.25, 0.5)
+    .position(1.2, -1, 1)
+    .build();
+
+  Body* RR = builder.createCube()
+    .mass(10)
+    .size(0.25, 0.25, 0.5)
+    .position(-1.2, -1, 1)
+    .build();
+
+  builder.createSpring()
+    .withBodyA(chassis)
+    .withBodyB(LF)
+    .withLocalPointA(1.2, 0.25, 0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .withStiffness(5000)
+    .withDamping(100)
+    .build();
+
+  builder.createSpring()
+    .withBodyA(chassis)
+    .withBodyB(RF)
+    .withLocalPointA(1.2, -0.25, 0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .withStiffness(5000)
+    .withDamping(100)
+    .build();
+
+  builder.createSpring()
+    .withBodyA(chassis)
+    .withBodyB(RR)
+    .withLocalPointA(-1.2, -0.25, 0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .withStiffness(5000)
+    .withDamping(100)
+    .build();
+
+  builder.createSpring()
+    .withBodyA(chassis)
+    .withBodyB(LR)
+    .withLocalPointA(-1.2, 0.25, 0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .withStiffness(5000)
+    .withDamping(100)
+    .build();
+
+  builder.createGravity(0.0, 0.0, 9.81)
     .addBody(LF)
+    .addBody(LR)
+    .addBody(RF)
+    .addBody(RR)
+    .addBody(chassis)
+    .build();
+
+  // Left Front
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(LF)
+    .withLocalPointA(1.5, 0.25, 0.25)
+    .withLocalPointB(-0.25, 0, 0)
+    .withAutoDistance(true)
     .build();
 
   builder.createSphericalJoint()
     .withBodyA(chassis)
     .withBodyB(LF)
-    .withLocalPointA(1.2, 0.25, 0.25)
+    .withLocalPointA(1.5, 0.25, 0.25)
     .withLocalPointB(0, 0, 0.25)
-    .withDistance(1)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(LF)
+    .withLocalPointA(0.9, 0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(LF)
+    .withLocalPointA(1.5, 0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(LF)
+    .withLocalPointA(0.9, 0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  // Right Front
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(RF)
+    .withLocalPointA(1.5, -0.25, 0.25)
+    .withLocalPointB(-0.25, 0, 0)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(RF)
+    .withLocalPointA(1.5, -0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(RF)
+    .withLocalPointA(0.9, -0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(RF)
+    .withLocalPointA(1.5, -0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(RF)
+    .withLocalPointA(0.9, -0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  // Right Rear
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(RR)
+    .withLocalPointA(-1.5, -0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(RR)
+    .withLocalPointA(-0.9, -0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(RR)
+    .withLocalPointA(-1.5, -0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(RR)
+    .withLocalPointA(-0.9, -0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  // Left Rear
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(LR)
+    .withLocalPointA(-1.5, 0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(LR)
+    .withLocalPointA(-0.9, 0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(LR)
+    .withLocalPointA(-1.5, 0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(LR)
+    .withLocalPointA(-0.9, 0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
     .build();
 }
 

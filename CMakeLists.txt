@@ -18,6 +18,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  # Lower the optimization level and enforce stricter floating-point behavior
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /fp:strict")
+endif()
+
 # —————————————————————————————————————————————————————————————
 
 include(FetchContent)
