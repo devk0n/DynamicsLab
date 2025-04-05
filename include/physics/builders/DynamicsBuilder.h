@@ -10,6 +10,7 @@
 #include "SpringBuilder.h"
 #include "UniversalJointBuilder.h"
 #include "RevoluteJointBuilder.h"
+#include "TorqueBuilder.h"
 
 namespace Proton {
 
@@ -50,6 +51,10 @@ public:
 
   [[nodiscard]] GravityBuilder createGravity(double gx = 0, double gy = 0, double gz = 0) const {
     return {m_dynamics, gx, gy, gz};
+  }
+
+  [[nodiscard]] TorqueBuilder createTorque(double tx = 0, double ty = 0, double tz = 0) const {
+    return {m_dynamics, tx, ty, tz};
   }
 
 private:

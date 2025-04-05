@@ -9,19 +9,22 @@
 namespace Proton {
 class Torque final : public ForceGenerator {
 public:
+  explicit Torque(Vector3d torque) : m_torque(std::move(torque)) {}
 
-  void addBody(Body* body) {
-    m_targets.emplace(body->getID(), body);
-  }
+  void addBody(Body* body) { m_targets.emplace(body->getID(), body); }
+
+  [[nodiscard]] const Vector3d& getTorque() const { return m_torque; }
+  void setTorque(const Vector3d& torque) { m_torque = torque; }
 
   void apply(double dt) override {
-    for (const auto &body: m_targets | std::views::values) {
-      if (body->getMass() <= 0.0) continue;
-      body->addTorque(Vector3d(0, 0, 30));
+    if (m_targets.empty() || m_torque.norm() == 0) return;
+    for (const auto &body : m_targets | std::views::values) {
+      body->addTorque(m_torque);
     }
   }
 
 private:
+  Vector3d m_torque{0.0, 0.0, 0.0};
   std::unordered_map<UniqueID, Body*> m_targets{};
 };
 } // Proton

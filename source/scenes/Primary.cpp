@@ -275,7 +275,7 @@ void Primary::problemB() {
   Body* arm2 = builder.createCube()
     .mass(12)
     .size(0.6, 0.03, 0.03)
-    .orientation(58.43, -38.51, 0)
+    .orientation(0, -38.51, 58.43)
     .position(0.322903645, 0.200, 0.186801215)
     .build();
 
@@ -323,8 +323,8 @@ void Primary::problemB() {
 
 bool Primary::load() {
 
-  // problemA();
-  problemB();
+  problemA();
+  // problemB();
 
   LOG_INFO("Initializing Primary Scene");
   m_camera.setPosition({5.0f, 3.2f, 3.2f});
