@@ -1,15 +1,29 @@
-# Filename: CombineCode.ps1
-
 # Description:
-#  Gathers all *.cpp and *.h files from the src, include, and assets folders
-#  (including any subfolders), and writes them to combined_code.txt.
+# Gathers all *.cpp and *.h files from source and include folders
+# and includes the top-level CMakeLists.txt.
+# Outputs everything to Combined.txt.
 
-# Make sure you run this script from the project's root folder (where src, include, and assets are located).
-# Usage:
-#   1) Right-click this file and select "Run with PowerShell" (may need to unblock the script).
-#   2) Or open PowerShell in the project's folder and run:
-#      .\CombineCode.ps1
+# Get .cpp and .h files from subdirectories
+$codeFiles = Get-ChildItem -Path ".\source", ".\include" -Recurse -Include *.cpp, *.h -File
 
-Get-ChildItem -Path .\source, .\include -Recurse -Include *.cpp, *.h -File |
-    Get-Content |
-    Out-File Combined.txt
+# Get the root-level CMakeLists.txt
+$cmakeFilePath = ".\CMakeLists.txt"
+if (Test-Path $cmakeFilePath) {
+    $cmakeFile = Get-Item $cmakeFilePath
+    $allFiles = $codeFiles + $cmakeFile
+} else {
+    Write-Warning "CMakeLists.txt not found at $cmakeFilePath"
+    $allFiles = $codeFiles
+}
+
+# Clear previous output
+$outputFile = "Combined.txt"
+if (Test-Path $outputFile) {
+    Remove-Item $outputFile
+}
+
+# Output each file with a header
+foreach ($file in $allFiles) {
+    Add-Content -Path $outputFile -Value ("`n// -------- " + $file.FullName + " --------`n")
+    Get-Content $file.FullName | Add-Content -Path $outputFile
+}

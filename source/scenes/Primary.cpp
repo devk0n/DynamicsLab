@@ -79,7 +79,7 @@ void Primary::problemA() {
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
     .withStiffness(5000)
-    .withDamping(100)
+    .withDamping(0)
     .build();
 
   builder.createGravity(0.0, 0.0, 9.81)
@@ -94,8 +94,8 @@ void Primary::problemA() {
   builder.createSphericalJoint()
     .withBodyA(chassis)
     .withBodyB(LF)
-    .withLocalPointA(1.5, 0.25, 0.25)
-    .withLocalPointB(-0.25, 0, 0)
+    .withLocalPointA(1.1, 0.25, 0)
+    .withLocalPointB(-0.2, 0, 0)
     .withAutoDistance(true)
     .build();
 
@@ -135,8 +135,8 @@ void Primary::problemA() {
   builder.createSphericalJoint()
     .withBodyA(chassis)
     .withBodyB(RF)
-    .withLocalPointA(1.5, -0.25, 0.25)
-    .withLocalPointB(-0.25, 0, 0)
+    .withLocalPointA(1.1, -0.25, 0)
+    .withLocalPointB(-0.2, 0, 0)
     .withAutoDistance(true)
     .build();
 
@@ -176,6 +176,14 @@ void Primary::problemA() {
   builder.createSphericalJoint()
     .withBodyA(chassis)
     .withBodyB(RR)
+    .withLocalPointA(-1.5, -0.25, -0.25)
+    .withLocalPointB(-0.10, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(RR)
     .withLocalPointA(-1.5, -0.25, 0.25)
     .withLocalPointB(0, 0, 0.25)
     .withAutoDistance(true)
@@ -206,6 +214,14 @@ void Primary::problemA() {
     .build();
 
   // Left Rear
+  builder.createSphericalJoint()
+    .withBodyA(chassis)
+    .withBodyB(LR)
+    .withLocalPointA(-1.5, 0.25, -0.25)
+    .withLocalPointB(-0.1, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
   builder.createSphericalJoint()
     .withBodyA(chassis)
     .withBodyB(LR)
