@@ -17,11 +17,9 @@ cmake_policy(SET CMP0146 NEW)  # FindCUDA module is removed
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  # Lower the optimization level and enforce stricter floating-point behavior
-  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /O2 /fp:strict")
-endif()
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELEASE} -g")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELEASE} -g")
+add_compile_definitions($<$<CONFIG:RelWithDebInfo>:NDEBUG>)
 
 # —————————————————————————————————————————————————————————————
 
@@ -87,6 +85,7 @@ target_include_directories(imgui PUBLIC
         ${imgui_SOURCE_DIR}/backends
 )
 target_link_libraries(imgui glfw OpenGL::GL glad)
+set_target_properties(imgui PROPERTIES UNITY_BUILD OFF)
 
 # —————————————————————————————————————————————————————————————
 

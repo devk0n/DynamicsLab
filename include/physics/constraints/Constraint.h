@@ -14,10 +14,10 @@ public:
   virtual void computeJacobian(MatrixXd& jacobian, int startRow) const = 0;
   virtual void computeAccelerationCorrection(VectorXd& gamma, int startRow) const = 0;
 
-  int getDOFs() const { return m_DOFs; }
+  [[nodiscard]] int getDOFs() const { return m_DOFs; }
 
 protected:
-  int m_DOFs;
+  int m_DOFs{0};
 
 };
 

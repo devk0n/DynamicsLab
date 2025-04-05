@@ -60,7 +60,7 @@ public:
 
 private:
   Dynamics& m_dynamics;
-  std::shared_ptr<RevoluteJoint> m_constraint;
+  std::shared_ptr<RevoluteJoint> m_constraint{nullptr};
 };
 } // Proton
 #endif // REVOLUTE_JOINT_BUILDER_H

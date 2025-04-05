@@ -86,5 +86,6 @@ void SphericalJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow
   auto result = - 2 * vtv - 2 * (d.transpose() * par).eval();
 
   gamma.segment<1>(startRow) = result;
+  gamma[startRow] = 0.0;
 }
 } // Proton

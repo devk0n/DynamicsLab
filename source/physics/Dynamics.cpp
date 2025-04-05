@@ -1,7 +1,10 @@
 #include "Dynamics.h"
 
+#include <Logger.h>
+
 namespace Proton {
 
+// Main simulation step using implicit midpoint integration
 // Main simulation step using implicit midpoint integration
 void Dynamics::step(double dt) const {
   // Clamp timestep to ensure numerical stability
@@ -10,79 +13,225 @@ void Dynamics::step(double dt) const {
     dt = 0.01;
   }
 
-  // Generalized position DoFs: 3 pos + 4 orientation (quaternion) per body
-  const int dof_q  = m_numBodies * 7;
-
-  // Generalized velocity DoFs: 3 linear + 3 angular per body
-  const int dof_dq = m_numBodies * 6;
+  const int dof_q  = m_numBodies * 7; // Generalized position DoFs: 3 pos + 4 orientation (quaternion) per body
+  const int dof_dq = m_numBodies * 6; // Generalized velocity DoFs: 3 linear + 3 angular per body
 
   // Initial state at timestep n
-  VectorXd q_n(dof_q), dq_n(dof_dq);
+  VectorXd q_n = VectorXd::Zero(dof_q);
+  VectorXd dq_n = VectorXd::Zero(dof_dq);
   initializeState(q_n, dq_n);
 
   // Initialize next state with current state
   VectorXd q_next = q_n;
   VectorXd dq_next = dq_n;
-  VectorXd q_prev = q_n, dq_prev = dq_n;
-
-  constexpr int maxIters = 10;   // Max number of nonlinear solver iterations
-  constexpr double tol = 1e-8;   // Convergence tolerance
+  VectorXd q_prev = q_n;
+  VectorXd dq_prev = dq_n;
 
   // Iteratively solve the implicit midpoint equations
-  for (int iter = 0; iter < maxIters; ++iter) {
-    // Compute midpoint states
-    const VectorXd q_mid = 0.5 * (q_n + q_next);
-    const VectorXd dq_mid = 0.5 * (dq_n + dq_next);
+  for (int iter = 0; iter < m_maxIters; ++iter) {
+
+    // Safety check for invalid velocities
+    if (!dq_n.allFinite()) {
+      LOG_ERROR("dq_n contains invalid values, resetting to zero");
+      dq_n = VectorXd::Zero(dof_dq);
+    }
+
+    if (!dq_next.allFinite()) {
+      LOG_ERROR("dq_next contains invalid values, resetting to zero");
+      dq_next = VectorXd::Zero(dof_dq);
+    }
+
+    // Compute midpoint velocity with safety checks
+    VectorXd dq_mid;
+    try {
+      dq_mid = 0.5 * (dq_n + dq_next);
+      if (!dq_mid.allFinite()) {
+        LOG_WARN("Using fallback for dq_mid due to invalid values in velocity vectors");
+        dq_mid = dq_n.allFinite() ? dq_n : VectorXd::Zero(dof_dq);
+      }
+    } catch (...) {
+      LOG_ERROR("Exception during dq_mid calculation");
+      dq_mid = VectorXd::Zero(dof_dq);
+    }
+
+    // Compute midpoint positions with safety checks
+    VectorXd q_mid = VectorXd::Zero(dof_q);
+
+    try {
+      for (int i = 0; i < m_numBodies; ++i) {
+        // Linear position midpoint with safety
+        Vector3d pos_n = q_n.segment<3>(i * 7);
+        Vector3d pos_next = q_next.segment<3>(i * 7);
+
+        if (pos_n.allFinite() && pos_next.allFinite()) {
+          q_mid.segment<3>(i * 7) = 0.5 * (pos_n + pos_next);
+        } else {
+          q_mid.segment<3>(i * 7) = pos_n.allFinite() ? pos_n : (pos_next.allFinite() ? pos_next : Vector3d::Zero());
+          LOG_WARN("Using fallback for position midpoint of body ", i);
+        }
+
+        // Quaternion midpoint using SLERP with safety
+        Vector4d quat_n = q_n.segment<4>(i * 7 + 3);
+        Vector4d quat_next = q_next.segment<4>(i * 7 + 3);
+
+        if (quat_n.allFinite() && quat_next.allFinite()) {
+          q_mid.segment<4>(i * 7 + 3) = slerpQuaternion(quat_n, quat_next, 0.5);
+        } else {
+          q_mid.segment<4>(i * 7 + 3) = Vector4d(1, 0, 0, 0);  // Identity quaternion
+          LOG_WARN("Using identity quaternion for midpoint of body ", i);
+        }
+      }
+    } catch (...) {
+      LOG_ERROR("Exception during q_mid calculation");
+      // Fall back to safe values
+      for (int i = 0; i < m_numBodies; ++i) {
+        q_mid.segment<3>(i * 7) = Vector3d::Zero();
+        q_mid.segment<4>(i * 7 + 3) = Vector4d(1, 0, 0, 0);  // Identity quaternion
+      }
+    }
+
+    if (!q_mid.allFinite() || !dq_mid.allFinite()) {
+      LOG_ERROR("q_mid or dq_mid is invalid BEFORE updateMidpointState() \n", q_mid.transpose(), dq_mid.transpose());
+
+      // Emergency recovery - reinitialize to safe values
+      for (int i = 0; i < m_numBodies; ++i) {
+        q_mid.segment<3>(i * 7) = Vector3d::Zero();
+        q_mid.segment<4>(i * 7 + 3) = Vector4d(1, 0, 0, 0);  // Identity quaternion
+        dq_mid.segment<6>(i * 6) = Vector6d::Zero();
+      }
+    }
 
     // Update all body states to midpoint for evaluating forces and constraints
-    updateMidpointState(q_mid, dq_mid);
+    try {
+      updateMidpointState(q_mid, dq_mid);
+    } catch (...) {
+      LOG_ERROR("Exception in updateMidpointState");
+      break;  // Exit the iteration loop, try to recover
+    }
 
     // Apply force generators (like gravity or drag)
-    for (const auto& fg : m_forceGenerators) {
-      fg->apply(dt);
+    try {
+      for (const auto& fg : m_forceGenerators) {
+        fg->apply(dt);
+      }
+    } catch (...) {
+      LOG_ERROR("Exception in force generators");
     }
 
     // External force vector (forces and torques)
     VectorXd F_ext = VectorXd::Zero(dof_dq);
-    computeExternalForces(F_ext);
+    try {
+      computeExternalForces(F_ext);
+    } catch (...) {
+      LOG_ERROR("Exception in computeExternalForces");
+    }
 
     // Assemble mass matrix (block-diagonal)
     MatrixXd M = MatrixXd::Zero(dof_dq, dof_dq);
-    assembleMassMatrix(M);
+    try {
+      assembleMassMatrix(M);
+    } catch (...) {
+      LOG_ERROR("Exception in assembleMassMatrix");
+      // Initialize with reasonable defaults
+      for (int i = 0; i < m_numBodies; ++i) {
+        M.block<3, 3>(i * 6, i * 6) = Matrix3d::Identity();  // Unit mass
+        M.block<3, 3>(i * 6 + 3, i * 6 + 3) = Matrix3d::Identity();  // Unit inertia
+      }
+    }
 
     // Apply force elements (like springs/dampers) and compute Jacobian K
     MatrixXd K = MatrixXd::Zero(dof_dq, dof_dq);
-    applyForceElements(F_ext, K);
+    try {
+      applyForceElements(F_ext, K);
+    } catch (...) {
+      LOG_ERROR("Exception in applyForceElements");
+    }
 
     // Assemble constraint Jacobian P and correction term gamma
     MatrixXd P = MatrixXd::Zero(m_numConstraints, dof_dq);
     VectorXd gamma = VectorXd::Zero(m_numConstraints);
-    assembleConstraints(P, gamma);
+    try {
+      assembleConstraints(P, gamma);
+    } catch (...) {
+      LOG_ERROR("Exception in assembleConstraints");
+    }
 
     // Solve KKT system to get acceleration at midpoint
-    VectorXd ddq_mid = solveKKTSystem(M, K, P, F_ext, gamma, dt);
+    VectorXd ddq_mid;
+    try {
+      ddq_mid = solveKKTSystem(M, K, P, F_ext, gamma, dt);
+
+      // Check for numerical issues in the solution
+      if (!ddq_mid.allFinite()) {
+        LOG_ERROR("KKT solution contains invalid values, using zero acceleration");
+        ddq_mid = VectorXd::Zero(dof_dq);
+      }
+    } catch (...) {
+      LOG_ERROR("Exception in solveKKTSystem");
+      ddq_mid = VectorXd::Zero(dof_dq);
+    }
 
     // Update velocity with midpoint acceleration
-    VectorXd dq_new = dq_n + dt * ddq_mid;
+    VectorXd dq_new;
+    try {
+      dq_new = dq_n + dt * ddq_mid;
+
+      // Safety check and clamping for extreme accelerations
+      if (!dq_new.allFinite()) {
+        LOG_ERROR("New velocity contains invalid values, reverting to previous");
+        dq_new = dq_n;
+      }
+    } catch (...) {
+      LOG_ERROR("Exception during velocity update");
+      dq_new = dq_n;  // Revert to previous state
+    }
 
     // Integrate position and orientation using midpoint rule
-    integrateStateMidpoint(q_n, dq_n, dq_new, dt, q_next);
+    try {
+      integrateStateMidpoint(q_n, dq_n, dq_new, dt, q_next);
+
+      // Validate result
+      if (!q_next.allFinite()) {
+        LOG_ERROR("New position contains invalid values, reverting to previous");
+        q_next = q_n;
+      }
+    } catch (...) {
+      LOG_ERROR("Exception during position integration");
+      q_next = q_n;  // Revert to previous state
+    }
 
     // Update velocity for next iteration
     dq_next = dq_new;
 
     // Check for convergence
     double err = (q_next - q_prev).norm() + (dq_next - dq_prev).norm();
-    if (err < tol) break;
+    if (err < m_tol) break;
     q_prev  = q_next;
     dq_prev = dq_next;
   }
 
   // Project any constraint violations (e.g., enforce joints)
-  projectConstraints(q_next, dq_next, dof_dq, dt);
+  try {
+    projectConstraints(q_next, dq_next, dof_dq, dt);
+  } catch (...) {
+    LOG_ERROR("Exception during constraint projection");
+  }
+
+  // Final safety check before writeback
+  if (!q_next.allFinite() || !dq_next.allFinite()) {
+    LOG_ERROR("Final state contains invalid values, reverting to initial state");
+    q_next = q_n;
+    dq_next = dq_n;
+  }
 
   // Save new state back to the rigid bodies
-  writeBack(q_next, dq_next);
+  try {
+    writeBack(q_next, dq_next);
+  } catch (...) {
+    LOG_ERROR("Exception during state writeback");
+    // Emergency recovery - revert to initial state
+    writeBack(q_n, dq_n);
+  }
 }
 
 // Store current generalized state (q, dq) from body data
@@ -98,22 +247,63 @@ void Dynamics::initializeState(VectorXd& q, VectorXd& dq) const {
 
 // Set all bodies to the midpoint state (used for force/constraint eval)
 void Dynamics::updateMidpointState(const VectorXd& q_mid, const VectorXd& dq_mid) const {
-  for (int i = 0; i < m_numBodies; ++i) {
-    auto& body = m_bodies[i];
+    if (m_bodies.size() != static_cast<size_t>(m_numBodies)) {
+        std::cerr << "[Dynamics::updateMidpointState] m_bodies.size() != m_numBodies\n";
+        std::abort();
+    }
 
-    body->clearForces();
-    body->clearTorque();
-    body->updateInertiaWorld();
+    const int q_size_expected = m_numBodies * 7;
+    const int dq_size_expected = m_numBodies * 6;
 
-    if (body->isFixed()) continue;
+    if (q_mid.size() < q_size_expected || dq_mid.size() < dq_size_expected) {
+        std::cerr << "[Dynamics::updateMidpointState] q_mid or dq_mid too small\n";
+        std::abort();
+    }
 
-    body->setPosition(q_mid.segment<3>(i * 7));
-    body->setOrientation(q_mid.segment<4>(i * 7 + 3).normalized());
-    body->setLinearVelocity(dq_mid.segment<3>(i * 6));
-    body->setAngularVelocity(dq_mid.segment<3>(i * 6 + 3));
+    for (int i = 0; i < m_numBodies; ++i) {
+        auto& body = m_bodies[i];
 
-  }
+        if (!body) {
+            std::cerr << "[Dynamics::updateMidpointState] Null body pointer at index " << i << "\n";
+            std::abort();
+        }
+
+        body->clearForces();
+        body->clearTorque();
+        body->updateInertiaWorld();
+
+        if (body->isFixed()) continue;
+
+        const Eigen::Vector3d pos = q_mid.segment<3>(i * 7);
+        const Eigen::Vector4d quat_raw = q_mid.segment<4>(i * 7 + 3);
+        const Eigen::Vector3d lin_vel = dq_mid.segment<3>(i * 6);
+        const Eigen::Vector3d ang_vel = dq_mid.segment<3>(i * 6 + 3);
+
+        if (!pos.allFinite() || !quat_raw.allFinite() || !lin_vel.allFinite() || !ang_vel.allFinite()) {
+            std::cerr << "[Dynamics::updateMidpointState] Invalid values for body " << i << "\n";
+            std::cerr << "  pos: " << pos.transpose() << "\n";
+            std::cerr << "  quat: " << quat_raw.transpose() << "\n";
+            std::cerr << "  lin_vel: " << lin_vel.transpose() << "\n";
+            std::cerr << "  ang_vel: " << ang_vel.transpose() << "\n";
+            std::abort();
+        }
+
+        Eigen::Vector4d quat_safe = quat_raw;
+        double quat_norm = quat_safe.norm();
+        if (quat_norm < 1e-6) {
+            std::cerr << "[Dynamics::updateMidpointState] Quaternion near-zero at body " << i << " — resetting to identity\n";
+            quat_safe = Eigen::Vector4d(1, 0, 0, 0); // Identity quaternion
+        } else {
+            quat_safe.normalize();
+        }
+
+        body->setPosition(pos);
+        body->setOrientation(quat_safe);
+        body->setLinearVelocity(lin_vel);
+        body->setAngularVelocity(ang_vel);
+    }
 }
+
 
 // Gather external forces and torques into a vector
 void Dynamics::computeExternalForces(VectorXd& F_ext) const {
@@ -162,27 +352,118 @@ VectorXd Dynamics::solveKKTSystem(
   const VectorXd& F_ext,
   const VectorXd& gamma,
   double dt
-) {
+) const {
   const int dof_dq = static_cast<int>(F_ext.size());
   const int nc = static_cast<int>(gamma.size());
+
+  // Check for invalid inputs
+  if (!M.allFinite() || !K.allFinite() || !P.allFinite() || !F_ext.allFinite() || !gamma.allFinite()) {
+    LOG_ERROR("Invalid inputs to KKT system");
+    return VectorXd::Zero(dof_dq);
+  }
 
   MatrixXd KKT(dof_dq + nc, dof_dq + nc);
   KKT.setZero();
 
-  // Top-left: mass and stiffness
-  KKT.topLeftCorner(dof_dq, dof_dq).noalias() = M; // - dt * dt * K;
+  // Top-left: mass and stiffness with regularization to improve conditioning
+  KKT.topLeftCorner(dof_dq, dof_dq).noalias() = M - dt * dt * K;
+
+  // Add small regularization to improve numerical stability
+  for (int i = 0; i < dof_dq; ++i) {
+    KKT(i, i) += 1e-8;
+  }
+
   // Top-right and bottom-left: constraint Jacobian
   KKT.topRightCorner(dof_dq, nc) = P.transpose();
   KKT.bottomLeftCorner(nc, dof_dq) = P;
+
+  // Add small values to diagonal of bottom-right block for regularization
+  if (nc > 0) {
+    for (int i = dof_dq; i < dof_dq + nc; ++i) {
+      KKT(i, i) = 1e-8;
+    }
+  }
 
   // Right-hand side: external forces and constraint correction
   VectorXd rhs(dof_dq + nc);
   rhs.head(dof_dq) = F_ext;
   rhs.tail(nc) = gamma;
 
-  // Solve the linear system (can be optimized later)
-  VectorXd sol = KKT.fullPivLu().solve(rhs);
-  return sol.head(dof_dq); // Only care about acceleration
+  // Try more stable solver methods in sequence
+  VectorXd sol;
+  bool solved = false;
+
+  // Method 1: Try LDLT decomposition (fastest and usually stable enough)
+  try {
+    Eigen::LDLT<MatrixXd> ldltSolver(KKT);
+    if (ldltSolver.info() == Eigen::Success) {
+      sol = ldltSolver.solve(rhs);
+      if (sol.allFinite()) {
+        solved = true;
+      }
+    }
+  } catch (...) {
+    LOG_WARN("LDLT decomposition failed");
+  }
+
+  // Method 2: If LDLT failed, try QR decomposition (more stable but slower)
+  if (!solved) {
+    try {
+      LOG_WARN("Falling back to QR decomposition");
+      Eigen::ColPivHouseholderQR<MatrixXd> qrSolver(KKT);
+      sol = qrSolver.solve(rhs);
+      if (sol.allFinite()) {
+        solved = true;
+      }
+    } catch (...) {
+      LOG_WARN("QR decomposition failed");
+    }
+  }
+
+  // Method 3: Last resort, use SVD (most stable but slowest)
+  if (!solved) {
+    try {
+      LOG_WARN("Falling back to SVD decomposition");
+      Eigen::JacobiSVD<MatrixXd> svdSolver(KKT, Eigen::ComputeThinU | Eigen::ComputeThinV);
+      sol = svdSolver.solve(rhs);
+      if (sol.allFinite()) {
+        solved = true;
+      }
+    } catch (...) {
+      LOG_ERROR("All solver methods failed");
+    }
+  }
+
+  // If all methods failed, return zeros
+  if (!solved) {
+    LOG_ERROR("Unable to solve KKT system, returning zero");
+    return VectorXd::Zero(dof_dq);
+  }
+
+  // Apply reasonable limits to acceleration values
+  VectorXd accel = sol.head(dof_dq);
+
+  // Limit extreme values
+  const double MAX_LINEAR_ACCEL = 1000.0;  // Tune as needed
+  const double MAX_ANGULAR_ACCEL = 200.0;  // Tune as needed
+
+  for (int i = 0; i < m_numBodies; ++i) {
+    Vector3d lin_accel = accel.segment<3>(i * 6);
+    Vector3d ang_accel = accel.segment<3>(i * 6 + 3);
+
+    double lin_mag = lin_accel.norm();
+    double ang_mag = ang_accel.norm();
+
+    if (lin_mag > MAX_LINEAR_ACCEL) {
+      accel.segment<3>(i * 6) *= (MAX_LINEAR_ACCEL / lin_mag);
+    }
+
+    if (ang_mag > MAX_ANGULAR_ACCEL) {
+      accel.segment<3>(i * 6 + 3) *= (MAX_ANGULAR_ACCEL / ang_mag);
+    }
+  }
+
+  return accel;
 }
 
 // Midpoint integration of position and quaternion orientation
@@ -289,6 +570,17 @@ void Dynamics::writeBack(VectorXd q_next, VectorXd dq_next) const {
   for (int i = 0; i < m_numBodies; ++i) {
     auto& body = m_bodies[i];
     if (body->isFixed()) continue;
+
+    auto has_nan_or_inf = [](const auto& v) {
+      return !v.allFinite();
+    };
+
+    if (has_nan_or_inf(body->getPosition()) || has_nan_or_inf(body->getLinearVelocity())) {
+      std::cerr << "BAD BODY STATE at t=" << time << "\n";
+      std::cerr << "Position: " << body->getPosition().transpose() << "\n";
+      std::cerr << "Velocity: " << body->getLinearVelocity().transpose() << "\n";
+      abort();  // or pause
+    }
 
     Vector4d q = q_next.segment<4>(i * 7 + 3);
     q.normalize();

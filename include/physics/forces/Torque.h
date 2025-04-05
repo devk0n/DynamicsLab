@@ -22,7 +22,7 @@ public:
   }
 
 private:
-  std::unordered_map<UniqueID, Body*> m_targets;
+  std::unordered_map<UniqueID, Body*> m_targets{};
 };
 } // Proton
 

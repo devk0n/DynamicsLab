@@ -49,8 +49,11 @@ public:
 
 private:
 
+  const int m_maxIters = 5;   // Max number of nonlinear solver iterations
+  const double m_tol = 1e-10;   // Convergence tolerance
+
   const int m_maxProjectionIters = 3;
-  const double m_projectionTol = 1e-8;
+  const double m_projectionTol = 1e-10;
 
   void initializeState(VectorXd& q, VectorXd& dq) const;
   void updateMidpointState(const VectorXd& q_mid, const VectorXd& dq_mid) const;
@@ -58,11 +61,11 @@ private:
   void assembleMassMatrix(Eigen::Ref<MatrixXd> M) const;
   void applyForceElements(VectorXd &F_ext, MatrixXd &K) const;
   void assembleConstraints(MatrixXd& P, VectorXd& gamma) const;
-  [[nodiscard]] static VectorXd solveKKTSystem(
+  [[nodiscard]] VectorXd solveKKTSystem(
     const MatrixXd& M, const MatrixXd& K,
     const MatrixXd& P, const VectorXd& F_ext,
     const VectorXd& gamma, double dt
-  );
+  ) const;
   void integrateStateMidpoint(
     const VectorXd& q_n, const VectorXd& dq_n,
     const VectorXd& dq_new, double dt,
@@ -72,15 +75,15 @@ private:
   void projectConstraints(VectorXd &q_next, VectorXd &dq_next, int dof_dq, double dt) const;
 
   // System state
-  std::vector<std::unique_ptr<Body>> m_bodies;
-  std::unordered_map<UniqueID, size_t> m_bodyIndex;
+  std::vector<std::unique_ptr<Body>> m_bodies{};
+  std::unordered_map<UniqueID, size_t> m_bodyIndex{};
   int m_numBodies = 0;
 
   // Force generators
-  std::vector<std::shared_ptr<ForceGenerator>> m_forceGenerators;
+  std::vector<std::shared_ptr<ForceGenerator>> m_forceGenerators{};
 
   // Force elements
-  std::vector<std::shared_ptr<ForceElement>> m_forceElements;
+  std::vector<std::shared_ptr<ForceElement>> m_forceElements{};
 
   // Constraints
   std::vector<std::shared_ptr<Constraint>> m_constraints;

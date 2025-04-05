@@ -32,10 +32,10 @@ public:
   void setLocalPointB(Vector3d localB) { m_localPointB = std::move(localB); }
 
 private:
-  Body* m_bodyA;
-  Body* m_bodyB;
-  Vector3d m_localPointA;
-  Vector3d m_localPointB;
+  Body* m_bodyA{nullptr};
+  Body* m_bodyB{nullptr};
+  Vector3d m_localPointA{0, 0, 0};
+  Vector3d m_localPointB{0, 0, 0};
 };
 } // Proton
 

@@ -32,7 +32,7 @@ public:
 
 private:
   Dynamics &m_dynamics;
-  std::shared_ptr<Gravity> m_gravity;
+  std::shared_ptr<Gravity> m_gravity{nullptr};
 
 };
 } // Proton

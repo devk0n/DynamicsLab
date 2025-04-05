@@ -62,7 +62,7 @@ public:
 
 private:
   Dynamics &m_dynamics;
-  std::shared_ptr<Spring> m_spring;
+  std::shared_ptr<Spring> m_spring{nullptr};
   bool m_autoDistance;
 };
 } // Proton

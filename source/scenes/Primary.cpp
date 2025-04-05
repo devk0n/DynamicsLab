@@ -14,32 +14,43 @@ void Primary::problemA() {
   Body* chassis = builder.createCube()
     .size(3.0, 0.5, 0.5)
     .mass(100)
-    .position(0, 0, 1)
-    .fixed(true)
+    .position(0, 0, 2)
+    .angularVelocity(0, 0, 0)
     .build();
 
   Body* LF = builder.createCube()
     .mass(10)
     .size(0.25, 0.25, 0.5)
-    .position(1.2, 1, 1)
+    .position(1.2, 1, 2)
     .build();
 
   Body* LR = builder.createCube()
     .mass(10)
     .size(0.25, 0.25, 0.5)
-    .position(-1.2, 1, 1)
+    .position(-1.2, 1, 2)
     .build();
 
   Body* RF = builder.createCube()
     .mass(10)
     .size(0.25, 0.25, 0.5)
-    .position(1.2, -1, 1)
+    .position(1.2, -1, 2)
     .build();
 
   Body* RR = builder.createCube()
     .mass(10)
     .size(0.25, 0.25, 0.5)
-    .position(-1.2, -1, 1)
+    .position(-1.2, -1, 2)
+    .build();
+
+  builder.createGravity(0.0, 0.0, 24.5)
+    .addBody(LF)
+    .addBody(LR)
+    .addBody(RF)
+    .addBody(RR)
+    .build();
+
+  builder.createGravity(0.0, 0.0, -9.81)
+    .addBody(chassis)
     .build();
 
   builder.createSpring()
@@ -48,8 +59,8 @@ void Primary::problemA() {
     .withLocalPointA(1.2, 0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(5000)
-    .withDamping(100)
+    .withStiffness(7500)
+    .withDamping(250)
     .build();
 
   builder.createSpring()
@@ -58,8 +69,8 @@ void Primary::problemA() {
     .withLocalPointA(1.2, -0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(5000)
-    .withDamping(100)
+    .withStiffness(7500)
+    .withDamping(250)
     .build();
 
   builder.createSpring()
@@ -68,8 +79,8 @@ void Primary::problemA() {
     .withLocalPointA(-1.2, -0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(5000)
-    .withDamping(100)
+    .withStiffness(7500)
+    .withDamping(250)
     .build();
 
   builder.createSpring()
@@ -78,16 +89,8 @@ void Primary::problemA() {
     .withLocalPointA(-1.2, 0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(5000)
-    .withDamping(0)
-    .build();
-
-  builder.createGravity(0.0, 0.0, 9.81)
-    .addBody(LF)
-    .addBody(LR)
-    .addBody(RF)
-    .addBody(RR)
-    .addBody(chassis)
+    .withStiffness(7500)
+    .withDamping(250)
     .build();
 
   // Left Front
@@ -320,8 +323,8 @@ void Primary::problemB() {
 
 bool Primary::load() {
 
-  problemA();
-  // problemB();
+  // problemA();
+  problemB();
 
   LOG_INFO("Initializing Primary Scene");
   m_camera.setPosition({5.0f, 3.2f, 3.2f});

@@ -38,14 +38,14 @@ public:
   void setAxisN(Vector3d axisN) { m_axisN = std::move(axisN); }
 
 private:
-  Body* m_bodyA;
-  Body* m_bodyB;
-  Vector3d m_localPointA;
-  Vector3d m_localPointB;
-  Vector3d m_axisA;
-  Vector3d m_axisB;
-  Vector3d m_axisM;
-  Vector3d m_axisN;
+  Body* m_bodyA{nullptr};
+  Body* m_bodyB{nullptr};
+  Vector3d m_localPointA{0.0, 0.0, 0.0};
+  Vector3d m_localPointB{0.0, 0.0, 0.0};
+  Vector3d m_axisA{0.0, 0.0, 0.0};
+  Vector3d m_axisB{0.0, 0.0, 0.0};
+  Vector3d m_axisM{0.0, 0.0, 0.0};
+  Vector3d m_axisN{0.0, 0.0, 0.0};
 };
 
 } // Proton

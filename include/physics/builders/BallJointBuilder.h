@@ -39,7 +39,7 @@ public:
 
 private:
   Dynamics& m_dynamics;
-  std::shared_ptr<BallJoint> m_constraint;
+  std::shared_ptr<BallJoint> m_constraint{nullptr};
 };
 
 } // namespace Proton

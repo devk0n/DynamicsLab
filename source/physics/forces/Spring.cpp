@@ -85,7 +85,7 @@ void Spring::computeForceAndJacobian(
     Matrix3d outer_nn = n * n.transpose();
 
     // Spring stiffness term
-    Matrix3d dFdx = -m_stiffness * (outer_nn + ((deltaL/L) * (I - outer_nn)));
+    Matrix3d dFdx = -m_stiffness * (outer_nn + deltaL/L * (I - outer_nn));
 
     // Damping term
     Matrix3d dFdv = -m_damping * outer_nn;

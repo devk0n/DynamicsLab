@@ -49,7 +49,7 @@ public:
 
 private:
   Dynamics& m_dynamics;
-  std::shared_ptr<UniversalJoint> m_constraint;
+  std::shared_ptr<UniversalJoint> m_constraint{nullptr};
 };
 } // Proton
 #endif // UNIVERSAL_JOINT_BUILDER_H

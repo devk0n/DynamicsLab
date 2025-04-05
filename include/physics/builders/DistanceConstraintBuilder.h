@@ -41,7 +41,7 @@ public:
   }
 private:
   Dynamics& m_dynamics;
-  std::shared_ptr<DistanceConstraint> m_constraint;
+  std::shared_ptr<DistanceConstraint> m_constraint{nullptr};
   bool m_autoDistance = true;
 };
 

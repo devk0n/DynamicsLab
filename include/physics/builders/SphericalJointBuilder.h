@@ -53,7 +53,7 @@ public:
 
 private:
   Dynamics& m_dynamics;
-  std::shared_ptr<SphericalJoint> m_constraint;
+  std::shared_ptr<SphericalJoint> m_constraint{nullptr};
   bool m_autoDistance;
 };
 

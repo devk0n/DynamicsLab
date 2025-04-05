@@ -30,8 +30,8 @@ public:
   void setDistance(double distance) { m_distance = distance; }
 
 private:
-  Body* m_bodyA;
-  Body* m_bodyB;
+  Body* m_bodyA{nullptr};
+  Body* m_bodyB{nullptr};
   double m_distance = 1.0;
 
 };

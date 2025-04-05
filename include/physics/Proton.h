@@ -12,6 +12,8 @@ using UniqueID = std::uint16_t;
 using Vector2d = Eigen::Vector2d;
 using Vector3d = Eigen::Vector3d;
 using Vector4d = Eigen::Vector4d;
+using Vector5d = Eigen::Vector<double, 5>;
+using Vector6d = Eigen::Vector<double, 6>;
 using VectorXd = Eigen::VectorXd;
 
 using Matrix2d = Eigen::Matrix2d;
@@ -102,6 +104,64 @@ inline Matrix3d quaternionToRotationMatrix(const Vector4d& q) {
 inline Matrix3d updateInertiaWorld(const Vector4d& orientation, const Vector3d& inverseInertia) {
   Matrix3d R = quaternionToRotationMatrix(orientation);
   return R * inverseInertia.asDiagonal() * R.transpose();
+}
+
+inline Vector4d slerpQuaternion(const Vector4d& q1, const Vector4d& q2, double t) {
+  // Check for invalid inputs
+  if (!q1.allFinite() || !q2.allFinite() || !std::isfinite(t)) {
+    // Return identity quaternion as a fallback
+    return Vector4d(1.0, 0.0, 0.0, 0.0);
+  }
+
+  // Handle zero-length quaternions
+  if (q1.norm() < 1e-8 || q2.norm() < 1e-8) {
+    return Vector4d(1.0, 0.0, 0.0, 0.0);
+  }
+
+  // Normalize input quaternions
+  Vector4d q1n = q1.normalized();
+  Vector4d q2n = q2.normalized();
+
+  // Calculate dot product
+  double dot = q1n.dot(q2n);
+
+  // If the dot product is negative, negate one quaternion to take the shorter path
+  if (dot < 0.0) {
+    q2n = -q2n;
+    dot = -dot;
+  }
+
+  // Clamp dot product to valid range
+  dot = std::min(std::max(dot, -1.0), 1.0);
+
+  // If quaternions are very close, use linear interpolation
+  if (dot > 0.9995) {
+    Vector4d result = q1n + t * (q2n - q1n);
+    return result.normalized();
+  }
+
+  // Calculate angle between quaternions
+  double angle = std::acos(dot);
+  double sin_angle = std::sin(angle);
+
+  // If the divisor is too close to zero, use linear interpolation
+  if (std::abs(sin_angle) < 1e-8) {
+    Vector4d result = q1n + t * (q2n - q1n);
+    return result.normalized();
+  }
+
+  // Spherical linear interpolation formula
+  double s1 = std::sin((1.0 - t) * angle) / sin_angle;
+  double s2 = std::sin(t * angle) / sin_angle;
+
+  Vector4d result = (s1 * q1n + s2 * q2n);
+
+  // Check for invalid results
+  if (!result.allFinite() || result.norm() < 1e-8) {
+    return Vector4d(1.0, 0.0, 0.0, 0.0);
+  }
+
+  return result.normalized();
 }
 
 inline Vector4d eulerToQuaternion(const Vector3d& eulerAngles) {

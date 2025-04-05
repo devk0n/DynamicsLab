@@ -1,11 +1,14 @@
 # Ignore build directories
 /build-debug
 /build-release
+/build-debuginfo
 /build-debug/_deps/
 /build-release/_deps/
+/build-debuginfo/_deps/
 
 # Ignore IDE configuration
 /.idea
 
+# Ignore log and combined code
 /log.txt
 /Combined.txt

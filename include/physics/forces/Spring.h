@@ -45,8 +45,8 @@ public:
   void setDamping(double damping) { m_damping = damping; }
 
 private:
-  Body* m_bodyA;
-  Body* m_bodyB;
+  Body* m_bodyA{nullptr};
+  Body* m_bodyB{nullptr};
   Vector3d m_localPointA{0, 0, 0};
   Vector3d m_localPointB{0, 0, 0};
   double m_restLength = 0;

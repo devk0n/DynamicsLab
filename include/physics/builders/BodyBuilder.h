@@ -79,7 +79,7 @@ public:
 
 private:
   Dynamics &m_dynamics;
-  Body* m_body;
+  Body* m_body{nullptr};
   AngleMode m_angleMode;
 };
 } // Proton

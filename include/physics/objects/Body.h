@@ -113,8 +113,8 @@ private:
     };
   }
 
-  UniqueID m_ID;
-  int m_index;
+  UniqueID m_ID = -1;
+  int m_index = -1;
 
   // Physical properties
   Vector3d m_size = Vector3d::Ones();
