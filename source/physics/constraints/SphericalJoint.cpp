@@ -1,8 +1,8 @@
-#include "BallJoint.h"
+#include "SphericalJoint.h"
 
 namespace Proton {
 
-void BallJoint::computePositionError(VectorXd& phi, const int startRow) const {
+void SphericalJoint::computePositionError(VectorXd& phi, const int startRow) const {
   const auto& rA = m_bodyA->getPosition();
   const auto& rB = m_bodyB->getPosition();
 
@@ -12,7 +12,7 @@ void BallJoint::computePositionError(VectorXd& phi, const int startRow) const {
   phi.segment<3>(startRow).noalias() = rA + AA * m_localPointA - rB - AB * m_localPointB;
 }
 
-void BallJoint::computeJacobian(MatrixXd& jacobian, const int startRow) const {
+void SphericalJoint::computeJacobian(MatrixXd& jacobian, const int startRow) const {
 
   const auto& AA = quaternionToRotationMatrix(m_bodyA->getOrientation());
   const auto& AB = quaternionToRotationMatrix(m_bodyB->getOrientation());
@@ -24,7 +24,7 @@ void BallJoint::computeJacobian(MatrixXd& jacobian, const int startRow) const {
   jacobian.block<3,3>(startRow, m_bodyB->getIndex() * 6 + 3).noalias() =   AB * skew(m_localPointB); // BodyB angular
 }
 
-void BallJoint::computeAccelerationCorrection(VectorXd& gamma, const int startRow) const {
+void SphericalJoint::computeAccelerationCorrection(VectorXd& gamma, const int startRow) const {
   const auto& A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
   const auto& A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
@@ -35,6 +35,4 @@ void BallJoint::computeAccelerationCorrection(VectorXd& gamma, const int startRo
   gamma.segment<3>(startRow).noalias() = result;
 }
 
-}
-
-
+} // namespace Proton

@@ -1,14 +1,13 @@
-#ifndef BALL_JOINT_H
-#define BALL_JOINT_H
+#ifndef SPHERICAL_JOINT_H
+#define SPHERICAL_JOINT_H
 
 #include "Body.h"
 #include "Constraint.h"
 
 namespace Proton {
-
-class BallJoint final : public Constraint {
+class SphericalJoint final : public Constraint {
 public:
-  BallJoint() : Constraint(3) {}
+  SphericalJoint() : Constraint(3) {}
 
   void computePositionError(VectorXd& phi, int startRow) const override;
   void computeJacobian(MatrixXd& jacobian, int startRow) const override;
@@ -31,5 +30,5 @@ private:
   Vector3d m_localPointB{0, 0, 0};
 
 };
-} // Proton
-#endif // BALL_JOINT_H
+} // namespace Proton
+#endif // SPHERICAL_JOINT_H

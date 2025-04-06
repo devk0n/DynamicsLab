@@ -1,10 +1,10 @@
 #ifndef SYSTEM_VISUALIZER_H
 #define SYSTEM_VISUALIZER_H
 
+#include "SphericalJoint.h"
 #include "RevoluteJoint.h"
 #include "Spring.h"
 #include "DistanceConstraint.h"
-#include "BallJoint.h"
 #include "Dynamics.h"
 #include "ShaderManager.h"
 #include "Logger.h"
@@ -233,7 +233,7 @@ private:
         constraintVertices.push_back({
           dc->getBodyB()->getPositionVec3(), {1.0f, 1.0f, 0.0f, 1.0f}
         });
-      } else if (auto *bj = dynamic_cast<Proton::BallJoint *>(constraint.get())) {
+      } else if (auto *bj = dynamic_cast<Proton::SphericalJoint *>(constraint.get())) {
         processJoint(bj, constraintVertices);
       } else if (auto *sj = dynamic_cast<Proton::DistanceConstraint *>(constraint.get())) {
         processJoint(sj, constraintVertices);
@@ -343,9 +343,9 @@ private:
       std::vector<VertexData>& vertices) {
     // Constants
     constexpr float axisScale = 0.5f;
-    const glm::vec4 cyanColor(0.0f, 1.0f, 1.0f, 1.0f);
-    const glm::vec4 orangeColor(1.0f, 0.5f, 0.0f, 1.0f);
-    const glm::vec4 greenColor(0.5f, 1.0f, 0.0f, 1.0f);
+    constexpr glm::vec4 cyanColor(0.0f, 1.0f, 1.0f, 1.0f);
+    constexpr glm::vec4 orangeColor(1.0f, 0.5f, 0.0f, 1.0f);
+    constexpr glm::vec4 greenColor(0.5f, 1.0f, 0.0f, 1.0f);
 
     // Get attachment points in world space
     const glm::vec3 pos1 = getWorldAttachmentPoint(rj->getBodyA(), rj->getLocalPointA());
@@ -392,14 +392,23 @@ private:
     drawAxis(pos2, worldConstr2A, greenColor);
 }
 
-  void drawLines(const std::vector<VertexData> &vertices,
+  void drawLines(const std::vector<VertexData>& vertices,
                  float lineWidth) const {
+
+    auto vertexCount = static_cast<GLsizei>(vertices.size());
+
     glBindVertexArray(m_lineVAO);
     glBindBuffer(GL_ARRAY_BUFFER, m_lineVBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(VertexData),
-                 vertices.data(), GL_DYNAMIC_DRAW);
+
+    glBufferData(
+      GL_ARRAY_BUFFER,
+      static_cast<GLsizeiptr>(vertices.size() * sizeof(VertexData)),
+      vertices.data(),
+      GL_STATIC_DRAW
+    );
+
     glLineWidth(lineWidth);
-    glDrawArrays(GL_LINES, 0, vertices.size());
+    glDrawArrays(GL_LINES, 0, vertexCount);
     glBindVertexArray(0);
   }
 

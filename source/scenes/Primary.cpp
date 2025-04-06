@@ -286,28 +286,28 @@ void Primary::problemB() {
     .position(0.222903645, 0.400, 0.486801215)
     .build();
 
-  builder.createBallJoint()
+  builder.createSphericalJoint()
     .withBodyA(anchor)
     .withBodyB(arm1)
     .withLocalPointA(0, 0, 0)
     .withLocalPointB(-0.1, 0, 0)
     .build();
 
-  builder.createBallJoint()
+  builder.createSphericalJoint()
     .withBodyA(arm1)
     .withBodyB(arm2)
     .withLocalPointA(0.1, 0, 0)
     .withLocalPointB(-0.3, 0, 0)
     .build();
 
-  builder.createBallJoint()
+  builder.createSphericalJoint()
     .withBodyA(arm2)
     .withBodyB(arm3)
     .withLocalPointA(0.3, 0.0, 0.0)
     .withLocalPointB(0.25, 0.0, 0.0)
     .build();
 
-  builder.createBallJoint()
+  builder.createSphericalJoint()
     .withBodyA(anchor)
     .withBodyB(arm3)
     .withLocalPointA(0, 0.4, 0.6)
@@ -343,14 +343,14 @@ void Primary::doublePendulum() {
     .orientation(0, -90, 0)
     .build();
 
-  builder.createBallJoint()
+  builder.createSphericalJoint()
     .withBodyA(anchor)
     .withBodyB(arm1)
     .withLocalPointA(0, 0, 0)
     .withLocalPointB(-1.5, 0, 0)
     .build();
 
-  builder.createBallJoint()
+  builder.createSphericalJoint()
     .withBodyA(arm1)
     .withBodyB(arm2)
     .withLocalPointA(1.5, 0, 0)

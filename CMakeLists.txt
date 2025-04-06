@@ -174,7 +174,7 @@ set(SOURCES
     source/physics/Dynamics.cpp
 
     source/physics/constraints/DistanceConstraint.cpp
-    source/physics/constraints/BallJoint.cpp
+    source/physics/constraints/SphericalJoint.cpp
     source/physics/constraints/DistanceConstraint.cpp
     source/physics/constraints/RevoluteJoint.cpp
     source/physics/constraints/UniversalJoint.cpp
