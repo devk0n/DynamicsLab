@@ -1,6 +1,5 @@
 #include "Dynamics.h"
-
-#include <Logger.h>
+#include "Logger.h"
 
 namespace Proton {
 
@@ -76,7 +75,7 @@ void Dynamics::step(double dt) const {
         if (quat_n.allFinite() && quat_next.allFinite()) {
           q_mid.segment<4>(i * 7 + 3) = slerpQuaternion(quat_n, quat_next, 0.5);
         } else {
-          q_mid.segment<4>(i * 7 + 3) = Vector4d(1, 0, 0, 0);  // Identity quaternion
+          q_mid.segment<4>(i * 7 + 3) = identityQuaternion();  // Identity quaternion
           LOG_WARN("Using identity quaternion for midpoint of body ", i);
         }
       }
@@ -85,7 +84,7 @@ void Dynamics::step(double dt) const {
       // Fall back to safe values
       for (int i = 0; i < m_numBodies; ++i) {
         q_mid.segment<3>(i * 7) = Vector3d::Zero();
-        q_mid.segment<4>(i * 7 + 3) = Vector4d(1, 0, 0, 0);  // Identity quaternion
+        q_mid.segment<4>(i * 7 + 3) = identityQuaternion();  // Identity quaternion
       }
     }
 
@@ -95,7 +94,7 @@ void Dynamics::step(double dt) const {
       // Emergency recovery - reinitialize to safe values
       for (int i = 0; i < m_numBodies; ++i) {
         q_mid.segment<3>(i * 7) = Vector3d::Zero();
-        q_mid.segment<4>(i * 7 + 3) = Vector4d(1, 0, 0, 0);  // Identity quaternion
+        q_mid.segment<4>(i * 7 + 3) = identityQuaternion();  // Identity quaternion
         dq_mid.segment<6>(i * 6) = Vector6d::Zero();
       }
     }
@@ -273,10 +272,10 @@ void Dynamics::updateMidpointState(const VectorXd& q_mid, const VectorXd& dq_mid
 
         if (body->isFixed()) continue;
 
-        const Eigen::Vector3d pos = q_mid.segment<3>(i * 7);
-        const Eigen::Vector4d quat_raw = q_mid.segment<4>(i * 7 + 3);
-        const Eigen::Vector3d lin_vel = dq_mid.segment<3>(i * 6);
-        const Eigen::Vector3d ang_vel = dq_mid.segment<3>(i * 6 + 3);
+        const Vector3d pos = q_mid.segment<3>(i * 7);
+        const Vector4d quat_raw = q_mid.segment<4>(i * 7 + 3);
+        const Vector3d lin_vel = dq_mid.segment<3>(i * 6);
+        const Vector3d ang_vel = dq_mid.segment<3>(i * 6 + 3);
 
         if (!pos.allFinite() || !quat_raw.allFinite() || !lin_vel.allFinite() || !ang_vel.allFinite()) {
             std::cerr << "[Dynamics::updateMidpointState] Invalid values for body " << i << "\n";
@@ -287,11 +286,11 @@ void Dynamics::updateMidpointState(const VectorXd& q_mid, const VectorXd& dq_mid
             std::abort();
         }
 
-        Eigen::Vector4d quat_safe = quat_raw;
+        Vector4d quat_safe = quat_raw;
         double quat_norm = quat_safe.norm();
         if (quat_norm < 1e-6) {
             std::cerr << "[Dynamics::updateMidpointState] Quaternion near-zero at body " << i << " — resetting to identity\n";
-            quat_safe = Eigen::Vector4d(1, 0, 0, 0); // Identity quaternion
+            quat_safe = identityQuaternion();
         } else {
             quat_safe.normalize();
         }
@@ -423,7 +422,7 @@ VectorXd Dynamics::solveKKTSystem(
   if (!solved) {
     try {
       LOG_WARN("Falling back to SVD decomposition");
-      Eigen::JacobiSVD<MatrixXd> svdSolver(KKT, Eigen::ComputeThinU | Eigen::ComputeThinV);
+      Eigen::JacobiSVD svdSolver(KKT, Eigen::ComputeThinU | Eigen::ComputeThinV);
       sol = svdSolver.solve(rhs);
       if (sol.allFinite()) {
         solved = true;
@@ -441,26 +440,6 @@ VectorXd Dynamics::solveKKTSystem(
 
   // Apply reasonable limits to acceleration values
   VectorXd accel = sol.head(dof_dq);
-
-  // Limit extreme values
-  const double MAX_LINEAR_ACCEL = 1000.0;  // Tune as needed
-  const double MAX_ANGULAR_ACCEL = 200.0;  // Tune as needed
-
-  for (int i = 0; i < m_numBodies; ++i) {
-    Vector3d lin_accel = accel.segment<3>(i * 6);
-    Vector3d ang_accel = accel.segment<3>(i * 6 + 3);
-
-    double lin_mag = lin_accel.norm();
-    double ang_mag = ang_accel.norm();
-
-    if (lin_mag > MAX_LINEAR_ACCEL) {
-      accel.segment<3>(i * 6) *= (MAX_LINEAR_ACCEL / lin_mag);
-    }
-
-    if (ang_mag > MAX_ANGULAR_ACCEL) {
-      accel.segment<3>(i * 6 + 3) *= (MAX_ANGULAR_ACCEL / ang_mag);
-    }
-  }
 
   return accel;
 }

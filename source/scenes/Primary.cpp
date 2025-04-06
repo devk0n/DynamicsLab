@@ -1,5 +1,4 @@
 #include "Primary.h"
-
 #include "FrameTimer.h"
 #include "InputManager.h"
 #include "WindowManager.h"
@@ -362,8 +361,6 @@ void Primary::doublePendulum() {
     .addBody(arm1)
     .addBody(arm2)
     .build();
-
-
 }
 
 bool Primary::load() {
