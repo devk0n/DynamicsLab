@@ -9,8 +9,8 @@ namespace Proton {
 class DistanceConstraintBuilder {
 public:
   explicit DistanceConstraintBuilder(Dynamics& dynamics)
-        : m_dynamics(dynamics),
-          m_constraint(std::make_shared<DistanceConstraint>()) {}
+      : m_dynamics(dynamics),
+        m_constraint(std::make_shared<DistanceConstraint>()) {}
 
   DistanceConstraintBuilder& withBodyA(Body* body) {
     m_constraint->setBodyA(body);
@@ -19,6 +19,16 @@ public:
 
   DistanceConstraintBuilder& withBodyB(Body* body) {
     m_constraint->setBodyB(body);
+    return *this;
+  }
+
+  DistanceConstraintBuilder& withLocalPointA(double x, double y, double z) {
+    m_constraint->setLocalPointA(Vector3d(x, y, z));
+    return *this;
+  }
+
+  DistanceConstraintBuilder& withLocalPointB(double x, double y, double z) {
+    m_constraint->setLocalPointB(Vector3d(x, y, z));
     return *this;
   }
 
@@ -39,12 +49,11 @@ public:
     m_dynamics.addConstraint(m_constraint);
     return m_constraint;
   }
+
 private:
   Dynamics& m_dynamics;
   std::shared_ptr<DistanceConstraint> m_constraint{nullptr};
-  bool m_autoDistance = true;
+  bool m_autoDistance{true};
 };
-
-} // Proton
-
+} // namespace Proton
 #endif // DISTANCE_CONSTRAINT_BUILDER_H

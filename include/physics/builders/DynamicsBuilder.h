@@ -3,7 +3,6 @@
 
 #include "Dynamics.h"
 #include "BodyBuilder.h"
-#include "SphericalJointBuilder.h"
 #include "BallJointBuilder.h"
 #include "DistanceConstraintBuilder.h"
 #include "GravityBuilder.h"
@@ -25,8 +24,8 @@ public:
     return {m_dynamics, body};
   }
 
-  [[nodiscard]] SphericalJointBuilder createSphericalJoint() const {
-    return SphericalJointBuilder(m_dynamics);
+  [[nodiscard]] DistanceConstraintBuilder createDistanceConstraint() const {
+    return DistanceConstraintBuilder(m_dynamics);
   }
 
   [[nodiscard]] BallJointBuilder createBallJoint() const {
@@ -39,10 +38,6 @@ public:
 
   [[nodiscard]] RevoluteJointBuilder createRevoluteJoint() const {
     return RevoluteJointBuilder(m_dynamics);
-  }
-
-  [[nodiscard]] DistanceConstraintBuilder createDistanceConstraint() const {
-    return DistanceConstraintBuilder(m_dynamics);
   }
 
   [[nodiscard]] SpringBuilder createSpring() const {

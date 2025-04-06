@@ -8,7 +8,6 @@
 #include "Dynamics.h"
 #include "ShaderManager.h"
 #include "Logger.h"
-#include "SphericalJoint.h"
 #include "UniversalJoint.h"
 
 class SystemVisualizer {
@@ -236,7 +235,7 @@ private:
         });
       } else if (auto *bj = dynamic_cast<Proton::BallJoint *>(constraint.get())) {
         processJoint(bj, constraintVertices);
-      } else if (auto *sj = dynamic_cast<Proton::SphericalJoint *>(constraint.get())) {
+      } else if (auto *sj = dynamic_cast<Proton::DistanceConstraint *>(constraint.get())) {
         processJoint(sj, constraintVertices);
       } else if (auto *uj = dynamic_cast<Proton::UniversalJoint *>(constraint.get())) {
         processUniversalJoint(uj, constraintVertices);

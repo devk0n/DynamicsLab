@@ -94,7 +94,7 @@ void Primary::problemA() {
     .build();
 
   // Left Front
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(LF)
     .withLocalPointA(1.1, 0.25, 0)
@@ -102,7 +102,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(LF)
     .withLocalPointA(1.5, 0.25, 0.25)
@@ -110,7 +110,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(LF)
     .withLocalPointA(0.9, 0.25, 0.25)
@@ -118,7 +118,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(LF)
     .withLocalPointA(1.5, 0.25, -0.25)
@@ -126,7 +126,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(LF)
     .withLocalPointA(0.9, 0.25, -0.25)
@@ -135,7 +135,7 @@ void Primary::problemA() {
     .build();
 
   // Right Front
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(RF)
     .withLocalPointA(1.1, -0.25, 0)
@@ -143,7 +143,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(RF)
     .withLocalPointA(1.5, -0.25, 0.25)
@@ -151,7 +151,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(RF)
     .withLocalPointA(0.9, -0.25, 0.25)
@@ -159,7 +159,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(RF)
     .withLocalPointA(1.5, -0.25, -0.25)
@@ -167,7 +167,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(RF)
     .withLocalPointA(0.9, -0.25, -0.25)
@@ -176,7 +176,7 @@ void Primary::problemA() {
     .build();
 
   // Right Rear
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(RR)
     .withLocalPointA(-1.5, -0.25, -0.25)
@@ -184,7 +184,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(RR)
     .withLocalPointA(-1.5, -0.25, 0.25)
@@ -192,7 +192,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(RR)
     .withLocalPointA(-0.9, -0.25, 0.25)
@@ -200,7 +200,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(RR)
     .withLocalPointA(-1.5, -0.25, -0.25)
@@ -208,7 +208,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(RR)
     .withLocalPointA(-0.9, -0.25, -0.25)
@@ -217,7 +217,7 @@ void Primary::problemA() {
     .build();
 
   // Left Rear
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(LR)
     .withLocalPointA(-1.5, 0.25, -0.25)
@@ -225,7 +225,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(LR)
     .withLocalPointA(-1.5, 0.25, 0.25)
@@ -233,7 +233,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(LR)
     .withLocalPointA(-0.9, 0.25, 0.25)
@@ -241,7 +241,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(LR)
     .withLocalPointA(-1.5, 0.25, -0.25)
@@ -249,7 +249,7 @@ void Primary::problemA() {
     .withAutoDistance(true)
     .build();
 
-  builder.createSphericalJoint()
+  builder.createDistanceConstraint()
     .withBodyA(chassis)
     .withBodyB(LR)
     .withLocalPointA(-0.9, 0.25, -0.25)
