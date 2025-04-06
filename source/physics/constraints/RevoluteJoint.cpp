@@ -18,11 +18,11 @@ RevoluteJoint::RevoluteJoint(
 }
 
 void RevoluteJoint::computePositionError(VectorXd &phi, int startRow) const {
-  auto r1 = m_bodyA->getPosition();
-  auto r2 = m_bodyB->getPosition();
+  const auto &r1 = m_bodyA->getPosition();
+  const auto &r2 = m_bodyB->getPosition();
 
-  auto A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  auto A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
   // Point constraint (3 rows)
   phi.segment<3>(startRow) = r1 + A1 * m_localPointA - r2 - A2 * m_localPointB;
@@ -32,8 +32,8 @@ void RevoluteJoint::computePositionError(VectorXd &phi, int startRow) const {
 }
 
 void RevoluteJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
-  const auto A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  const auto A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
   // Point constraint Jacobian
   jacobian.block<3,3>(startRow, m_bodyA->getIndex() * 6)      =   Matrix3d::Identity();
@@ -49,18 +49,18 @@ void RevoluteJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
 }
 
 void RevoluteJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow) const {
-  const auto A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  const auto A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
-  const Vector3d omega1 = m_bodyA->getAngularVelocity();
-  const Vector3d omega2 = m_bodyB->getAngularVelocity();
+  const auto &omega1 = m_bodyA->getAngularVelocity();
+  const auto &omega2 = m_bodyB->getAngularVelocity();
 
   // World space quantities
-  const Vector3d r1 = A1 * m_localPointA;
-  const Vector3d r2 = A2 * m_localPointB;
-  const Vector3d worldAxisA = A1 * m_axisA;
-  const Vector3d worldAxisM = A2 * m_axisM;
-  const Vector3d worldAxisN = A2 * m_axisN;
+  const auto &r1 = A1 * m_localPointA;
+  const auto &r2 = A2 * m_localPointB;
+  const auto &worldAxisA = A1 * m_axisA;
+  const auto &worldAxisM = A2 * m_axisM;
+  const auto &worldAxisN = A2 * m_axisN;
 
   // Point constraint acceleration (3 rows)
   gamma.segment<3>(startRow) =

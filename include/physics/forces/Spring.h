@@ -18,7 +18,7 @@ public:
       double damping
   );
 
-  Spring();
+  Spring() = default;
 
   void computeDistance();
 

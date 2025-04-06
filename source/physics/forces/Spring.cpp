@@ -15,35 +15,31 @@ Spring::Spring(
         m_stiffness(stiffness),
         m_damping(damping) {}
 
-Spring::Spring()
-    : m_bodyA(nullptr),
-      m_bodyB(nullptr) {}
-
 void Spring::computeDistance() {
   // Compute each anchor’s world‑space position
-  const auto A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  const auto A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
-  const Vector3d world1 = m_bodyA->getPosition() + A1 * m_localPointA;
-  const Vector3d world2 = m_bodyB->getPosition() + A2 * m_localPointB;
+  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto &world1 = m_bodyA->getPosition() + A1 * m_localPointA;
+  const auto &world2 = m_bodyB->getPosition() + A2 * m_localPointB;
 
   // Initialize the resting distance automatically
   m_restLength = (world2 - world1).norm();
 }
 
 void Spring::computeForceAndJacobian(
-    Eigen::VectorXd& F_ext,
-    Eigen::MatrixXd& K,
+    VectorXd& F_ext,
+    MatrixXd& K,
     int dof_dq)
 {
     if (!m_bodyA || !m_bodyB) return;
 
     // Get world-space attachment points
-    const auto RA = quaternionToRotationMatrix(m_bodyA->getOrientation());
-    const auto RB = quaternionToRotationMatrix(m_bodyB->getOrientation());
-    const Vector3d rA_world = RA * m_localPointA;
-    const Vector3d rB_world = RB * m_localPointB;
-    const Vector3d worldA = m_bodyA->getPosition() + rA_world;
-    const Vector3d worldB = m_bodyB->getPosition() + rB_world;
+    const auto &RA = quaternionToRotationMatrix(m_bodyA->getOrientation());
+    const auto &RB = quaternionToRotationMatrix(m_bodyB->getOrientation());
+    const auto &rA_world = RA * m_localPointA;
+    const auto &rB_world = RB * m_localPointB;
+    const auto &worldA = m_bodyA->getPosition() + rA_world;
+    const auto &worldB = m_bodyB->getPosition() + rB_world;
 
     // Spring vector and its properties
     Vector3d r = worldB - worldA;

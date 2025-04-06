@@ -15,19 +15,19 @@ UniversalJoint::UniversalJoint(
         m_axisB(std::move(axisB)) {}
 
 void UniversalJoint::computePositionError(VectorXd &phi, int startRow) const {
-  auto r1 = m_bodyA->getPosition();
-  auto r2 = m_bodyB->getPosition();
+  const auto &r1 = m_bodyA->getPosition();
+  const auto &r2 = m_bodyB->getPosition();
 
-  auto A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  auto A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
   phi.segment<3>(startRow) = r1 + A1 * m_localPointA - r2 - A2 * m_localPointB;
   phi.segment<1>(startRow + 3) = (A1 * m_axisA).eval().transpose() * (A2 * m_axisB).eval();
 }
 
 void UniversalJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
-  auto A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  auto A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
   // Jacobian matrix Spherical
   jacobian.block<3,3>(startRow, m_bodyA->getIndex() * 6)     =   Matrix3d::Identity();
@@ -42,17 +42,17 @@ void UniversalJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
 }
 
 void UniversalJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow) const {
-  auto A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  auto A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
-  auto omega1 = m_bodyA->getAngularVelocity();
-  auto omega2 = m_bodyB->getAngularVelocity();
+  const auto &omega1 = m_bodyA->getAngularVelocity();
+  const auto &omega2 = m_bodyB->getAngularVelocity();
 
-  auto result = A1 * (skew(omega1) * skew(m_localPointA)).eval() * omega1 - A2 * (skew(omega2) * skew(m_localPointB)).eval() * omega2;
+  const auto &result = A1 * (skew(omega1) * skew(m_localPointA)).eval() * omega1 - A2 * (skew(omega2) * skew(m_localPointB)).eval() * omega2;
   gamma.segment<3>(startRow) = result;
 
-  Vector3d a1 = A1 * m_axisA;
-  Vector3d a2 = A2 * m_axisB;
+  const auto &a1 = A1 * m_axisA;
+  const auto &a2 = A2 * m_axisB;
 
   double cTerm = 0.0;
 

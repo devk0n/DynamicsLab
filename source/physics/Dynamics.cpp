@@ -11,8 +11,8 @@ void Dynamics::step(double dt) const {
     dt = 0.01;
   }
 
-  const int dof_q  = m_numBodies * 7; // Generalized position DoFs: 3 pos + 4 orientation (quaternion) per body
-  const int dof_dq = m_numBodies * 6; // Generalized velocity DoFs: 3 linear + 3 angular per body
+  const auto &dof_q  = m_numBodies * 7; // Generalized position DoFs: 3 pos + 4 orientation (quaternion) per body
+  const auto &dof_dq = m_numBodies * 6; // Generalized velocity DoFs: 3 linear + 3 angular per body
 
   // Initial state at timestep n
   VectorXd q_n = VectorXd::Zero(dof_q);
@@ -84,7 +84,7 @@ void Dynamics::step(double dt) const {
       // Fall back to safe values
       for (int i = 0; i < m_numBodies; ++i) {
         q_mid.segment<3>(i * 7) = Vector3d::Zero();
-        q_mid.segment<4>(i * 7 + 3) = identityQuaternion();  // Identity quaternion
+        q_mid.segment<4>(i * 7 + 3) = identityQuaternion();
       }
     }
 
@@ -94,7 +94,7 @@ void Dynamics::step(double dt) const {
       // Emergency recovery - reinitialize to safe values
       for (int i = 0; i < m_numBodies; ++i) {
         q_mid.segment<3>(i * 7) = Vector3d::Zero();
-        q_mid.segment<4>(i * 7 + 3) = identityQuaternion();  // Identity quaternion
+        q_mid.segment<4>(i * 7 + 3) = identityQuaternion();
         dq_mid.segment<6>(i * 6) = Vector6d::Zero();
       }
     }
@@ -236,10 +236,10 @@ void Dynamics::step(double dt) const {
 void Dynamics::initializeState(VectorXd& q, VectorXd& dq) const {
   for (int i = 0; i < m_numBodies; ++i) {
     const auto& body = m_bodies[i];
-    q.segment<3>(i * 7)       = body->getPosition();
-    q.segment<4>(i * 7 + 3)   = body->getOrientation();
-    dq.segment<3>(i * 6)      = body->getLinearVelocity();
-    dq.segment<3>(i * 6 + 3)  = body->getAngularVelocity();
+     q.segment<3>(i * 7)     = body->getPosition();
+     q.segment<4>(i * 7 + 3) = body->getOrientation();
+    dq.segment<3>(i * 6)     = body->getLinearVelocity();
+    dq.segment<3>(i * 6 + 3) = body->getAngularVelocity();
   }
 }
 
