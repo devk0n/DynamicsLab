@@ -7,35 +7,25 @@
 namespace Proton {
 class SphericalJoint final : public Constraint {
 public:
-  SphericalJoint();
-
-  SphericalJoint(
-      Body* bodyA, Vector3d localPointA,
-      Body* bodyB, Vector3d localPointB
-  );
-
-  SphericalJoint(
-      Body* bodyA, Vector3d localPointA,
-      Body* bodyB, Vector3d localPointB,
-      double distance
-  );
+  explicit SphericalJoint() : Constraint(1) {}
 
   void computePositionError(VectorXd &phi, int startRow) const override;
   void computeJacobian(MatrixXd &jacobian, int startRow) const override;
   void computeAccelerationCorrection(VectorXd &gamma, int startRow) const override;
+
   void computeDistance();
 
   [[nodiscard]] Body* getBodyA() const { return m_bodyA; }
   [[nodiscard]] Body* getBodyB() const { return m_bodyB; }
-  [[nodiscard]] Vector3d getLocalPointA() const { return m_localPointA; }
-  [[nodiscard]] Vector3d getLocalPointB() const { return m_localPointB; }
-  [[nodiscard]] double getDistance() const { return m_distance; }
+  [[nodiscard]] const Vector3d &getLocalPointA() const { return m_localPointA; }
+  [[nodiscard]] const Vector3d &getLocalPointB() const { return m_localPointB; }
+  [[nodiscard]] const double &getDistance() const { return m_distance; }
 
   void setBodyA(Body* bodyA) { m_bodyA = bodyA; }
   void setBodyB(Body* bodyB) { m_bodyB = bodyB; }
-  void setLocalPointA(Vector3d localA) { m_localPointA = std::move(localA); }
-  void setLocalPointB(Vector3d localB) { m_localPointB = std::move(localB); }
-  void setDistance(double distance) { m_distance = distance; }
+  void setLocalPointA(const Vector3d &localA) { m_localPointA = localA; }
+  void setLocalPointB(const Vector3d &localB) { m_localPointB = localB; }
+  void setDistance(const double &distance) { m_distance = distance; }
 
 private:
   Body* m_bodyA{nullptr};

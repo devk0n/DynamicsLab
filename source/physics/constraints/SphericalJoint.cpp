@@ -1,41 +1,6 @@
 #include "SphericalJoint.h"
 
 namespace Proton {
-SphericalJoint::SphericalJoint(
-    Body *bodyA, Vector3d localPointA,
-    Body *bodyB, Vector3d localPointB)
-    : Constraint(1),
-      m_bodyA(bodyA),
-      m_bodyB(bodyB),
-      m_localPointA(std::move(localPointA)),
-      m_localPointB(std::move(localPointB)) {
-  computeDistance();
-}
-
-SphericalJoint::SphericalJoint(
-    Body *bodyA, Vector3d localPointA,
-    Body *bodyB, Vector3d localPointB,
-    const double distance)
-    : Constraint(1),
-      m_bodyA(bodyA),
-      m_bodyB(bodyB),
-      m_localPointA(std::move(localPointA)),
-      m_localPointB(std::move(localPointB)),
-      m_distance(distance) {}
-
-SphericalJoint::SphericalJoint()
-    : Constraint(1) {}
-
-void SphericalJoint::computeDistance() {
-  // Compute each anchor’s world‑space position
-  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
-  const auto &world1 = m_bodyA->getPosition() + A1 * m_localPointA;
-  const auto &world2 = m_bodyB->getPosition() + A2 * m_localPointB;
-
-  // Initialize the resting distance automatically
-  m_distance = (world2 - world1).norm();
-}
 
 void SphericalJoint::computePositionError(VectorXd &phi, int startRow) const {
   const auto &r1 = m_bodyA->getPosition();
@@ -46,7 +11,7 @@ void SphericalJoint::computePositionError(VectorXd &phi, int startRow) const {
 
   const auto &d = r2 + A2 * m_localPointB - r1 - A1 * m_localPointA;
 
-  phi(startRow) = (d.transpose() * d) - (m_distance * m_distance);
+  phi(startRow) = d.transpose() * d - (m_distance * m_distance);
 }
 
 void SphericalJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
@@ -56,10 +21,10 @@ void SphericalJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
   const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
   const auto &d = r2 + A2 * m_localPointB - r1 - A1 * m_localPointA;
 
-  jacobian.block<1,3>(startRow, m_bodyA->getIndex()*6)      = - 2.0 * d.transpose();
-  jacobian.block<1,3>(startRow, m_bodyA->getIndex()*6 + 3)  =   2.0 * d.transpose() * A1 * skew(m_localPointA);
-  jacobian.block<1,3>(startRow, m_bodyB->getIndex()*6)      =   2.0 * d.transpose();
-  jacobian.block<1,3>(startRow, m_bodyB->getIndex()*6 + 3)  = - 2.0 * d.transpose() * A2 * skew(m_localPointB);
+  jacobian.block<1,3>(startRow, m_bodyA->getIndex()*6).noalias()      = - 2.0 * d.transpose();
+  jacobian.block<1,3>(startRow, m_bodyA->getIndex()*6 + 3).noalias()  =   2.0 * d.transpose() * A1 * skew(m_localPointA);
+  jacobian.block<1,3>(startRow, m_bodyB->getIndex()*6).noalias()      =   2.0 * d.transpose();
+  jacobian.block<1,3>(startRow, m_bodyB->getIndex()*6 + 3).noalias()  = - 2.0 * d.transpose() * A2 * skew(m_localPointB);
 }
 
 void SphericalJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow) const {
@@ -92,4 +57,14 @@ void SphericalJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow
   gamma[startRow] = result;
 }
 
+void SphericalJoint::computeDistance() {
+  // Compute each anchor’s world‑space position
+  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto &world1 = m_bodyA->getPosition() + A1 * m_localPointA;
+  const auto &world2 = m_bodyB->getPosition() + A2 * m_localPointB;
+
+  // Initialize the resting distance automatically
+  m_distance = (world2 - world1).norm();
+}
 } // Proton
