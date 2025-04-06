@@ -5,10 +5,15 @@
 
 namespace Proton {
 
-#define PI 3.14159265358979323846
+// Constants
+constexpr double PI = 3.14159265358979323846;
+constexpr double DEG_TO_RAD = PI / 180.0;
+constexpr double RAD_TO_DEG = 180.0 / PI;
 
+// Type Aliases
 using UniqueID = std::uint16_t;
 
+// Eigen Types
 using Vector2d = Eigen::Vector2d;
 using Vector3d = Eigen::Vector3d;
 using Vector4d = Eigen::Vector4d;
@@ -80,7 +85,7 @@ inline MatrixG matrixG(Vector4d e) {
 }
 
 inline MatrixL matrixL(Vector4d e) {
-  MatrixG L;
+  MatrixL L;
   L << -e[1],  e[0],  e[3], -e[2],
        -e[2], -e[3],  e[0],  e[1],
        -e[3],  e[2], -e[1],  e[0];
@@ -106,16 +111,18 @@ inline Matrix3d updateInertiaWorld(const Vector4d& orientation, const Vector3d& 
   return R * inverseInertia.asDiagonal() * R.transpose();
 }
 
+inline Vector4d identityQuaternion() { return Vector4d(1, 0, 0, 0); }
+
 inline Vector4d slerpQuaternion(const Vector4d& q1, const Vector4d& q2, double t) {
   // Check for invalid inputs
   if (!q1.allFinite() || !q2.allFinite() || !std::isfinite(t)) {
     // Return identity quaternion as a fallback
-    return Vector4d(1.0, 0.0, 0.0, 0.0);
+    return identityQuaternion();
   }
 
   // Handle zero-length quaternions
   if (q1.norm() < 1e-8 || q2.norm() < 1e-8) {
-    return Vector4d(1.0, 0.0, 0.0, 0.0);
+    return identityQuaternion();
   }
 
   // Normalize input quaternions
