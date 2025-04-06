@@ -60,7 +60,7 @@ void Primary::problemA() {
     .withLocalPointA(1.2, 0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(750)
+    .withStiffness(7500)
     .withDamping(250)
     .build();
 
@@ -70,7 +70,7 @@ void Primary::problemA() {
     .withLocalPointA(1.2, -0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(750)
+    .withStiffness(7500)
     .withDamping(250)
     .build();
 
@@ -80,7 +80,7 @@ void Primary::problemA() {
     .withLocalPointA(-1.2, -0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(750)
+    .withStiffness(7500)
     .withDamping(250)
     .build();
 
@@ -90,7 +90,7 @@ void Primary::problemA() {
     .withLocalPointA(-1.2, 0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(700)
+    .withStiffness(7500)
     .withDamping(250)
     .build();
 
@@ -322,10 +322,56 @@ void Primary::problemB() {
     .build();
 }
 
+void Primary::doublePendulum() {
+  DynamicsBuilder builder(m_system);
+
+  Body* anchor = builder.createCube()
+    .position(0, 0, 5)
+    .size(0.1, 0.1, 0.1)
+    .fixed(true)
+    .build();
+
+  Body* arm1 = builder.createCube()
+    .mass(10)
+    .size(3.0, 0.2, 0.2)
+    .position(1.5, 0.0, 5.0)
+    .build();
+
+  Body* arm2 = builder.createCube()
+    .mass(5)
+    .size(2.0, 0.3, 0.3)
+    .position(3.0, .0, 6.0)
+    .orientation(0, -90, 0)
+    .build();
+
+  builder.createBallJoint()
+    .withBodyA(anchor)
+    .withBodyB(arm1)
+    .withLocalPointA(0, 0, 0)
+    .withLocalPointB(-1.5, 0, 0)
+    .build();
+
+  builder.createBallJoint()
+    .withBodyA(arm1)
+    .withBodyB(arm2)
+    .withLocalPointA(1.5, 0, 0)
+    .withLocalPointB(-1, 0, 0)
+    .build();
+
+  builder.createGravity(0, 0, -9.81)
+    .addBody(arm1)
+    .addBody(arm2)
+    .build();
+
+
+}
+
 bool Primary::load() {
 
-  problemA();
-  // problemB();
+  //problemA();
+  //problemB();
+
+  doublePendulum();
 
   LOG_INFO("Initializing Primary Scene");
   m_camera.setPosition({5.0f, 3.2f, 3.2f});

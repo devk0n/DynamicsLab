@@ -18,6 +18,8 @@ public:
 
   void problemB();
 
+  void doublePendulum();
+
   void problemC();
 
   bool load() override;
