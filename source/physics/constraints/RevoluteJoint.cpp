@@ -1,28 +1,13 @@
 #include "RevoluteJoint.h"
 
-#include <utility>
-
 namespace Proton {
-RevoluteJoint::RevoluteJoint(
-    Body* bodyA, Vector3d localPointA, Vector3d axisA,
-    Body* bodyB, Vector3d localPointB, Vector3d axisB)
-      : Constraint(5),
-        m_bodyA(bodyA),
-        m_bodyB(bodyB),
-        m_localPointA(std::move(localPointA)),
-        m_localPointB(std::move(localPointB)),
-        m_axisA(std::move(axisA)),
-        m_axisB(std::move(axisB)) {
-  m_axisM = m_axisA.cross(Vector3d(1, 0, 0)).normalized();  // Perpendicular to axisA
-  m_axisN = m_axisA.cross(m_axisM).normalized();             // Perpendicular to both axisA and axisM
-}
 
 void RevoluteJoint::computePositionError(VectorXd &phi, int startRow) const {
-  const auto &r1 = m_bodyA->getPosition();
-  const auto &r2 = m_bodyB->getPosition();
+  const auto& r1 = m_bodyA->getPosition();
+  const auto& r2 = m_bodyB->getPosition();
 
-  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto& A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto& A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
   // Point constraint (3 rows)
   phi.segment<3>(startRow).noalias() = r1 + A1 * m_localPointA - r2 - A2 * m_localPointB;
@@ -32,8 +17,8 @@ void RevoluteJoint::computePositionError(VectorXd &phi, int startRow) const {
 }
 
 void RevoluteJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
-  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto& A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto& A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
   // Point constraint Jacobian
   jacobian.block<3,3>(startRow, m_bodyA->getIndex() * 6).noalias()      =   Matrix3d::Identity();
@@ -49,25 +34,24 @@ void RevoluteJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
 }
 
 void RevoluteJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow) const {
-  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto& A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto& A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
-  const auto &omega1 = m_bodyA->getAngularVelocity();
-  const auto &omega2 = m_bodyB->getAngularVelocity();
+  const auto& omega1 = m_bodyA->getAngularVelocity();
+  const auto& omega2 = m_bodyB->getAngularVelocity();
 
   // World space quantities
-  const auto &r1 = A1 * m_localPointA;
-  const auto &r2 = A2 * m_localPointB;
-  const auto &worldAxisA = A1 * m_axisA;
-  const auto &worldAxisM = A2 * m_axisM;
-  const auto &worldAxisN = A2 * m_axisN;
+  const auto& r1 = A1 * m_localPointA;
+  const auto& r2 = A2 * m_localPointB;
+  const auto& worldAxisA = A1 * m_axisA;
+  const auto& worldAxisM = A2 * m_axisM;
+  const auto& worldAxisN = A2 * m_axisN;
 
   // Point constraint acceleration (3 rows)
   gamma.segment<3>(startRow).noalias() =
       omega1.cross(omega1.cross(r1)) - omega2.cross(omega2.cross(r2));
 
   // Perpendicularity constraints acceleration (2 rows)
-  // γ = -2(ω₁×a)ᵀ(ω₂×m) - aᵀ(ω₂×(ω₂×m)) - (ω₁×(ω₁×a))ᵀm
   gamma[startRow + 3] =
       -2.0 * omega1.cross(worldAxisA).dot(omega2.cross(worldAxisM))
       - worldAxisA.dot(omega2.cross(omega2.cross(worldAxisM)))

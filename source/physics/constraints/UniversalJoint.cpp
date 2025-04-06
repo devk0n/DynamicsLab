@@ -3,31 +3,20 @@
 #include <utility>
 
 namespace Proton {
-UniversalJoint::UniversalJoint(
-    Body* bodyA, Vector3d localPointA, Vector3d axisA,
-    Body* bodyB, Vector3d localPointB, Vector3d axisB)
-      : Constraint(4),
-        m_bodyA(bodyA),
-        m_bodyB(bodyB),
-        m_localPointA(std::move(localPointA)),
-        m_localPointB(std::move(localPointB)),
-        m_axisA(std::move(axisA)),
-        m_axisB(std::move(axisB)) {}
+void UniversalJoint::computePositionError(VectorXd& phi, int startRow) const {
+  const auto& r1 = m_bodyA->getPosition();
+  const auto& r2 = m_bodyB->getPosition();
 
-void UniversalJoint::computePositionError(VectorXd &phi, int startRow) const {
-  const auto &r1 = m_bodyA->getPosition();
-  const auto &r2 = m_bodyB->getPosition();
-
-  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto& A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto& A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
   phi.segment<3>(startRow).noalias() = r1 + A1 * m_localPointA - r2 - A2 * m_localPointB;
   phi.segment<1>(startRow + 3).noalias() = (A1 * m_axisA).eval().transpose() * (A2 * m_axisB).eval();
 }
 
-void UniversalJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
-  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+void UniversalJoint::computeJacobian(MatrixXd& jacobian, int startRow) const {
+  const auto& A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto& A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
   // Jacobian matrix Spherical
   jacobian.block<3,3>(startRow, m_bodyA->getIndex() * 6).noalias()     =   Matrix3d::Identity();
@@ -41,18 +30,18 @@ void UniversalJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
 
 }
 
-void UniversalJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow) const {
-  const auto &A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  const auto &A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+void UniversalJoint::computeAccelerationCorrection(VectorXd& gamma, int startRow) const {
+  const auto& A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto& A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
-  const auto &omega1 = m_bodyA->getAngularVelocity();
-  const auto &omega2 = m_bodyB->getAngularVelocity();
+  const auto& omega1 = m_bodyA->getAngularVelocity();
+  const auto& omega2 = m_bodyB->getAngularVelocity();
 
-  const auto &result = A1 * (skew(omega1) * skew(m_localPointA)).eval() * omega1 - A2 * (skew(omega2) * skew(m_localPointB)).eval() * omega2;
+  const auto& result = A1 * (skew(omega1) * skew(m_localPointA)).eval() * omega1 - A2 * (skew(omega2) * skew(m_localPointB)).eval() * omega2;
   gamma.segment<3>(startRow).noalias() = result;
 
-  const auto &a1 = A1 * m_axisA;
-  const auto &a2 = A2 * m_axisB;
+  const auto& a1 = A1 * m_axisA;
+  const auto& a2 = A2 * m_axisB;
 
   double cTerm = 0.0;
 

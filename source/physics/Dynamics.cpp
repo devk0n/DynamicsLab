@@ -11,8 +11,8 @@ void Dynamics::step(double dt) const {
     dt = 0.01;
   }
 
-  const auto &dof_q  = m_numBodies * 7; // Generalized position DoFs: 3 pos + 4 orientation (quaternion) per body
-  const auto &dof_dq = m_numBodies * 6; // Generalized velocity DoFs: 3 linear + 3 angular per body
+  const auto& dof_q  = m_numBodies * 7; // Generalized position DoFs: 3 pos + 4 orientation (quaternion) per body
+  const auto& dof_dq = m_numBodies * 6; // Generalized velocity DoFs: 3 linear + 3 angular per body
 
   // Initial state at timestep n
   VectorXd q_n = VectorXd::Zero(dof_q);

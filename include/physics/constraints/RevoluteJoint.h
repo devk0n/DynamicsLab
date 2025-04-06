@@ -8,44 +8,39 @@ namespace Proton {
 
 class RevoluteJoint final : public Constraint {
 public:
-  RevoluteJoint(
-      Body* bodyA, Vector3d localPointA, Vector3d axisA,
-      Body* bodyB, Vector3d localPointB, Vector3d axisB
-  );
+  RevoluteJoint() : Constraint(5) {}
 
-  RevoluteJoint() : Constraint(5), m_bodyA(nullptr), m_bodyB(nullptr) {}
-
-  void computePositionError(VectorXd &phi, int startRow) const override;
-  void computeJacobian(MatrixXd &jacobian, int startRow) const override;
-  void computeAccelerationCorrection(VectorXd &gamma, int startRow) const override;
+  void computePositionError(VectorXd& phi, int startRow) const override;
+  void computeJacobian(MatrixXd& jacobian, int startRow) const override;
+  void computeAccelerationCorrection(VectorXd& gamma, int startRow) const override;
 
   [[nodiscard]] Body* getBodyA() const { return m_bodyA; }
   [[nodiscard]] Body* getBodyB() const { return m_bodyB; }
-  [[nodiscard]] Vector3d getLocalPointA() const { return m_localPointA; }
-  [[nodiscard]] Vector3d getLocalPointB() const { return m_localPointB; }
-  [[nodiscard]] Vector3d getAxisA() const { return m_axisA; }
-  [[nodiscard]] Vector3d getAxisB() const { return m_axisB; }
-  [[nodiscard]] Vector3d getAxisM() const { return m_axisM; }
-  [[nodiscard]] Vector3d getAxisN() const { return m_axisN; }
+  [[nodiscard]] const Vector3d& getLocalPointA() const { return m_localPointA; }
+  [[nodiscard]] const Vector3d& getLocalPointB() const { return m_localPointB; }
+  [[nodiscard]] const Vector3d& getAxisA() const { return m_axisA; }
+  [[nodiscard]] const Vector3d& getAxisB() const { return m_axisB; }
+  [[nodiscard]] const Vector3d& getAxisM() const { return m_axisM; }
+  [[nodiscard]] const Vector3d& getAxisN() const { return m_axisN; }
 
   void setBodyA(Body* bodyA) { m_bodyA = bodyA; }
   void setBodyB(Body* bodyB) { m_bodyB = bodyB; }
-  void setLocalPointA(Vector3d localA) { m_localPointA = std::move(localA); }
-  void setLocalPointB(Vector3d localB) { m_localPointB = std::move(localB); }
-  void setAxisA(Vector3d axisA) { m_axisA = std::move(axisA); }
-  void setAxisB(Vector3d axisB) { m_axisB = std::move(axisB); }
-  void setAxisM(Vector3d axisM) { m_axisM = std::move(axisM); }
-  void setAxisN(Vector3d axisN) { m_axisN = std::move(axisN); }
+  void setLocalPointA(const Vector3d& localA) { m_localPointA = localA; }
+  void setLocalPointB(const Vector3d& localB) { m_localPointB = localB; }
+  void setAxisA(const Vector3d& axisA) { m_axisA = axisA; }
+  void setAxisB(const Vector3d& axisB) { m_axisB = axisB; }
+  void setAxisM(const Vector3d& axisM) { m_axisM = axisM; }
+  void setAxisN(const Vector3d& axisN) { m_axisN = axisN; }
 
 private:
   Body* m_bodyA{nullptr};
   Body* m_bodyB{nullptr};
-  Vector3d m_localPointA{0.0, 0.0, 0.0};
-  Vector3d m_localPointB{0.0, 0.0, 0.0};
-  Vector3d m_axisA{0.0, 0.0, 0.0};
-  Vector3d m_axisB{0.0, 0.0, 0.0};
-  Vector3d m_axisM{0.0, 0.0, 0.0};
-  Vector3d m_axisN{0.0, 0.0, 0.0};
+  Vector3d m_localPointA{0, 0, 0};
+  Vector3d m_localPointB{0, 0, 0};
+  Vector3d m_axisA{0, 0, 0};
+  Vector3d m_axisB{0, 0, 0};
+  Vector3d m_axisM{0, 0, 0};
+  Vector3d m_axisN{0, 0, 0};
 };
 
 } // Proton
