@@ -1,8 +1,7 @@
 #include "UniversalJoint.h"
 
-#include <utility>
-
 namespace Proton {
+
 void UniversalJoint::computePositionError(VectorXd& phi, int startRow) const {
   const auto& r1 = m_bodyA->getPosition();
   const auto& r2 = m_bodyB->getPosition();

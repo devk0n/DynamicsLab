@@ -23,49 +23,49 @@ public:
   }
 
   // Getters
-  [[nodiscard]] UniqueID getID() const noexcept { return m_ID; }
-  [[nodiscard]] int getIndex() const noexcept { return m_index; }
+  [[nodiscard]] const UniqueID& getID() const noexcept { return m_ID; }
+  [[nodiscard]] const int& getIndex() const noexcept { return m_index; }
 
-  [[nodiscard]] const Vector3d &getPosition() const noexcept { return m_position; }
-  [[nodiscard]] const Vector3d &getLinearVelocity() const noexcept { return m_velocity; }
-  [[nodiscard]] const Vector4d &getOrientation() const noexcept { return m_orientation; }
-  [[nodiscard]] const Vector3d &getAngularVelocity() const noexcept { return m_angularVelocity; }
+  [[nodiscard]] const Vector3d& getPosition() const noexcept { return m_position; }
+  [[nodiscard]] const Vector3d& getLinearVelocity() const noexcept { return m_velocity; }
+  [[nodiscard]] const Vector4d& getOrientation() const noexcept { return m_orientation; }
+  [[nodiscard]] const Vector3d& getAngularVelocity() const noexcept { return m_angularVelocity; }
 
-  [[nodiscard]] double getMass() const noexcept { return m_mass; }
-  [[nodiscard]] double getInverseMass() const noexcept { return m_inverseMass; }
-  [[nodiscard]] const Vector3d &getInertia() const noexcept { return m_inertia; }
-  [[nodiscard]] const Vector3d &getInverseInertia() const noexcept { return m_inverseInertia; }
-  [[nodiscard]] const Matrix3d &getInertiaWorld() const noexcept { return m_inverseInertiaWorld; }
+  [[nodiscard]] const double& getMass() const noexcept { return m_mass; }
+  [[nodiscard]] const double& getInverseMass() const noexcept { return m_inverseMass; }
+  [[nodiscard]] const Vector3d& getInertia() const noexcept { return m_inertia; }
+  [[nodiscard]] const Vector3d& getInverseInertia() const noexcept { return m_inverseInertia; }
+  [[nodiscard]] const Matrix3d& getInertiaWorld() const noexcept { return m_inverseInertiaWorld; }
 
   // Setters
-  void setPosition(const Vector3d &position) noexcept { m_position = position; }
-  void setLinearVelocity(const Vector3d &velocity) noexcept { m_velocity = velocity; }
-  void setOrientation(const Vector4d &orientation) noexcept {
+  void setPosition(const Vector3d& position) noexcept { m_position = position; }
+  void setLinearVelocity(const Vector3d& velocity) noexcept { m_velocity = velocity; }
+  void setOrientation(const Vector4d& orientation) noexcept {
     m_orientation = orientation.normalized();
     updateInertiaWorld();
   }
-  void setAngularVelocity(const Vector3d &angularVelocity) noexcept { m_angularVelocity = angularVelocity; }
+  void setAngularVelocity(const Vector3d& angularVelocity) noexcept { m_angularVelocity = angularVelocity; }
 
   // Force operations
-  void addForce(const Vector3d &force) noexcept { m_force.noalias() += force; }
+  void addForce(const Vector3d& force) noexcept { m_force.noalias() += force; }
   void clearForces() noexcept { m_force.setZero(); }
-  [[nodiscard]] const Vector3d &getForce() const noexcept { return m_force; }
+  [[nodiscard]] const Vector3d& getForce() const noexcept { return m_force; }
 
   // Torque operations
-  void addTorque(const Vector3d &torque) noexcept { m_torque.noalias() += torque; }
+  void addTorque(const Vector3d& torque) noexcept { m_torque.noalias() += torque; }
   void clearTorque() noexcept { m_torque.setZero(); }
-  [[nodiscard]] const Vector3d &getTorque() const noexcept { return m_torque; }
+  [[nodiscard]] const Vector3d& getTorque() const noexcept { return m_torque; }
 
   // Configuration
-  void setFixed(bool fixed) noexcept { m_fixed = fixed; }
+  void setFixed(const bool& fixed) noexcept { m_fixed = fixed; }
   [[nodiscard]] bool isFixed() const noexcept { return m_fixed; }
-  void setSize(const Vector3d &size) noexcept { m_size = size; }
-  [[nodiscard]] const Vector3d &getSize() const noexcept { return m_size; }
-  void setMass(const double mass) noexcept {
+  void setSize(const Vector3d& size) noexcept { m_size = size; }
+  [[nodiscard]] const Vector3d& getSize() const noexcept { return m_size; }
+  void setMass(const double& mass) noexcept {
     m_mass = mass;
     m_inverseMass = 1.0 / mass;
   }
-  void setInertia(const Vector3d &inertia) noexcept {
+  void setInertia(const Vector3d& inertia) noexcept {
     m_inertia = inertia;
     m_inverseInertia = calculateInverseInertia(inertia);
     updateInertiaWorld();
@@ -105,7 +105,7 @@ public:
   }
 
 private:
-  static Vector3d calculateInverseInertia(const Vector3d &inertia) noexcept {
+  static Vector3d calculateInverseInertia(const Vector3d& inertia) noexcept {
     return {
       inertia.x() > 0.0 ? 1.0 / inertia.x() : 0.0,
       inertia.y() > 0.0 ? 1.0 / inertia.y() : 0.0,
@@ -135,6 +135,7 @@ private:
   Vector3d m_torque = Vector3d::Zero();
 
   bool m_fixed = false;
+
 };
 } // Proton
 #endif // BODY_H

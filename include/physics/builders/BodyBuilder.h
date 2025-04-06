@@ -102,7 +102,7 @@ private:
   Body* m_body{nullptr};
   AngleMode m_angleMode;
   bool m_autoInertia;
-};
-} // Proton
 
+};
+} // namespace Proton
 #endif // BODY_BUILDER_H

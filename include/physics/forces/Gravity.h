@@ -12,7 +12,7 @@ namespace Proton {
 
 class Gravity final : public ForceGenerator {
 public:
-  explicit Gravity(Vector3d gravity) : m_gravity(std::move(gravity)) {}
+  explicit Gravity(Vector3d  gravity) : m_gravity(std::move(gravity)) {}
 
   void addBody(Body* body) { m_targets.emplace(body->getID(), body); }
 
@@ -21,7 +21,7 @@ public:
 
   void apply(double dt) override {
     if (m_targets.empty() || m_gravity.norm() == 0) return;
-    for (const auto &body : m_targets | std::views::values) {
+    for (const auto& body : m_targets | std::views::values) {
       Vector3d force = body->getMass() * m_gravity;
       body->addForce(force);
     }
@@ -30,8 +30,8 @@ public:
 private:
   Vector3d m_gravity{0.0, 0.0, 0.0};
   std::unordered_map<UniqueID, Body*> m_targets{};
+
 };
 
-} // Proton
-
+} // namespace Proton
 #endif // GRAVITY_FORCE_GENERATOR_H

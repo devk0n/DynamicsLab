@@ -8,6 +8,5 @@ public:
   virtual void apply(double dt) = 0;
 
 };
-} // Proton
-
+} // namespace Proton
 #endif // FORCE_GENERATOR_H
