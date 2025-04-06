@@ -45,9 +45,13 @@ public:
     return m_constraints;
   }
 
+  double clampTimeStep(double dt) const;
+
   void step(double dt) const;
 
 private:
+
+  const double m_maxTimeStep = 0.01;
 
   const int m_maxIters = 5;   // Max number of nonlinear solver iterations
   const double m_tol = 1e-10;   // Convergence tolerance
@@ -61,11 +65,11 @@ private:
   void assembleMassMatrix(Eigen::Ref<MatrixXd> M) const;
   void applyForceElements(VectorXd &F_ext, MatrixXd &K) const;
   void assembleConstraints(MatrixXd& P, VectorXd& gamma) const;
-  [[nodiscard]] VectorXd solveKKTSystem(
+  [[nodiscard]] static VectorXd solveKKTSystem(
     const MatrixXd& M, const MatrixXd& K,
     const MatrixXd& P, const VectorXd& F_ext,
     const VectorXd& gamma, double dt
-  ) const;
+  );
   void integrateStateMidpoint(
     const VectorXd& q_n, const VectorXd& dq_n,
     const VectorXd& dq_new, double dt,

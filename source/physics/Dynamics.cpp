@@ -6,10 +6,7 @@ namespace Proton {
 // Main simulation step using implicit midpoint integration
 void Dynamics::step(double dt) const {
   // Clamp timestep to ensure numerical stability
-  if (dt > 0.01) {
-    LOG_WARN("Too large time step: ", dt, " Setting to 0.01 to keep stability.");
-    dt = 0.01;
-  }
+  dt = clampTimeStep(dt);
 
   const auto& dof_q  = m_numBodies * 7; // Generalized position DoFs: 3 pos + 4 orientation (quaternion) per body
   const auto& dof_dq = m_numBodies * 6; // Generalized velocity DoFs: 3 linear + 3 angular per body
@@ -350,7 +347,7 @@ VectorXd Dynamics::solveKKTSystem(
   const VectorXd& F_ext,
   const VectorXd& gamma,
   double dt
-) const {
+) {
   const int dof_dq = static_cast<int>(F_ext.size());
   const int nc = static_cast<int>(gamma.size());
 
@@ -600,6 +597,13 @@ const Body* Dynamics::getBody(const UniqueID ID) const {
   }
   LOG_WARN("Body ID ", ID, " not found.");
   return nullptr;
+}
+
+double Dynamics::clampTimeStep(double dt) const {
+  if (dt > m_maxTimeStep)
+    LOG_WARN("Time step too large: ", dt, " Clamping to ", m_maxTimeStep, "");
+
+  return std::min(dt, m_maxTimeStep);
 }
 
 } // namespace Proton
