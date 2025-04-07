@@ -12,6 +12,12 @@ public:
       : m_dynamics(dynamics),
         m_constraint(std::make_shared<UniversalJoint>()) {}
 
+  UniversalJointBuilder& between(Body* bodyA, Body* bodyB) {
+    m_constraint->setBodyA(bodyA);
+    m_constraint->setBodyB(bodyB);
+    return *this;
+  }
+
   UniversalJointBuilder& withBodyA(Body* body) {
     m_constraint->setBodyA(body);
     return *this;

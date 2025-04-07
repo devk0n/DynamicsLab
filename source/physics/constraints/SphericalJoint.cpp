@@ -24,17 +24,16 @@ void SphericalJoint::computeJacobian(MatrixXd& jacobian, const int startRow) con
 }
 
 void SphericalJoint::computeAccelerationCorrection(VectorXd& gamma, const int startRow) const {
-  const auto RA = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  const auto RB = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto& RA = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto& RB = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
   const auto& omegaA = m_bodyA->getAngularVelocity();
   const auto& omegaB = m_bodyB->getAngularVelocity();
 
-  const auto termA = RA * (skew(omegaA) * skew(m_localPointA) * omegaA);
-  const auto termB = RB * (skew(omegaB) * skew(m_localPointB) * omegaB);
+  const auto& termA = RA * (skew(omegaA) * skew(m_localPointA) * omegaA);
+  const auto& termB = RB * (skew(omegaB) * skew(m_localPointB) * omegaB);
 
   gamma.segment<3>(startRow).noalias() = termA - termB;
-  // gamma.segment<3>(startRow).noalias() = Vector3d::Zero();
 }
 
 } // namespace Proton

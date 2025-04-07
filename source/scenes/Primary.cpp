@@ -364,10 +364,39 @@ void Primary::doublePendulum() {
     .build();
 }
 
+void Primary::problemC() {
+  const DynamicsBuilder builder(m_system);
+
+  Body* anchor = builder.createCube()
+    .position(-1.0, 0, 0)
+    .size(0.1, 0.1, 0.1)
+    .fixed(true)
+    .build();
+
+  Body* arm1 = builder.createCube()
+    .position(1, 0, 0)
+    .size(2, 0.4, 0.4)
+    .mass(8)
+    .build();
+
+  builder.createUniversalJoint()
+    .between(anchor, arm1)
+    .withLocalPointA(1, 0, 0)
+    .withLocalPointB(-1, 0, 0)
+    .withAxisA(0, 1, 0)
+    .withAxisB(0, 1, 0)
+    .build();
+
+  builder.createGravity(0, 0, -9.81)
+    .addBody(arm1)
+    .build();
+}
+
 bool Primary::load() {
 
   problemA();
   // problemB();
+  // problemC();
 
   // doublePendulum();
 
