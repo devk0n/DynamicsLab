@@ -1,14 +1,14 @@
 #include "Primary.h"
+#include "DynamicsBuilder.h"
 #include "FrameTimer.h"
 #include "InputManager.h"
-#include "WindowManager.h"
-#include "DynamicsBuilder.h"
 #include "PCH.h"
+#include "WindowManager.h"
 
 using namespace Proton;
 
 void Primary::problemA() {
-  DynamicsBuilder builder(m_system);
+  const DynamicsBuilder builder(m_system);
 
   Body* chassis = builder.createCube()
     .size(3.0, 0.5, 0.5)
@@ -259,7 +259,7 @@ void Primary::problemA() {
 }
 
 void Primary::problemB() {
-  DynamicsBuilder builder(m_system);
+  const DynamicsBuilder builder(m_system);
 
   Body* anchor = builder.createCube()
     .size(0.01, 0.01, 0.01)
@@ -322,10 +322,10 @@ void Primary::problemB() {
 }
 
 void Primary::doublePendulum() {
-  DynamicsBuilder builder(m_system);
+  const DynamicsBuilder builder(m_system);
 
   Body* anchor = builder.createCube()
-    .position(0, 0, 5)
+    .position(0, 0, 5.0)
     .size(0.1, 0.1, 0.1)
     .fixed(true)
     .build();
@@ -339,6 +339,7 @@ void Primary::doublePendulum() {
   Body* arm2 = builder.createCube()
     .mass(5)
     .size(2.0, 0.3, 0.3)
+    .inertia(0.075, 1.704, 1.704)
     .position(3.0, .0, 6.0)
     .orientation(0, -90, 0)
     .build();
@@ -365,8 +366,8 @@ void Primary::doublePendulum() {
 
 bool Primary::load() {
 
-  // problemA();
-  problemB();
+  problemA();
+  // problemB();
 
   // doublePendulum();
 
@@ -377,16 +378,16 @@ bool Primary::load() {
 
   if (!m_ctx.renderer->getShaderManager()
       .loadShader("cubeShader",
-                  "assets/shaders/cube.vert",
-                  "assets/shaders/cube.frag")) {
+                  "../assets/shaders/cube.vert",
+                  "../assets/shaders/cube.frag")) {
     LOG_ERROR("Failed to load cube shader");
     return false;
   }
 
   if (!m_ctx.renderer->getShaderManager()
         .loadShader("lineShader",
-                    "assets/shaders/line.vert",
-                    "assets/shaders/line.frag")) {
+                    "../assets/shaders/line.vert",
+                    "../assets/shaders/line.frag")) {
     LOG_ERROR("Failed to load line shader");
     return false;
   }
@@ -394,13 +395,13 @@ bool Primary::load() {
   return true;
 }
 
-void Primary::update(double dt) {
+void Primary::update(const double dt) {
   handleCameraMovement(dt);
 
   if (m_ctx.input->isKeyPressed(GLFW_KEY_SPACE)) { toggle(m_run); }
 
   if (m_ctx.input->isKeyHeld(GLFW_KEY_L)) {
-    Body* b1 = m_system.getBody(0);
+    const Body* b1 = m_system.getBody(0);
     m_camera.lookAt(b1->getPositionVec3());
   }
 

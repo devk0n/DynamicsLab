@@ -13,7 +13,6 @@ void SphericalJoint::computePositionError(VectorXd& phi, const int startRow) con
 }
 
 void SphericalJoint::computeJacobian(MatrixXd& jacobian, const int startRow) const {
-
   const auto& AA = quaternionToRotationMatrix(m_bodyA->getOrientation());
   const auto& AB = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
@@ -25,14 +24,17 @@ void SphericalJoint::computeJacobian(MatrixXd& jacobian, const int startRow) con
 }
 
 void SphericalJoint::computeAccelerationCorrection(VectorXd& gamma, const int startRow) const {
-  auto AA = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  auto AB = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  const auto RA = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  const auto RB = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
-  auto omegaA = m_bodyA->getAngularVelocity();
-  auto omegaB = m_bodyB->getAngularVelocity();
+  const auto& omegaA = m_bodyA->getAngularVelocity();
+  const auto& omegaB = m_bodyB->getAngularVelocity();
 
-  auto result = AA * (skew(omegaA) * skew(m_localPointA)).eval() * omegaA - AB * (skew(omegaB) * skew(m_localPointB)).eval() * omegaB;
-  gamma.segment<3>(startRow).noalias() = result;
+  const auto termA = RA * (skew(omegaA) * skew(m_localPointA) * omegaA);
+  const auto termB = RB * (skew(omegaB) * skew(m_localPointB) * omegaB);
+
+  gamma.segment<3>(startRow).noalias() = termA - termB;
+  // gamma.segment<3>(startRow).noalias() = Vector3d::Zero();
 }
 
 } // namespace Proton

@@ -219,7 +219,7 @@ void Dynamics::step(double dt) const {
   try {
     writeBack(q_next, dq_next);
   } catch (...) {
-    LOG_ERROR("Exception during state writeback");
+    LOG_ERROR("Exception during state write back");
     // Emergency recovery - revert to initial state
     writeBack(q_n, dq_n);
   }
@@ -295,7 +295,6 @@ void Dynamics::updateMidpointState(const VectorXd& q_mid, const VectorXd& dq_mid
     }
 }
 
-
 // Gather external forces and torques into a vector
 void Dynamics::computeExternalForces(VectorXd& F_ext) const {
   for (int i = 0; i < m_numBodies; ++i) {
@@ -305,7 +304,7 @@ void Dynamics::computeExternalForces(VectorXd& F_ext) const {
     F_ext.segment<3>(i * 6 + 3) = body->getTorque()
                                 - skew(body->getAngularVelocity())
                                 * body->getInertia().asDiagonal()
-                                * body->getAngularVelocity(); // Gyroscopic term
+                                * body->getAngularVelocity();  // Torque due to angular velocity
   }
 }
 
@@ -313,8 +312,8 @@ void Dynamics::computeExternalForces(VectorXd& F_ext) const {
 void Dynamics::assembleMassMatrix(Eigen::Ref<MatrixXd> M) const {
   for (int i = 0; i < m_numBodies; ++i) {
     const auto& body = m_bodies[i];
-    M.block<3, 3>(i * 6, i * 6)         = body->getMass() * Matrix3d::Identity();
-    M.block<3, 3>(i * 6 + 3, i * 6 + 3) = body->getInertiaWorld();
+    M.block<3,3>(i * 6, i * 6)         = body->getMass() * Matrix3d::Identity();
+    M.block<3,3>(i * 6 + 3, i * 6 + 3) = body->getInertia().asDiagonal();
   }
 }
 
@@ -342,7 +341,7 @@ VectorXd Dynamics::solveKKTSystem(
   const MatrixXd& P,
   const VectorXd& F_ext,
   const VectorXd& gamma,
-  double dt
+  const double dt
 ) {
   const int dof_dq = static_cast<int>(F_ext.size());
   const int nc = static_cast<int>(gamma.size());
@@ -359,21 +358,9 @@ VectorXd Dynamics::solveKKTSystem(
   // Top-left: mass and stiffness with regularization to improve conditioning
   KKT.topLeftCorner(dof_dq, dof_dq).noalias() = M - dt * dt * K;
 
-  // Add small regularization to improve numerical stability
-  for (int i = 0; i < dof_dq; ++i) {
-    KKT(i, i) += 1e-8;
-  }
-
   // Top-right and bottom-left: constraint Jacobian
   KKT.topRightCorner(dof_dq, nc) = P.transpose();
   KKT.bottomLeftCorner(nc, dof_dq) = P;
-
-  // Add small values to diagonal of bottom-right block for regularization
-  if (nc > 0) {
-    for (int i = dof_dq; i < dof_dq + nc; ++i) {
-      KKT(i, i) = 1e-8;
-    }
-  }
 
   // Right-hand side: external forces and constraint correction
   VectorXd rhs(dof_dq + nc);
@@ -381,55 +368,8 @@ VectorXd Dynamics::solveKKTSystem(
   rhs.tail(nc) = gamma;
 
   // Try more stable solver methods in sequence
-  VectorXd sol;
-  bool solved = false;
-
-  // Method 1: Try LDLT decomposition (fastest and usually stable enough)
-  try {
-    Eigen::LDLT<MatrixXd> ldltSolver(KKT);
-    if (ldltSolver.info() == Eigen::Success) {
-      sol = ldltSolver.solve(rhs);
-      if (sol.allFinite()) {
-        solved = true;
-      }
-    }
-  } catch (...) {
-    LOG_WARN("LDLT decomposition failed");
-  }
-
-  // Method 2: If LDLT failed, try QR decomposition (more stable but slower)
-  if (!solved) {
-    try {
-      LOG_WARN("Falling back to QR decomposition");
-      Eigen::ColPivHouseholderQR<MatrixXd> qrSolver(KKT);
-      sol = qrSolver.solve(rhs);
-      if (sol.allFinite()) {
-        solved = true;
-      }
-    } catch (...) {
-      LOG_WARN("QR decomposition failed");
-    }
-  }
-
-  // Method 3: Last resort, use SVD (most stable but slowest)
-  if (!solved) {
-    try {
-      LOG_WARN("Falling back to SVD decomposition");
-      Eigen::JacobiSVD svdSolver(KKT, Eigen::ComputeThinU | Eigen::ComputeThinV);
-      sol = svdSolver.solve(rhs);
-      if (sol.allFinite()) {
-        solved = true;
-      }
-    } catch (...) {
-      LOG_ERROR("All solver methods failed");
-    }
-  }
-
-  // If all methods failed, return zeros
-  if (!solved) {
-    LOG_ERROR("Unable to solve KKT system, returning zero");
-    return VectorXd::Zero(dof_dq);
-  }
+  Eigen::FullPivLU<MatrixXd> qrSolver(KKT);
+  VectorXd sol = qrSolver.solve(rhs);
 
   // Apply reasonable limits to acceleration values
   VectorXd accel = sol.head(dof_dq);
@@ -442,7 +382,7 @@ void Dynamics::integrateStateMidpoint(
   const VectorXd& q_n,
   const VectorXd& dq_n,
   const VectorXd& dq_new,
-  double dt,
+  const double dt,
   VectorXd& q_next
 ) const {
   for (int i = 0; i < m_numBodies; ++i) {
@@ -540,18 +480,8 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
 void Dynamics::writeBack(VectorXd q_next, VectorXd dq_next) const {
   for (int i = 0; i < m_numBodies; ++i) {
     auto& body = m_bodies[i];
+
     if (body->isFixed()) continue;
-
-    auto has_nan_or_inf = [](const auto& v) {
-      return !v.allFinite();
-    };
-
-    if (has_nan_or_inf(body->getPosition()) || has_nan_or_inf(body->getLinearVelocity())) {
-      std::cerr << "BAD BODY STATE at t=" << time << "\n";
-      std::cerr << "Position: " << body->getPosition().transpose() << "\n";
-      std::cerr << "Velocity: " << body->getLinearVelocity().transpose() << "\n";
-      abort();  // or pause
-    }
 
     Vector4d q = q_next.segment<4>(i * 7 + 3);
     q.normalize();

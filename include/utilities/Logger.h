@@ -2,13 +2,13 @@
 #define LOGGER_H
 
 #include <chrono>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <mutex>
 #include <sstream>
 #include <string>
-#include <filesystem>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -70,8 +70,8 @@ public:
 #ifndef DISABLE_LOGGING
     if (level < m_logLevel) return;
 
-    std::string message = formatMessage(level, file, line, std::forward<Args>(args)...);
-    std::string colored = applyColor(level, message);
+    const std::string message = formatMessage(level, file, line, std::forward<Args>(args)...);
+    const std::string colored = applyColor(level, message);
 
     std::lock_guard lock(m_mutex);
     if (m_consoleConfig.enabled) {
@@ -84,7 +84,7 @@ public:
 #endif
   }
 
-  static void setLogLevel(Level level) {
+  static void setLogLevel(const Level level) {
     std::lock_guard lock(m_mutex);
     m_logLevel = level;
   }
@@ -101,7 +101,7 @@ private:
   inline static std::mutex m_mutex;
   inline static ConsoleConfig m_consoleConfig = {};
 
-  static std::string levelToString(Level level) {
+  static std::string levelToString(const Level level) {
     switch (level) {
       case Level::Debug:   return "DEBUG";
       case Level::Info:    return "INFO";
@@ -111,7 +111,7 @@ private:
     }
   }
 
-  static std::string applyColor(Level level, const std::string& msg) {
+  static std::string applyColor(const Level level, const std::string& msg) {
     std::string color;
     switch (level) {
       case Level::Debug:   color = COLOR_DEBUG; break;
@@ -132,7 +132,7 @@ private:
   }
 
   template<typename... Args>
-  static std::string formatMessage(Level level, const std::string& file, int line, Args&&... args) {
+  static std::string formatMessage(const Level level, const std::string& file, const int line, Args&&... args) {
     std::ostringstream ss;
 
     const auto now = std::chrono::system_clock::now();

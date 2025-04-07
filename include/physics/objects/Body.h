@@ -33,9 +33,9 @@ public:
 
   [[nodiscard]] const double& getMass() const noexcept { return m_mass; }
   [[nodiscard]] const double& getInverseMass() const noexcept { return m_inverseMass; }
-  [[nodiscard]] const Vector3d& getInertia() const noexcept { return m_inertia; }
-  [[nodiscard]] const Vector3d& getInverseInertia() const noexcept { return m_inverseInertia; }
-  [[nodiscard]] const Matrix3d& getInertiaWorld() const noexcept { return m_inverseInertiaWorld; }
+  [[nodiscard]] Vector3d getInertia() const noexcept { return m_inertia; }
+  [[nodiscard]] Vector3d getInverseInertia() const noexcept { return m_inverseInertia; }
+  [[nodiscard]] Matrix3d getInertiaWorld() const noexcept { return m_inverseInertiaWorld; }
 
   // Setters
   void setPosition(const Vector3d& position) noexcept { m_position = position; }
