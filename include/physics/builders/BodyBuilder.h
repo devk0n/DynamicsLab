@@ -13,7 +13,7 @@ enum class AngleMode {
 
 class BodyBuilder {
 public:
-  BodyBuilder(Dynamics &dynamics, Body* body)
+  BodyBuilder(Dynamics& dynamics, Body* body)
       : m_dynamics(dynamics),
         m_body(body),
         m_angleMode(AngleMode::Degrees),
@@ -75,6 +75,11 @@ public:
     return *this;
   }
 
+  BodyBuilder& autoInertia(bool autoInertia) {
+    m_autoInertia = autoInertia;
+    return *this;
+  }
+
   // Finalize and return the pointer to the Body.
   [[nodiscard]] Body* build() const {
     if (m_autoInertia) {
@@ -83,12 +88,9 @@ public:
       double mass = m_body->getMass();
 
       // For a solid cuboid, the moments of inertia are:
-      // Ix = (1/12) * m * (y² + z²)
-      // Iy = (1/12) * m * (x² + z²)
-      // Iz = (1/12) * m * (x² + y²)
-      double Ix = (mass / 12.0) * (size.y() * size.y() + size.z() * size.z());
-      double Iy = (mass / 12.0) * (size.x() * size.x() + size.z() * size.z());
-      double Iz = (mass / 12.0) * (size.x() * size.x() + size.y() * size.y());
+      double Ix = mass / 12.0 * (size.y() * size.y() + size.z() * size.z());
+      double Iy = mass / 12.0 * (size.x() * size.x() + size.z() * size.z());
+      double Iz = mass / 12.0 * (size.x() * size.x() + size.y() * size.y());
 
       // Set the calculated inertia tensor
       m_body->setInertia({Ix, Iy, Iz});

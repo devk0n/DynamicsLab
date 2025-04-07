@@ -365,10 +365,10 @@ void Primary::doublePendulum() {
 
 bool Primary::load() {
 
-  //problemA();
-  //problemB();
+  // problemA();
+  problemB();
 
-  doublePendulum();
+  // doublePendulum();
 
   LOG_INFO("Initializing Primary Scene");
   m_camera.setPosition({5.0f, 3.2f, 3.2f});

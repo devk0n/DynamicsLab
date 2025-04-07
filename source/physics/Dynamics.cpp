@@ -129,8 +129,8 @@ void Dynamics::step(double dt) const {
       LOG_ERROR("Exception in assembleMassMatrix");
       // Initialize with reasonable defaults
       for (int i = 0; i < m_numBodies; ++i) {
-        M.block<3, 3>(i * 6, i * 6) = Matrix3d::Identity();  // Unit mass
-        M.block<3, 3>(i * 6 + 3, i * 6 + 3) = Matrix3d::Identity();  // Unit inertia
+        M.block<3,3>(i * 6, i * 6) = Matrix3d::Identity();  // Unit mass
+        M.block<3,3>(i * 6 + 3, i * 6 + 3) = Matrix3d::Identity();  // Unit inertia
       }
     }
 
@@ -205,14 +205,10 @@ void Dynamics::step(double dt) const {
     dq_prev = dq_next;
   }
 
-  // Project any constraint violations (e.g., enforce joints)
-  try {
-    projectConstraints(q_next, dq_next, dof_dq, dt);
-  } catch (...) {
-    LOG_ERROR("Exception during constraint projection");
-  }
+  // Project any constraint violations
+  projectConstraints(q_next, dq_next, dof_dq, dt);
 
-  // Final safety check before writeback
+  // Final safety check before write back
   if (!q_next.allFinite() || !dq_next.allFinite()) {
     LOG_ERROR("Final state contains invalid values, reverting to initial state");
     q_next = q_n;
@@ -525,7 +521,7 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
           double half_angle = -0.5 * theta_norm; // Note the negative sign for correction
           delta_q_quat << cos(half_angle), sin(half_angle) * axis;
         } else {
-          delta_q_quat << 1.0, 0.0, 0.0, 0.0;
+          delta_q_quat << identityQuaternion();
         }
 
         // Apply the correction by quaternion multiplication

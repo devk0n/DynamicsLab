@@ -163,7 +163,7 @@ private:
     for (const auto &body: system.getBodies()) {
       glm::mat4 modelMatrix(1.0f);
       modelMatrix = translate(modelMatrix, body->getPositionVec3());
-      modelMatrix *= mat4_cast(body->getOrientationQuat());
+      modelMatrix *= glm::mat4_cast(body->getOrientationQuat());
       modelMatrix = scale(modelMatrix, body->getSizeVec3());
 
       m_shaderManager.setUniform("model", modelMatrix);
@@ -190,7 +190,7 @@ private:
           spring->getBodyB(), spring->getLocalPointB());
 
         glm::vec4 color = calculateSpringColor(static_cast<float>(spring->getRestLength()),
-                                               length(worldB - worldA));
+                                               glm::length(worldB - worldA));
 
         // Add both points to the buffer
         springVertices.push_back({worldA, color});
@@ -224,19 +224,10 @@ private:
     std::vector<VertexData> constraintVertices;
 
     for (const auto &constraint: system.getConstraints()) {
-      if (auto *dc = dynamic_cast<Proton::DistanceConstraint *>(constraint.
-        get())) {
-        // Distance constraint: line between body positions
-        constraintVertices.push_back({
-          dc->getBodyA()->getPositionVec3(), {1.0f, 1.0f, 0.0f, 1.0f}
-        });
-        constraintVertices.push_back({
-          dc->getBodyB()->getPositionVec3(), {1.0f, 1.0f, 0.0f, 1.0f}
-        });
-      } else if (auto *bj = dynamic_cast<Proton::SphericalJoint *>(constraint.get())) {
+      if (auto *bj = dynamic_cast<Proton::SphericalJoint *>(constraint.get())) {
         processJoint(bj, constraintVertices);
-      } else if (auto *sj = dynamic_cast<Proton::DistanceConstraint *>(constraint.get())) {
-        processJoint(sj, constraintVertices);
+      } else if (auto *dc = dynamic_cast<Proton::DistanceConstraint *>(constraint.get())) {
+        processJoint(dc, constraintVertices);
       } else if (auto *uj = dynamic_cast<Proton::UniversalJoint *>(constraint.get())) {
         processUniversalJoint(uj, constraintVertices);
       } else if (auto *rj = dynamic_cast<Proton::RevoluteJoint *>(constraint.get())) {
@@ -387,10 +378,10 @@ private:
     drawAxis(pos1, worldAxisA, orangeColor);
     drawAxis(pos2, worldAxisB, orangeColor);
 
-    // Draw constraint axes (green)
+    // Draw constraint axes (green) at pos1 (body A's attachment point)
     drawAxis(pos1, worldConstr1A, greenColor);
-    drawAxis(pos2, worldConstr2A, greenColor);
-}
+    drawAxis(pos1, worldConstr2A, greenColor);
+  }
 
   void drawLines(const std::vector<VertexData>& vertices,
                  float lineWidth) const {

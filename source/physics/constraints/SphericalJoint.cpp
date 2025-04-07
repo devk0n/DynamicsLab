@@ -25,13 +25,13 @@ void SphericalJoint::computeJacobian(MatrixXd& jacobian, const int startRow) con
 }
 
 void SphericalJoint::computeAccelerationCorrection(VectorXd& gamma, const int startRow) const {
-  const auto& A1 = quaternionToRotationMatrix(m_bodyA->getOrientation());
-  const auto& A2 = quaternionToRotationMatrix(m_bodyB->getOrientation());
+  auto AA = quaternionToRotationMatrix(m_bodyA->getOrientation());
+  auto AB = quaternionToRotationMatrix(m_bodyB->getOrientation());
 
-  const auto& omegaA = m_bodyA->getAngularVelocity();
-  const auto& omegaB = m_bodyB->getAngularVelocity();
+  auto omegaA = m_bodyA->getAngularVelocity();
+  auto omegaB = m_bodyB->getAngularVelocity();
 
-  const auto& result = A1 * (skew(omegaA) * skew(m_localPointA)).eval() * omegaA - A2 * (skew(omegaB) * skew(m_localPointB)).eval() * omegaB;
+  auto result = AA * (skew(omegaA) * skew(m_localPointA)).eval() * omegaA - AB * (skew(omegaB) * skew(m_localPointB)).eval() * omegaB;
   gamma.segment<3>(startRow).noalias() = result;
 }
 
