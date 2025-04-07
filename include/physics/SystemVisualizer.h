@@ -17,11 +17,13 @@ public:
     LOG_DEBUG("SystemVisualizer created");
     initializeCube();
     initializeLine();
+    initializeCylinder();
   }
 
   ~SystemVisualizer() {
     LOG_DEBUG("SystemVisualizer destroyed");
     cleanupCube();
+    cleanupCylinder();
   }
 
   void render(
@@ -36,8 +38,10 @@ public:
 
 private:
   ShaderManager &m_shaderManager;
-  unsigned int m_cubeVAO{}, m_cubeVBO{}, m_cubeEBO{};
   GLuint m_lineVAO{}, m_lineVBO{};
+  unsigned int m_cubeVAO{}, m_cubeVBO{}, m_cubeEBO{};
+  unsigned int m_cylinderVAO{}, m_cylinderVBO{}, m_cylinderEBO{};
+  int m_cylinderIndexCount = 0;
 
   // Helper structs
   struct VertexData {
@@ -64,6 +68,90 @@ private:
 
     glBindVertexArray(0);
   }
+
+  void initializeCylinder(int segments = 32) {
+    std::vector<float> vertices;
+    std::vector<unsigned int> indices;
+
+    const float radius = 0.5f;
+    const float halfHeight = 0.5f;
+    const float PI = 3.14159265359f;
+
+    // Center points for caps
+    vertices.insert(vertices.end(), {0.0f, halfHeight, 0.0f, 0.0f, 1.0f, 0.0f});  // Top center
+    vertices.insert(vertices.end(), {0.0f, -halfHeight, 0.0f, 0.0f, -1.0f, 0.0f}); // Bottom center
+
+    for (int i = 0; i <= segments; ++i) {
+      float angle = (2.0f * PI * i) / segments;
+      float x = std::cos(angle) * radius;
+      float z = std::sin(angle) * radius;
+
+      // Top ring
+      vertices.insert(vertices.end(), {x, halfHeight, z, 0.0f, 1.0f, 0.0f});
+
+      // Bottom ring
+      vertices.insert(vertices.end(), {x, -halfHeight, z, 0.0f, -1.0f, 0.0f});
+
+      // Side top
+      vertices.insert(vertices.end(), {x, halfHeight, z, x, 0.0f, z});
+
+      // Side bottom
+      vertices.insert(vertices.end(), {x, -halfHeight, z, x, 0.0f, z});
+    }
+
+    int offset = 2;
+    for (int i = 0; i < segments; ++i) {
+      int top = offset + i * 4;
+      int bottom = top + 1;
+      int topNext = offset + ((i + 1) % segments) * 4;
+      int bottomNext = topNext + 1;
+
+      int sideTop = top + 2;
+      int sideBottom = top + 3;
+      int sideTopNext = topNext + 2;
+      int sideBottomNext = topNext + 3;
+
+      indices.push_back(0);
+      indices.push_back(top);
+      indices.push_back(topNext);
+
+      indices.push_back(1);
+      indices.push_back(bottomNext);
+      indices.push_back(bottom);
+
+      indices.push_back(sideTop);
+      indices.push_back(sideBottom);
+      indices.push_back(sideBottomNext);
+
+      indices.push_back(sideTop);
+      indices.push_back(sideBottomNext);
+      indices.push_back(sideTopNext);
+
+    }
+
+    m_cylinderIndexCount = static_cast<int>(indices.size());
+
+    glGenVertexArrays(1, &m_cylinderVAO);
+    glGenBuffers(1, &m_cylinderVBO);
+    glGenBuffers(1, &m_cylinderEBO);
+
+    glBindVertexArray(m_cylinderVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_cylinderVBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_cylinderEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void*>(0));
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+  }
+
 
   void initializeCube() {
     constexpr float vertices[] = {
@@ -149,7 +237,7 @@ private:
                     const glm::vec3 &cameraPosition,
                     const glm::mat4 &viewMatrix,
                     const glm::mat4 &projectionMatrix) const {
-    m_shaderManager.useShader("cubeShader");
+    m_shaderManager.useShader("bodyShader");
 
     // Set common uniforms
     m_shaderManager.setUniform("lightPos", glm::vec3(200.0f, 400.0f, 100.0f));
@@ -157,17 +245,25 @@ private:
     m_shaderManager.setUniform("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
     m_shaderManager.setUniform("view", viewMatrix);
     m_shaderManager.setUniform("projection", projectionMatrix);
-    m_shaderManager.setUniform("objectColor",
-                               glm::vec4(0.6118, 0.2510, 0.4039, 1.0));
 
-    for (const auto &body: system.getBodies()) {
+    for (const auto &body : system.getBodies()) {
+      m_shaderManager.setUniform("objectColor", body->getColor());
+
       glm::mat4 modelMatrix(1.0f);
       modelMatrix = translate(modelMatrix, body->getPositionVec3());
       modelMatrix *= glm::mat4_cast(body->getOrientationQuat());
       modelMatrix = scale(modelMatrix, body->getSizeVec3());
 
       m_shaderManager.setUniform("model", modelMatrix);
-      drawCube();
+
+      switch (body->getGeometryType()) {
+        case Proton::GeometryType::Cube:
+          drawCube();
+        break;
+        case Proton::GeometryType::Cylinder:
+          drawCylinder();
+        break;
+      }
     }
   }
 
@@ -408,6 +504,19 @@ private:
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
   }
+
+  void drawCylinder() const {
+    glBindVertexArray(m_cylinderVAO);
+    glDrawElements(GL_TRIANGLES, m_cylinderIndexCount, GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
+  }
+
+  void cleanupCylinder() const {
+    glDeleteVertexArrays(1, &m_cylinderVAO);
+    glDeleteBuffers(1, &m_cylinderVBO);
+    glDeleteBuffers(1, &m_cylinderEBO);
+  }
+
 };
 
 #endif // SYSTEM_VISUALIZER_H

@@ -17,7 +17,7 @@ class DynamicsBuilder {
 public:
   explicit DynamicsBuilder(Dynamics& dynamics) : m_dynamics(dynamics) {}
 
-  [[nodiscard]] BodyBuilder createCube() const {
+  [[nodiscard]] BodyBuilder createBody() const {
     UniqueID id = m_dynamics.addBody();
     Body* body = m_dynamics.getBody(id);
     return {m_dynamics, body};

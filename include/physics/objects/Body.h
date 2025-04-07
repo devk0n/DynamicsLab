@@ -7,6 +7,12 @@
 #include "Proton.h"
 
 namespace Proton {
+
+enum class GeometryType {
+  Cube,
+  Cylinder
+};
+
 class Body {
 public:
   Body(
@@ -70,6 +76,10 @@ public:
     m_inverseInertia = calculateInverseInertia(inertia);
     updateInertiaWorld();
   }
+  void setGeometryType(GeometryType type) noexcept { m_geometryType = type; }
+  [[nodiscard]] GeometryType getGeometryType() const noexcept { return m_geometryType; }
+  void setColor(const glm::vec4& color) noexcept { m_color = color; }
+  [[nodiscard]] const glm::vec4& getColor() const noexcept { return m_color; }
 
   // Visualization conversion
   [[nodiscard]] glm::vec3 getPositionVec3() const noexcept {
@@ -135,6 +145,8 @@ private:
   Vector3d m_torque = Vector3d::Zero();
 
   bool m_fixed = false;
+  GeometryType m_geometryType = GeometryType::Cube;
+  glm::vec4 m_color = glm::vec4(0.6118f, 0.2510f, 0.4039f, 1.0f);
 
 };
 } // Proton

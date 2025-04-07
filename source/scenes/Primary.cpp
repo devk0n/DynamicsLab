@@ -10,33 +10,33 @@ using namespace Proton;
 void Primary::problemA() {
   const DynamicsBuilder builder(m_system);
 
-  Body* chassis = builder.createCube()
+  Body* chassis = builder.createBody()
     .size(3.0, 0.5, 0.5)
     .mass(300)
     .position(0, 0, 2)
     .angularVelocity(0, 0, 0)
     .build();
 
-  Body* LF = builder.createCube()
+  Body* LF = builder.createBody()
     .mass(10)
     .size(0.25, 0.25, 0.5)
     .position(1.2, 1, 2)
     .build();
 
-  Body* LR = builder.createCube()
+  Body* LR = builder.createBody()
     .mass(10)
     .size(0.25, 0.25, 0.5)
     .position(-1.2, 1, 2)
     .build();
 
-  Body* RF = builder.createCube()
+  Body* RF = builder.createBody()
     .mass(10)
     .size(0.25, 0.25, 0.5)
     .position(1.2, -1, 2)
     .fixed(true)
     .build();
 
-  Body* RR = builder.createCube()
+  Body* RR = builder.createBody()
     .mass(10)
     .size(0.25, 0.25, 0.5)
     .position(-1.2, -1, 2)
@@ -261,25 +261,25 @@ void Primary::problemA() {
 void Primary::problemB() {
   const DynamicsBuilder builder(m_system);
 
-  Body* anchor = builder.createCube()
+  Body* anchor = builder.createBody()
     .size(0.01, 0.01, 0.01)
     .fixed(true)
     .build();
 
-  Body* arm1 = builder.createCube()
+  Body* arm1 = builder.createBody()
     .mass(8)
     .size(0.2, 0.04, 0.04)
     .position(0.1, 0.0, 0.0)
     .build();
 
-  Body* arm2 = builder.createCube()
+  Body* arm2 = builder.createBody()
     .mass(12)
     .size(0.6, 0.03, 0.03)
     .orientation(0, -38.51, 58.43)
     .position(0.322903645, 0.200, 0.186801215)
     .build();
 
-  Body* arm3 = builder.createCube()
+  Body* arm3 = builder.createBody()
     .mass(12)
     .size(0.5, 0.03, 0.03)
     .orientation(0, 26.92, 0)
@@ -324,24 +324,26 @@ void Primary::problemB() {
 void Primary::doublePendulum() {
   const DynamicsBuilder builder(m_system);
 
-  Body* anchor = builder.createCube()
+  Body* anchor = builder.createBody()
     .position(0, 0, 5.0)
     .size(0.1, 0.1, 0.1)
     .fixed(true)
     .build();
 
-  Body* arm1 = builder.createCube()
+  Body* arm1 = builder.createBody()
     .mass(10)
     .size(3.0, 0.2, 0.2)
     .position(1.5, 0.0, 5.0)
     .build();
 
-  Body* arm2 = builder.createCube()
+  Body* arm2 = builder.createBody()
+    .geometryType(GeometryType::Cylinder)
     .mass(5)
-    .size(2.0, 0.3, 0.3)
+    .size(2.0, 2.0, 2.0)
     .inertia(0.075, 1.704, 1.704)
     .position(3.0, .0, 6.0)
     .orientation(0, -90, 0)
+    .color(0.0f, 0.5f, 1.0f)
     .build();
 
   builder.createSphericalJoint()
@@ -367,13 +369,13 @@ void Primary::doublePendulum() {
 void Primary::problemC() {
   const DynamicsBuilder builder(m_system);
 
-  Body* anchor = builder.createCube()
+  Body* anchor = builder.createBody()
     .position(-1.0, 0, 0)
     .size(0.1, 0.1, 0.1)
     .fixed(true)
     .build();
 
-  Body* arm1 = builder.createCube()
+  Body* arm1 = builder.createBody()
     .position(1, 0, 0)
     .size(2, 0.4, 0.4)
     .mass(8)
@@ -392,13 +394,26 @@ void Primary::problemC() {
     .build();
 }
 
+void Primary::vehicle() {
+  const DynamicsBuilder builder(m_system);
+
+  Body* wheelLF = builder.createBody()
+    .geometryType(GeometryType::Cylinder)
+    .size(0.4, 0.19, 0.4)
+    .position(0.5, 0.5, 0.5)
+    .color(0.5f, 0.5f, 0.5f)
+    .build();
+
+}
+
 bool Primary::load() {
 
-  problemA();
+  // problemA();
   // problemB();
   // problemC();
-
   // doublePendulum();
+
+  vehicle();
 
   LOG_INFO("Initializing Primary Scene");
   m_camera.setPosition({5.0f, 3.2f, 3.2f});
@@ -406,10 +421,10 @@ bool Primary::load() {
   m_camera.setMovementSpeed(5.0f);
 
   if (!m_ctx.renderer->getShaderManager()
-      .loadShader("cubeShader",
-                  "../assets/shaders/cube.vert",
-                  "../assets/shaders/cube.frag")) {
-    LOG_ERROR("Failed to load cube shader");
+      .loadShader("bodyShader",
+                  "../assets/shaders/body.vert",
+                  "../assets/shaders/body.frag")) {
+    LOG_ERROR("Failed to load body shader");
     return false;
   }
 

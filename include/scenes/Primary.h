@@ -22,6 +22,8 @@ public:
 
   void problemC();
 
+  void vehicle();
+
   bool load() override;
   void update(double dt) override;
   void render() override;
