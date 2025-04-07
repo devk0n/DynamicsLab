@@ -47,7 +47,7 @@ public:
 
   double clampTimeStep(double dt) const;
 
-  void step(double dt) const;
+  void step(double dt);
 
 private:
 
@@ -82,6 +82,9 @@ private:
   std::vector<std::unique_ptr<Body>> m_bodies{};
   std::unordered_map<UniqueID, size_t> m_bodyIndex{};
   int m_numBodies = 0;
+  MatrixXd m_massMatrix;
+  bool m_massMatrixInitialized = false;
+
 
   // Force generators
   std::vector<std::shared_ptr<ForceGenerator>> m_forceGenerators{};

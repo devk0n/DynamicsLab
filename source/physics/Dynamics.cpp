@@ -4,7 +4,7 @@
 namespace Proton {
 
 // Main simulation step using implicit midpoint integration
-void Dynamics::step(double dt) const {
+void Dynamics::step(double dt) {
   // Clamp timestep to ensure numerical stability
   dt = clampTimeStep(dt);
 
@@ -97,64 +97,37 @@ void Dynamics::step(double dt) const {
     }
 
     // Update all body states to midpoint for evaluating forces and constraints
-    try {
-      updateMidpointState(q_mid, dq_mid);
-    } catch (...) {
-      LOG_ERROR("Exception in updateMidpointState");
-      break;  // Exit the iteration loop, try to recover
-    }
+    updateMidpointState(q_mid, dq_mid);
 
     // Apply force generators (like gravity or drag)
-    try {
-      for (const auto& fg : m_forceGenerators) {
-        fg->apply(dt);
-      }
-    } catch (...) {
-      LOG_ERROR("Exception in force generators");
+    for (const auto& fg : m_forceGenerators) {
+      fg->apply(dt);
     }
 
     // External force vector (forces and torques)
     VectorXd F_ext = VectorXd::Zero(dof_dq);
-    try {
-      computeExternalForces(F_ext);
-    } catch (...) {
-      LOG_ERROR("Exception in computeExternalForces");
-    }
+    computeExternalForces(F_ext);
 
     // Assemble mass matrix (block-diagonal)
-    MatrixXd M = MatrixXd::Zero(dof_dq, dof_dq);
-    try {
-      assembleMassMatrix(M);
-    } catch (...) {
-      LOG_ERROR("Exception in assembleMassMatrix");
-      // Initialize with reasonable defaults
-      for (int i = 0; i < m_numBodies; ++i) {
-        M.block<3,3>(i * 6, i * 6) = Matrix3d::Identity();  // Unit mass
-        M.block<3,3>(i * 6 + 3, i * 6 + 3) = Matrix3d::Identity();  // Unit inertia
-      }
+    if (!m_massMatrixInitialized) {
+      m_massMatrix = MatrixXd::Zero(dof_dq, dof_dq);
+      assembleMassMatrix(m_massMatrix);
+      m_massMatrixInitialized = true;
     }
 
     // Apply force elements (like springs/dampers) and compute Jacobian K
     MatrixXd K = MatrixXd::Zero(dof_dq, dof_dq);
-    try {
-      applyForceElements(F_ext, K);
-    } catch (...) {
-      LOG_ERROR("Exception in applyForceElements");
-    }
+    applyForceElements(F_ext, K);
 
     // Assemble constraint Jacobian P and correction term gamma
     MatrixXd P = MatrixXd::Zero(m_numConstraints, dof_dq);
     VectorXd gamma = VectorXd::Zero(m_numConstraints);
-    try {
-      assembleConstraints(P, gamma);
-    } catch (...) {
-      LOG_ERROR("Exception in assembleConstraints");
-    }
+    assembleConstraints(P, gamma);
 
     // Solve KKT system to get acceleration at midpoint
     VectorXd ddq_mid;
     try {
-      ddq_mid = solveKKTSystem(M, K, P, F_ext, gamma, dt);
+      ddq_mid = solveKKTSystem(m_massMatrix, K, P, F_ext, gamma, dt);
 
       // Check for numerical issues in the solution
       if (!ddq_mid.allFinite()) {
