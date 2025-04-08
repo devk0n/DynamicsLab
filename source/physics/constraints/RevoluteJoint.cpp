@@ -27,10 +27,10 @@ void RevoluteJoint::computeJacobian(MatrixXd &jacobian, int startRow) const {
   jacobian.block<3,3>(startRow, m_bodyB->getIndex() * 6 + 3).noalias()  =   A2 * skew(m_localPointB);
 
   // Perpendicularity constraints Jacobian
-  jacobian.block<1,3>(startRow + 3, m_bodyA->getIndex() * 6 + 3).noalias() = (A2 * m_axisM).transpose() * (A1 * skew(m_axisA));
-  jacobian.block<1,3>(startRow + 3, m_bodyB->getIndex() * 6 + 3).noalias() = (A1 * m_axisA).transpose() * (A2 * skew(m_axisM));
-  jacobian.block<1,3>(startRow + 4, m_bodyA->getIndex() * 6 + 3).noalias() = (A2 * m_axisN).transpose() * (A1 * skew(m_axisA));
-  jacobian.block<1,3>(startRow + 4, m_bodyB->getIndex() * 6 + 3).noalias() = (A1 * m_axisA).transpose() * (A2 * skew(m_axisN));
+  jacobian.block<1,3>(startRow + 3, m_bodyA->getIndex() * 6 + 3).noalias() = - (A2 * m_axisM).transpose() * (A1 * skew(m_axisA));
+  jacobian.block<1,3>(startRow + 3, m_bodyB->getIndex() * 6 + 3).noalias() = - (A1 * m_axisA).transpose() * (A2 * skew(m_axisM));
+  jacobian.block<1,3>(startRow + 4, m_bodyA->getIndex() * 6 + 3).noalias() = - (A2 * m_axisN).transpose() * (A1 * skew(m_axisA));
+  jacobian.block<1,3>(startRow + 4, m_bodyB->getIndex() * 6 + 3).noalias() = - (A1 * m_axisA).transpose() * (A2 * skew(m_axisN));
 }
 
 void RevoluteJoint::computeAccelerationCorrection(VectorXd &gamma, int startRow) const {

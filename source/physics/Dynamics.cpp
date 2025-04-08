@@ -341,7 +341,7 @@ VectorXd Dynamics::solveKKTSystem(
   rhs.tail(nc) = gamma;
 
   // Try more stable solver methods in sequence
-  Eigen::LDLT<MatrixXd> solver(KKT);
+  Eigen::FullPivLU<MatrixXd> solver(KKT);
   VectorXd sol = solver.solve(rhs);
 
   // Apply reasonable limits to acceleration values

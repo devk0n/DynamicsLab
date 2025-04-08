@@ -53,6 +53,23 @@ public:
     return *this;
   }
 
+  RevoluteJointBuilder& withAxis(double x, double y, double z) {
+    const Vector3d axis = Vector3d(x, y, z).normalized();
+
+    m_constraint->setAxisA(axis);
+    m_constraint->setAxisB(axis);
+
+    // Auto-generate orthonormal basis (M, N) for internal constraint calculations
+    Vector3d arbitrary = std::abs(axis.x()) < 0.9 ? Vector3d::UnitX() : Vector3d::UnitY();
+    Vector3d M = axis.cross(arbitrary).normalized();
+    Vector3d N = axis.cross(M).normalized();
+
+    m_constraint->setAxisM(M);
+    m_constraint->setAxisN(N);
+
+    return *this;
+  }
+
   RevoluteJointBuilder& withAxisN(double x, double y, double z) {
     m_constraint->setAxisN(Vector3d(x, y, z).normalized());
     return *this;

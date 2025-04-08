@@ -14,7 +14,7 @@ void Primary::problemA() {
     .size(3.0, 0.5, 0.5)
     .mass(300)
     .position(0, 0, 2)
-    .angularVelocity(0, 0, 0)
+    .fixed(true)
     .build();
 
   Body* LF = builder.createBody()
@@ -33,7 +33,6 @@ void Primary::problemA() {
     .mass(10)
     .size(0.25, 0.25, 0.5)
     .position(1.2, -1, 2)
-    .fixed(true)
     .build();
 
   Body* RR = builder.createBody()
@@ -42,15 +41,11 @@ void Primary::problemA() {
     .position(-1.2, -1, 2)
     .build();
 
-  builder.createGravity(0.0, 0.0, -9.81)
+  builder.createGravity(0.0, 0.0, 9.81)
     .addBody(LF)
     .addBody(LR)
     .addBody(RF)
     .addBody(RR)
-    .build();
-
-  builder.createGravity(0.0, 0.0, -9.81)
-    .addBody(chassis)
     .build();
 
   builder.createSpring()
@@ -59,8 +54,8 @@ void Primary::problemA() {
     .withLocalPointA(1.2, 0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(7500)
-    .withDamping(250)
+    .withStiffness(700)
+    .withDamping(50)
     .build();
 
   builder.createSpring()
@@ -69,8 +64,8 @@ void Primary::problemA() {
     .withLocalPointA(1.2, -0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(7500)
-    .withDamping(250)
+    .withStiffness(700)
+    .withDamping(50)
     .build();
 
   builder.createSpring()
@@ -79,8 +74,8 @@ void Primary::problemA() {
     .withLocalPointA(-1.2, -0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(7500)
-    .withDamping(250)
+    .withStiffness(700)
+    .withDamping(50)
     .build();
 
   builder.createSpring()
@@ -89,8 +84,8 @@ void Primary::problemA() {
     .withLocalPointA(-1.2, 0.25, 0.25)
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
-    .withStiffness(7500)
-    .withDamping(250)
+    .withStiffness(700)
+    .withDamping(50)
     .build();
 
   // Left Front
@@ -256,6 +251,8 @@ void Primary::problemA() {
     .withLocalPointB(0, 0, -0.25)
     .withAutoDistance(true)
     .build();
+
+
 }
 
 void Primary::problemB() {
@@ -344,6 +341,7 @@ void Primary::doublePendulum() {
     .position(3.0, .0, 6.0)
     .orientation(0, -90, 0)
     .color(0.0f, 0.5f, 1.0f)
+    .angularVelocity(0.1, 0.0, 0.0)
     .build();
 
   builder.createSphericalJoint()
@@ -395,16 +393,49 @@ void Primary::problemC() {
 }
 
 void Primary::vehicle() {
-  const DynamicsBuilder builder(m_system);
+  const DynamicsBuilder system(m_system);
 
-  Body* wheelLF = builder.createBody()
-    .geometryType(GeometryType::Cylinder)
-    .size(0.4, 0.19, 0.4)
-    .position(0.5, 0.5, 0.5)
-    .color(0.5f, 0.5f, 0.5f)
+  Body* anchor = system.createBody()
+    .position(0, 0, 0)
+    .size(0.1, 0.1, 0.1)
+    .fixed(true)
     .build();
 
+  Body* arm1 = system.createBody()
+    .position(1.5 * cosd(45), 1.5 * cosd(45), 0)
+    .size(3, 0.3, 0.3)
+    .orientation(0, 0, 45)
+    .mass(100)
+    .build();
+
+  Body* arm2 = system.createBody()
+    .position(3 * cosd(45), 1.5 * cosd(45), 0)
+    .size(3 * cosd(45), 0.3, 0.3)
+    .orientation(0, 0, -90)
+    .mass(100)
+    .build();
+
+  system.createUniversalJoint()
+    .between(anchor, arm1)
+    .withLocalPointA(0, 0, 0)
+    .withLocalPointB(-1.5, 0, 0)
+    .withAxisA(0, 0, 1)
+    .withAxisB(0, 1, 0)
+    .build();
+
+  system.createRevoluteJoint()
+    .between(arm1, arm2)
+    .withLocalPointA(1.5, 0, 0)
+    .withLocalPointB(-1.5 * cosd(45), 0, 0)
+    .withAxis(0, 1, 0)
+    .build();
+
+  system.createGravity(0, 0, -9.81)
+    .addBody(arm1)
+    .addBody(arm2)
+    .build();
 }
+
 
 bool Primary::load() {
 
