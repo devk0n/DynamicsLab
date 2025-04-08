@@ -53,7 +53,7 @@ Fixes the distance between two points.
 ---
 
 ## (TODO) Visual Media
-
+![Demo](assets/files/TriplePendulum.gif)
 To help users and contributors understand the dynamics and constraints, consider including the following visual media in the repository or documentation:
 
 - **Static Images:**  
