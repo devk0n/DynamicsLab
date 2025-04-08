@@ -21,39 +21,10 @@ DynamicsLab simulates rigid body dynamics by solving the equations of motion wit
 
 ---
 
-## Constraints
+## Visual Media
 
-### Revolute Joint
-
-Allows rotation about a single axis.
-
-### Prismatic Joint
-
-Allows translation along a single axis.
-
-### Spherical Joint
-
-Allows 3 rotational degrees of freedom (no translation).
-
-### Cylindrical Joint
-
-Allows rotation and translation along a single axis.
-### Universal Joint
-
-Allows rotation about two perpendicular axes.
-
-### Planar Constraint
-
-Restricts motion to a plane.
-
-### Distance Constraint
-
-Fixes the distance between two points.
-
----
-
-## (TODO) Visual Media
 ![Demo](assets/files/TriplePendulum.gif)
+
 To help users and contributors understand the dynamics and constraints, consider including the following visual media in the repository or documentation:
 
 - **Static Images:**  
