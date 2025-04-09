@@ -20,12 +20,13 @@ public:
       int index)
       : m_ID(ID),
         m_index(index) {
-    updateInertiaWorld();
+    updateWorldInertia();
   }
 
   // Update inertia tensor in world space
-  void updateInertiaWorld() {
-    m_inverseInertiaWorld = Proton::updateInertiaWorld(m_orientation, m_inverseInertia);
+  void updateWorldInertia() {
+    m_inertiaWorld = updateInertiaWorld(m_orientation, m_inertia);
+    m_inverseInertiaWorld = updateInverseInertiaWorld(m_orientation, m_inverseInertia);
   }
 
   // Getters
@@ -41,14 +42,15 @@ public:
   [[nodiscard]] const double& getInverseMass() const noexcept { return m_inverseMass; }
   [[nodiscard]] Vector3d getInertia() const noexcept { return m_inertia; }
   [[nodiscard]] Vector3d getInverseInertia() const noexcept { return m_inverseInertia; }
-  [[nodiscard]] Matrix3d getInertiaWorld() const noexcept { return m_inverseInertiaWorld; }
+  [[nodiscard]] Matrix3d getInertiaWorld() const noexcept { return m_inertiaWorld; }
+  [[nodiscard]] Matrix3d getInverseInertiaWorld() const noexcept { return m_inverseInertiaWorld; }
 
   // Setters
   void setPosition(const Vector3d& position) noexcept { m_position = position; }
   void setLinearVelocity(const Vector3d& velocity) noexcept { m_velocity = velocity; }
   void setOrientation(const Vector4d& orientation) noexcept {
     m_orientation = orientation.normalized();
-    updateInertiaWorld();
+    updateWorldInertia();
   }
   void setAngularVelocity(const Vector3d& angularVelocity) noexcept { m_angularVelocity = angularVelocity; }
 
@@ -74,7 +76,7 @@ public:
   void setInertia(const Vector3d& inertia) noexcept {
     m_inertia = inertia;
     m_inverseInertia = calculateInverseInertia(inertia);
-    updateInertiaWorld();
+    updateWorldInertia();
   }
   void setGeometryType(GeometryType type) noexcept { m_geometryType = type; }
   [[nodiscard]] GeometryType getGeometryType() const noexcept { return m_geometryType; }
@@ -107,12 +109,13 @@ public:
     };
   }
 
-  auto calculateKineticEnergy() {
-    auto T1 = 0.5 * m_velocity.transpose() * Vector3d(m_mass, m_mass, m_mass).asDiagonal() * m_velocity;
-    auto T2 = 0.5 * m_angularVelocity.transpose() * m_inertia.asDiagonal() * m_angularVelocity;
-
+  [[nodiscard]] double calculateKineticEnergy() const {
+    double T1 = 0.5 * m_velocity.transpose() * Vector3d(m_mass, m_mass, m_mass).asDiagonal() * m_velocity;
+    double T2 = 0.5 * m_angularVelocity.transpose() * m_inertia.asDiagonal() * m_angularVelocity;
     return T1 + T2;
   }
+
+  mutable RollingBuffer kineticEnergyBuffer;
 
 private:
   static Vector3d calculateInverseInertia(const Vector3d& inertia) noexcept {
@@ -132,6 +135,7 @@ private:
   double m_inverseMass = 1.0;
   Vector3d m_inertia = Vector3d::Ones();
   Vector3d m_inverseInertia = Vector3d::Ones();
+  Matrix3d m_inertiaWorld = Matrix3d::Zero();
   Matrix3d m_inverseInertiaWorld = Matrix3d::Zero();
 
   // State variables
