@@ -24,6 +24,8 @@ public:
 
   void vehicle();
 
+  void space();
+
   bool load() override;
   void update(double dt) override;
   void render() override;
@@ -41,6 +43,10 @@ private:
   mutable bool m_run = false;
 
   void showUI();
+
+  void simulationControls() const;
+
+  void bodyInfo() const;
 
   static void renderTimings(
     const std::vector<std::pair<std::string, double>> &timings);

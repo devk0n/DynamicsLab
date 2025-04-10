@@ -4,7 +4,6 @@
 #include "Proton.h"
 
 namespace Proton {
-
 class Constraint {
 public:
   explicit Constraint(const int DOFs) : m_DOFs(DOFs) {}
@@ -18,9 +17,6 @@ public:
 
 protected:
   int m_DOFs{0};
-
 };
-
 } // Proton
-
 #endif // CONSTRAINT_H

@@ -53,10 +53,10 @@ private:
 
   const double m_maxTimeStep = 0.01;
 
-  const int m_maxIters = 5;   // Max number of nonlinear solver iterations
+  const int m_maxIters = 50;   // Max number of nonlinear solver iterations
   const double m_tol = 1e-10;   // Convergence tolerance
 
-  const int m_maxProjectionIters = 3;
+  const int m_maxProjectionIters = 30;
   const double m_projectionTol = 1e-10;
 
   void initializeState(VectorXd& q, VectorXd& dq) const;
@@ -77,6 +77,8 @@ private:
   ) const;
   void writeBack(VectorXd q_next, VectorXd dq_next) const;
   void projectConstraints(VectorXd &q_next, VectorXd &dq_next, int dof_dq, double dt) const;
+  void projectPositionConstraints(VectorXd& q);
+  void projectVelocityConstraints(const VectorXd& q, VectorXd& v) const;
 
   // System state
   std::vector<std::unique_ptr<Body>> m_bodies{};

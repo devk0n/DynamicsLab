@@ -180,6 +180,8 @@ set(SOURCES
     source/physics/constraints/UniversalJoint.cpp
 
     source/physics/forces/Spring.cpp
+include/physics/constraints/CylindricalJoint.h
+source/physics/constraints/CylindricalJoint.cpp
 )
 
 include_directories(

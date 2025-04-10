@@ -108,12 +108,10 @@ void Dynamics::step(double dt) {
     VectorXd F_ext = VectorXd::Zero(dof_dq);
     computeExternalForces(F_ext);
 
-    // Assemble mass matrix (block-diagonal)
-    if (!m_massMatrixInitialized) {
-      m_massMatrix = MatrixXd::Zero(dof_dq, dof_dq);
-      assembleMassMatrix(m_massMatrix);
-      m_massMatrixInitialized = true;
-    }
+    m_massMatrix = MatrixXd::Zero(dof_dq, dof_dq);
+
+    // Assemble mass matrix
+    assembleMassMatrix(m_massMatrix);
 
     // Apply force elements (like springs/dampers) and compute Jacobian K
     MatrixXd K = MatrixXd::Zero(dof_dq, dof_dq);
@@ -211,61 +209,43 @@ void Dynamics::initializeState(VectorXd& q, VectorXd& dq) const {
 
 // Set all bodies to the midpoint state (used for force/constraint eval)
 void Dynamics::updateMidpointState(const VectorXd& q_mid, const VectorXd& dq_mid) const {
-    if (m_bodies.size() != static_cast<size_t>(m_numBodies)) {
-        std::cerr << "[Dynamics::updateMidpointState] m_bodies.size() != m_numBodies\n";
-        std::abort();
+  if (m_bodies.size() != static_cast<size_t>(m_numBodies)) {
+    std::cerr << "[Dynamics::updateMidpointState] m_bodies.size() != m_numBodies\n";
+    std::abort();
+  }
+
+  const int q_size_expected = m_numBodies * 7;
+  const int dq_size_expected = m_numBodies * 6;
+
+  if (q_mid.size() < q_size_expected || dq_mid.size() < dq_size_expected) {
+    std::cerr << "[Dynamics::updateMidpointState] q_mid or dq_mid too small\n";
+    std::abort();
+  }
+
+  for (int i = 0; i < m_numBodies; ++i) {
+    auto& body = m_bodies[i];
+
+    if (!body) {
+      std::cerr << "[Dynamics::updateMidpointState] Null body pointer at index " << i << "\n";
+      std::abort();
     }
 
-    const int q_size_expected = m_numBodies * 7;
-    const int dq_size_expected = m_numBodies * 6;
+    body->clearForces();
+    body->clearTorque();
+    body->updateWorldInertia();
 
-    if (q_mid.size() < q_size_expected || dq_mid.size() < dq_size_expected) {
-        std::cerr << "[Dynamics::updateMidpointState] q_mid or dq_mid too small\n";
-        std::abort();
-    }
+    if (body->isFixed()) continue;
 
-    for (int i = 0; i < m_numBodies; ++i) {
-        auto& body = m_bodies[i];
+    const Vector3d pos = q_mid.segment<3>(i * 7);
+    const Vector4d quat = q_mid.segment<4>(i * 7 + 3);
+    const Vector3d lin_vel = dq_mid.segment<3>(i * 6);
+    const Vector3d ang_vel = dq_mid.segment<3>(i * 6 + 3);
 
-        if (!body) {
-            std::cerr << "[Dynamics::updateMidpointState] Null body pointer at index " << i << "\n";
-            std::abort();
-        }
-
-        body->clearForces();
-        body->clearTorque();
-        body->updateInertiaWorld();
-
-        if (body->isFixed()) continue;
-
-        const Vector3d pos = q_mid.segment<3>(i * 7);
-        const Vector4d quat_raw = q_mid.segment<4>(i * 7 + 3);
-        const Vector3d lin_vel = dq_mid.segment<3>(i * 6);
-        const Vector3d ang_vel = dq_mid.segment<3>(i * 6 + 3);
-
-        if (!pos.allFinite() || !quat_raw.allFinite() || !lin_vel.allFinite() || !ang_vel.allFinite()) {
-            std::cerr << "[Dynamics::updateMidpointState] Invalid values for body " << i << "\n";
-            std::cerr << "  pos: " << pos.transpose() << "\n";
-            std::cerr << "  quat: " << quat_raw.transpose() << "\n";
-            std::cerr << "  lin_vel: " << lin_vel.transpose() << "\n";
-            std::cerr << "  ang_vel: " << ang_vel.transpose() << "\n";
-            std::abort();
-        }
-
-        Vector4d quat_safe = quat_raw;
-        double quat_norm = quat_safe.norm();
-        if (quat_norm < 1e-6) {
-            std::cerr << "[Dynamics::updateMidpointState] Quaternion near-zero at body " << i << " — resetting to identity\n";
-            quat_safe = identityQuaternion();
-        } else {
-            quat_safe.normalize();
-        }
-
-        body->setPosition(pos);
-        body->setOrientation(quat_safe);
-        body->setLinearVelocity(lin_vel);
-        body->setAngularVelocity(ang_vel);
-    }
+    body->setPosition(pos);
+    body->setOrientation(quat);
+    body->setLinearVelocity(lin_vel);
+    body->setAngularVelocity(ang_vel);
+  }
 }
 
 // Gather external forces and torques into a vector
@@ -278,6 +258,7 @@ void Dynamics::computeExternalForces(VectorXd& F_ext) const {
                                 - skew(body->getAngularVelocity())
                                 * body->getInertia().asDiagonal()
                                 * body->getAngularVelocity();  // Torque due to angular velocity
+
   }
 }
 
@@ -329,7 +310,7 @@ VectorXd Dynamics::solveKKTSystem(
   KKT.setZero();
 
   // Top-left: mass and stiffness with regularization to improve conditioning
-  KKT.topLeftCorner(dof_dq, dof_dq).noalias() = M - dt * dt * K;
+  KKT.topLeftCorner(dof_dq, dof_dq).noalias() = M; //  - dt * dt * K;
 
   // Top-right and bottom-left: constraint Jacobian
   KKT.topRightCorner(dof_dq, nc) = P.transpose();
@@ -341,7 +322,7 @@ VectorXd Dynamics::solveKKTSystem(
   rhs.tail(nc) = gamma;
 
   // Try more stable solver methods in sequence
-  Eigen::FullPivLU<MatrixXd> solver(KKT);
+  Eigen::LDLT<MatrixXd> solver(KKT);
   VectorXd sol = solver.solve(rhs);
 
   // Apply reasonable limits to acceleration values
@@ -373,22 +354,27 @@ void Dynamics::integrateStateMidpoint(
 // Projects positions and velocities to satisfy constraints exactly
 void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_dq, double dt) const {
   for (int iter = 0; iter < m_maxProjectionIters; ++iter) {
-    // Update bodies to new state
+    // 1. Update body states to current iterate
     for (int i = 0; i < m_numBodies; ++i) {
       if (m_bodies[i]->isFixed()) continue;
+
+      // Position and orientation
       m_bodies[i]->setPosition(q_next.segment<3>(i * 7));
       Vector4d q = q_next.segment<4>(i * 7 + 3);
-      q.normalize();
       m_bodies[i]->setOrientation(q);
+
+      // Velocity
       m_bodies[i]->setLinearVelocity(dq_next.segment<3>(i * 6));
       m_bodies[i]->setAngularVelocity(dq_next.segment<3>(i * 6 + 3));
-      m_bodies[i]->updateInertiaWorld();
+
+      // Force inertia update
+      m_bodies[i]->updateWorldInertia();
     }
 
-    // Evaluate constraint position errors and velocity drift
+    // 2. Compute constraint violations
     VectorXd phi = VectorXd::Zero(m_numConstraints);
     VectorXd Jdq = VectorXd::Zero(m_numConstraints);
-    MatrixXd J   = MatrixXd::Zero(m_numConstraints, dof_dq);
+    MatrixXd J = MatrixXd::Zero(m_numConstraints, dof_dq);
 
     int row = 0;
     for (const auto& c : m_constraints) {
@@ -398,53 +384,74 @@ void Dynamics::projectConstraints(VectorXd& q_next, VectorXd& dq_next, int dof_d
       row += c->getDOFs();
     }
 
-    double totalError = phi.squaredNorm() + Jdq.squaredNorm();
-    if (totalError < m_projectionTol) break;
+    // 3. Check convergence
+    double total_error = phi.squaredNorm() + Jdq.squaredNorm();
+    if (total_error < m_projectionTol) break;
 
-    if (m_numConstraints > 0) {
-      // Solve for Lagrange multipliers using normal equations
-      MatrixXd JJt = J * J.transpose();
-      Eigen::FullPivLU<MatrixXd> solver(JJt);
+    // 4. Construct inertia-weighted projection matrix
+    MatrixXd W = MatrixXd::Zero(dof_dq, dof_dq);
+    for (int i = 0; i < m_numBodies; ++i) {
+      if (m_bodies[i]->isFixed()) continue;
 
-      // Project positions
-      VectorXd lambda_p = solver.solve(phi);
-      VectorXd delta_q = J.transpose() * lambda_p;
+      const double invMass = 1.0 / m_bodies[i]->getMass();
+      const Matrix3d invInertia = m_bodies[i]->getInverseInertiaWorld();
 
-      // Project velocities
-      VectorXd lambda_v = solver.solve(Jdq);
-      VectorXd delta_dq = J.transpose() * lambda_v;
+      W.block<3,3>(i*6, i*6) = invMass * Matrix3d::Identity();
+      W.block<3,3>(i*6+3, i*6+3) = invInertia;
+    }
 
-      // Apply corrections to each body
-      for (int i = 0; i < m_numBodies; ++i) {
-        if (m_bodies[i]->isFixed()) continue;
+    // 5. Solve position correction
+    MatrixXd J_pos = J;
+    MatrixXd WJ_posT = W * J_pos.transpose();
+    VectorXd lambda_p = (J_pos * WJ_posT).ldlt().solve(phi);
+    VectorXd delta_q = WJ_posT * lambda_p;
 
-        // Position correction (linear)
-        q_next.segment<3>(i * 7) -= delta_q.segment<3>(i * 6);
+    // 6. Apply position correction with exact quaternion handling
+    for (int i = 0; i < m_numBodies; ++i) {
+      if (m_bodies[i]->isFixed()) continue;
 
-        // Orientation correction (quaternion)
-        Vector3d delta_theta = delta_q.segment<3>(i * 6 + 3);
-        Vector4d q = q_next.segment<4>(i * 7 + 3);
+      // Linear position
+      q_next.segment<3>(i*7) -= delta_q.segment<3>(i*6);
 
-        // Create small rotation quaternion from delta_theta
-        // For small angles, this approximation works well
-        double theta_norm = delta_theta.norm();
-        Vector4d delta_q_quat;
-        if (theta_norm > 1e-10) {
-          Vector3d axis = delta_theta / theta_norm;
-          double half_angle = -0.5 * theta_norm; // Note the negative sign for correction
-          delta_q_quat << cos(half_angle), sin(half_angle) * axis;
-        } else {
-          delta_q_quat << identityQuaternion();
-        }
+      // Angular correction using exponential map
+      Vector3d delta_theta = delta_q.segment<3>(i*6+3);
+      Vector4d q = q_next.segment<4>(i*7+3);
 
-        // Apply the correction by quaternion multiplication
-        q_next.segment<4>(i * 7 + 3) = quaternionProduct(q, delta_q_quat);
-        q_next.segment<4>(i * 7 + 3).normalize();
+      // Use existing quaternion integration function
+      Vector4d delta_q_rot = integrateQuaternionExp(identityQuaternion(), -delta_theta, 1.0);
+      q = quaternionProduct(q, delta_q_rot);
+      // q.normalize(); // Normalize quaternion to preserve unit length
+      q_next.segment<4>(i*7+3) = q;
+    }
 
-        // Velocity correction
-        dq_next.segment<3>(i * 6) -= delta_dq.segment<3>(i * 6);
-        dq_next.segment<3>(i * 6 + 3) -= delta_dq.segment<3>(i * 6 + 3);
-      }
+    // 7. Update velocities based on position corrections
+    for (int i = 0; i < m_numBodies; ++i) {
+      if (m_bodies[i]->isFixed()) continue;
+
+      // For linear motion, this is simply dq = dx/dt
+      // For rotational motion, need to compute the implied angular velocity
+      Vector3d delta_p = delta_q.segment<3>(i*6);
+      Vector3d delta_theta = delta_q.segment<3>(i*6+3);
+
+      // Update velocities (approximate, based on position correction)
+      dq_next.segment<3>(i*6) -= delta_p / dt;
+      dq_next.segment<3>(i*6+3) -= delta_theta / dt;
+    }
+
+    // 8. Solve additional velocity constraint projection to ensure J*v = 0
+    MatrixXd J_vel = J;
+    MatrixXd WJ_velT = W * J_vel.transpose();
+    VectorXd lambda_v = (J_vel * WJ_velT).ldlt().solve(Jdq);
+    VectorXd delta_dq = WJ_velT * lambda_v;
+
+    // Apply velocity correction
+    dq_next -= delta_dq;
+
+    // 9. Enforce quaternion unit norm
+    for (int i = 0; i < m_numBodies; ++i) {
+      Vector4d q = q_next.segment<4>(i*7+3);
+      q.normalize(); // Actually normalize the quaternion
+      q_next.segment<4>(i*7+3) = q;
     }
   }
 }
@@ -457,7 +464,6 @@ void Dynamics::writeBack(VectorXd q_next, VectorXd dq_next) const {
     if (body->isFixed()) continue;
 
     Vector4d q = q_next.segment<4>(i * 7 + 3);
-    q.normalize();
     body->setOrientation(q);
     body->setAngularVelocity(dq_next.segment<3>(i * 6 + 3));
     body->setPosition(q_next.segment<3>(i * 7));
