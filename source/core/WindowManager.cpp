@@ -1,4 +1,5 @@
 #include "WindowManager.h"
+#include "GLFW/glfw3.h"
 #include "PCH.h"
 #include "Logger.h"
 
@@ -83,6 +84,8 @@ bool WindowManager::createWindow() {
 
   m_window.reset(window);
   glfwMakeContextCurrent(m_window.get());
+
+  glfwSwapInterval(0);
 
   return true;
 }
