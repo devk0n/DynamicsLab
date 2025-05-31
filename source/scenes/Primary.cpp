@@ -453,16 +453,16 @@ bool Primary::load() {
 
   if (!m_ctx.renderer->getShaderManager()
       .loadShader("bodyShader",
-                  "../assets/shaders/body.vert",
-                  "../assets/shaders/body.frag")) {
+                  "/home/devkon/Projects/DynamicsLab/assets/shaders/body.vert",
+                  "/home/devkon/Projects/DynamicsLab/assets/shaders/body.frag")) {
     LOG_ERROR("Failed to load body shader");
     return false;
   }
 
   if (!m_ctx.renderer->getShaderManager()
         .loadShader("lineShader",
-                    "../assets/shaders/line.vert",
-                    "../assets/shaders/line.frag")) {
+                    "/home/devkon/Projects/DynamicsLab/assets/shaders/line.vert",
+                    "/home/devkon/Projects/DynamicsLab/assets/shaders/line.frag")) {
     LOG_ERROR("Failed to load line shader");
     return false;
   }

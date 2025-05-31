@@ -44,20 +44,20 @@ bool Renderer::initialize() {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   // Load common shaders.
-  if (!m_shaderManager->loadShader("grid", "../assets/shaders/grid.vert",
-                                  "../assets/shaders/grid.frag")) {
+  if (!m_shaderManager->loadShader("grid", "/home/devkon/Projects/DynamicsLab/assets/shaders/grid.vert",
+                                  "/home/devkon/Projects/DynamicsLab/assets/shaders/grid.frag")) {
     LOG_ERROR("Failed to load grid shader");
     return false;
                                   }
-  if (!m_shaderManager->loadShader("sky", "../assets/shaders/sky.vert",
-                                  "../assets/shaders/sky.frag")) {
+  if (!m_shaderManager->loadShader("sky", "/home/devkon/Projects/DynamicsLab/assets/shaders/sky.vert",
+                                  "/home/devkon/Projects/DynamicsLab/assets/shaders/sky.frag")) {
     LOG_ERROR("Failed to load sky shader");
     return false;
                                   }
 
   // Load the line shader in Renderer::initialize()
-  if (!m_shaderManager->loadShader("line", "../assets/shaders/line.vert",
-                                  "../assets/shaders/line.frag")) {
+  if (!m_shaderManager->loadShader("line", "/home/devkon/Projects/DynamicsLab/assets/shaders/line.vert",
+                                  "/home/devkon/Projects/DynamicsLab/assets/shaders/line.frag")) {
     LOG_ERROR("Failed to load line shader");
     return false;
                                   }
