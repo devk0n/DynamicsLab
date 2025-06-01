@@ -15,12 +15,24 @@ void Primary::satellite() {
     .size(0.2, 0.2, 0.3)
     .position(0, 0, 1)
     .inertia(0.03, 0.02, 0.01)
+    .angularVelocity(0, -1, 0)
     .build();
 
   Body* rwX = builder.createBody()
     .mass(1.0)
-    .size(0.02, 0.0, 0.0)
-    .position(0, 0, 0)
+    .size(0.3, 0.2, 0.3)
+    .orientation(0, 0, 90)
+    .geometryType(GeometryType::Cylinder)
+    .position(1, 0, 1)
+    .angularVelocity(0, 1, 0)
+    .velocity(0, 0, 0)
+    .build();
+
+  builder.createRevoluteJoint()
+    .between(satellite, rwX)
+    .withLocalPointA(0.5, 0, 0)
+    .withLocalPointB(0, 0.5, 0)
+    .withAxis(0, 0, 1)
     .build();
 }
 

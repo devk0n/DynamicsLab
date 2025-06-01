@@ -2,10 +2,11 @@
 /.git
 /.cache
 /build
-
+.idea
 # Ignore log and combined code
 /log.txt
 /combined.txt
 /combine.sh
 /compile_commands.json
+
 

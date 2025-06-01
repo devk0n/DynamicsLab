@@ -5,6 +5,7 @@
 
 #include "Body.h"
 #include "Constraint.h"
+#include "ForceElement.h"
 #include "ForceGenerator.h"
 
 namespace Proton {
