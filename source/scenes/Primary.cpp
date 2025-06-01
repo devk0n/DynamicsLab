@@ -16,6 +16,12 @@ void Primary::satellite() {
     .position(0, 0, 1)
     .inertia(0.03, 0.02, 0.01)
     .build();
+
+  Body* rwX = builder.createBody()
+    .mass(1.0)
+    .size(0.02, 0.0, 0.0)
+    .position(0, 0, 0)
+    .build();
 }
 
 bool Primary::load() {
