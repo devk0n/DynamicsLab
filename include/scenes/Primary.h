@@ -13,16 +13,8 @@ public:
   explicit Primary(const Context &ctx)
       : Scene(ctx),
         m_systemVisualizer(ctx.renderer->getShaderManager()) {}
-
-  void problemA();
-
-  void problemB();
-
-  void doublePendulum();
-
-  void problemC();
-
-  void vehicle();
+  
+  void satellite();
 
   bool load() override;
   void update(double dt) override;
