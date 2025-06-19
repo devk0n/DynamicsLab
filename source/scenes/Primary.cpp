@@ -27,7 +27,7 @@ void Primary::satellite() {
 bool Primary::load() {
 
   satellite();
-
+    
   LOG_INFO("Initializing Primary Scene");
   m_camera.setPosition({5.0f, 3.2f, 3.2f});
   m_camera.lookAt({0.0f, 0.0f, 0.0f});

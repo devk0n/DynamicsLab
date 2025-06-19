@@ -6,6 +6,7 @@
 #include "Body.h"
 #include "Constraint.h"
 #include "ForceGenerator.h"
+#include "ForceElement.h" 
 
 namespace Proton {
 class Dynamics {
