@@ -14,7 +14,14 @@ public:
       : Scene(ctx),
         m_systemVisualizer(ctx.renderer->getShaderManager()) {}
   
-  void satellite();
+  void singlePendulum();
+  void doublePendulum();
+  void triplePendulum();
+
+  void vehicleDemo();
+
+  void stressCarpet();
+  void stressCarpetNoDiagonals(); 
 
   bool load() override;
   void update(double dt) override;

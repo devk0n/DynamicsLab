@@ -7,32 +7,84 @@
 
 using namespace Proton;
 
-void Primary::satellite() {
+void Primary::singlePendulum() {
   const DynamicsBuilder builder(m_system);
-  
-  Body* satellite = builder.createBody()
-    .mass(15.0)
-    .size(0.2, 0.2, 0.3)
-    .position(0, 0, 1)
-    .inertia(0.03, 0.02, 0.01)
+
+  Body* b1 = builder.createBody()
+    .position(0, 0, 5)
+    .fixed(true)
     .build();
 
-  Body* rwX = builder.createBody()
-    .mass(1.0)
-    .size(0.02, 0.0, 0.0)
-    .position(0, 0, 0)
+  Body* b2 = builder.createBody()
+    .position(1,6,5)
+    .build();
+
+  builder.createGravity()
+    .setGravity(0, 0, -9.81)
+    .addBody(b1)
+    .addBody(b2)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withAutoDistance(true)
+    .withBodyA(b1)
+    .withBodyB(b2)
     .build();
 }
 
+void Primary::doublePendulum() {
+  const DynamicsBuilder builder(m_system);
+
+  Body* b1 = builder.createBody()
+    .position(0, 0, 5)
+    .size(5, 0.5, 0.5)
+    .fixed(true)
+    .build();
+
+  Body* b2 = builder.createBody()
+    .position(5,0,5)
+    .build();
+
+  Body* b3 = builder.createBody()
+    .position(5, 0, 10)
+    .build();
+
+  builder.createGravity()
+    .setGravity(0, 0, -9.81)
+    .addBody(b1)
+    .addBody(b2)
+    .addBody(b3)
+    .build();
+
+  builder.createSphericalJoint()
+    .between(b1, b2)
+    .withLocalPointA(2.5, 0, 0)
+    .withLocalPointB(-2.5, 0, 0)
+    .build();
+
+  builder.createSphericalJoint()
+    .between(b2, b3)
+    .withLocalPointA(0, 0, 2.5)
+    .withLocalPointB(0, 0, -2.5)
+    .build();
+}
+
+
+
 bool Primary::load() {
 
-  satellite();
+  // doublePendulum();
+
+  // stressCarpet();
+
+  stressCarpetNoDiagonals();
     
   LOG_INFO("Initializing Primary Scene");
-  m_camera.setPosition({5.0f, 3.2f, 3.2f});
-  m_camera.lookAt({0.0f, 0.0f, 0.0f});
+  m_camera.setPosition({5.0f, 6.2f, 6.2f});
+  m_camera.lookAt({0.0f, 0.0f, 5.0f});
   m_camera.setMovementSpeed(5.0f);
 
+  //FIXME: Full path too files are temporary because of move from Windows to Linux development!
   if (!m_ctx.renderer->getShaderManager()
       .loadShader("bodyShader",
                   "/home/devkon/Projects/DynamicsLab/assets/shaders/body.vert",
@@ -50,6 +102,257 @@ bool Primary::load() {
   }
 
   return true;
+}
+
+// This is not a "working" suspension for a car, but rather a function
+// demo for the application
+
+void Primary::vehicleDemo() {
+  const DynamicsBuilder builder(m_system);
+
+  Body* chassis = builder.createBody()
+    .size(3.0, 0.5, 0.5)
+    .mass(300)
+    .position(0, 0, 2)
+    .fixed(true)
+    .build();
+
+  Body* LF = builder.createBody()
+    .mass(10)
+    .size(0.25, 0.25, 0.5)
+    .position(1.2, 1, 2)
+    .build();
+
+  Body* LR = builder.createBody()
+    .mass(10)
+    .size(0.25, 0.25, 0.5)
+    .position(-1.2, 1, 2)
+    .build();
+
+  Body* RF = builder.createBody()
+    .mass(10)
+    .size(0.25, 0.25, 0.5)
+    .position(1.2, -1, 2)
+    .build();
+
+  Body* RR = builder.createBody()
+    .mass(10)
+    .size(0.25, 0.25, 0.5)
+    .position(-1.2, -1, 2)
+    .build();
+
+  builder.createGravity(0.0, 0.0, 9.81)
+    .addBody(LF)
+    .addBody(LR)
+    .addBody(RF)
+    .addBody(RR)
+    .build();
+
+  builder.createSpring()
+    .withBodyA(chassis)
+    .withBodyB(LF)
+    .withLocalPointA(1.2, 0.25, 0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .withStiffness(700)
+    .withDamping(50)
+    .build();
+
+  builder.createSpring()
+    .withBodyA(chassis)
+    .withBodyB(RF)
+    .withLocalPointA(1.2, -0.25, 0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .withStiffness(700)
+    .withDamping(50)
+    .build();
+
+  builder.createSpring()
+    .withBodyA(chassis)
+    .withBodyB(RR)
+    .withLocalPointA(-1.2, -0.25, 0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .withStiffness(700)
+    .withDamping(50)
+    .build();
+
+  builder.createSpring()
+    .withBodyA(chassis)
+    .withBodyB(LR)
+    .withLocalPointA(-1.2, 0.25, 0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .withStiffness(700)
+    .withDamping(50)
+    .build();
+
+  // Left Front
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(LF)
+    .withLocalPointA(1.1, 0.25, 0)
+    .withLocalPointB(-0.2, 0, 0)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(LF)
+    .withLocalPointA(1.5, 0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(LF)
+    .withLocalPointA(0.9, 0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(LF)
+    .withLocalPointA(1.5, 0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(LF)
+    .withLocalPointA(0.9, 0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  // Right Front
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(RF)
+    .withLocalPointA(1.1, -0.25, 0)
+    .withLocalPointB(-0.2, 0, 0)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(RF)
+    .withLocalPointA(1.5, -0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(RF)
+    .withLocalPointA(0.9, -0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(RF)
+    .withLocalPointA(1.5, -0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(RF)
+    .withLocalPointA(0.9, -0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  // Right Rear
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(RR)
+    .withLocalPointA(-1.5, -0.25, -0.25)
+    .withLocalPointB(-0.10, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(RR)
+    .withLocalPointA(-1.5, -0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(RR)
+    .withLocalPointA(-0.9, -0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(RR)
+    .withLocalPointA(-1.5, -0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(RR)
+    .withLocalPointA(-0.9, -0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  // Left Rear
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(LR)
+    .withLocalPointA(-1.5, 0.25, -0.25)
+    .withLocalPointB(-0.1, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(LR)
+    .withLocalPointA(-1.5, 0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(LR)
+    .withLocalPointA(-0.9, 0.25, 0.25)
+    .withLocalPointB(0, 0, 0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(LR)
+    .withLocalPointA(-1.5, 0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+  builder.createDistanceConstraint()
+    .withBodyA(chassis)
+    .withBodyB(LR)
+    .withLocalPointA(-0.9, 0.25, -0.25)
+    .withLocalPointB(0, 0, -0.25)
+    .withAutoDistance(true)
+    .build();
+
+
 }
 
 void Primary::update(const double dt) {
@@ -154,3 +457,124 @@ void Primary::handleCameraMovement(const double dt) {
   m_ctx.input->getScrollDelta(xScrollOffset, yScrollOffset);
   m_camera.processScroll(static_cast<float>(yScrollOffset));
 }
+
+void Primary::stressCarpet() {
+    const DynamicsBuilder builder(m_system);
+
+    constexpr int N = 5;         // Grid width/height
+    constexpr double spacing = 1.0; // Distance between nodes
+    constexpr double startX = 0.0;
+    constexpr double startY = 0.0;
+    constexpr double startZ = 6.0;
+
+    // Store grid of pointers to bodies
+    Body* bodies[N][N];
+
+    // Create bodies in a grid
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            bool isPinned = (i == 0 && j == 0) || (i == 0 && j == N-1); // Pin two top corners
+            bodies[i][j] = builder.createBody()
+                .position(startX + i * spacing, startY + j * spacing, startZ)
+                .size(0.6, 0.6, 0.6)
+                .mass(1.0)
+                .fixed(isPinned)
+                .build();
+        }
+    }
+
+    // Add gravity to all bodies
+    auto grav = builder.createGravity().setGravity(0, 0, -9.81);
+    for (int i = 0; i < N; ++i)
+        for (int j = 0; j < N; ++j)
+            grav.addBody(bodies[i][j]);
+    grav.build();
+
+    // Add distance constraints to immediate neighbors
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            // Right neighbor
+            if (i + 1 < N)
+                builder.createDistanceConstraint()
+                    .withBodyA(bodies[i][j])
+                    .withBodyB(bodies[i+1][j])
+                    .withAutoDistance(true)
+                    .build();
+            // Down neighbor
+            if (j + 1 < N)
+                builder.createDistanceConstraint()
+                    .withBodyA(bodies[i][j])
+                    .withBodyB(bodies[i][j+1])
+                    .withAutoDistance(true)
+                    .build();
+            // Optionally, diagonals for max stress:
+            if (i + 1 < N && j + 1 < N)
+                builder.createDistanceConstraint()
+                    .withBodyA(bodies[i][j])
+                    .withBodyB(bodies[i+1][j+1])
+                    .withAutoDistance(true)
+                    .build();
+            if (i + 1 < N && j - 1 >= 0)
+                builder.createDistanceConstraint()
+                    .withBodyA(bodies[i][j])
+                    .withBodyB(bodies[i+1][j-1])
+                    .withAutoDistance(true)
+                    .build();
+        }
+    }
+}
+
+
+void Primary::stressCarpetNoDiagonals() {
+    const DynamicsBuilder builder(m_system);
+
+    constexpr int N = 5;         // Grid width/height
+    constexpr double spacing = 1.0; // Distance between nodes
+    constexpr double startX = 0.0;
+    constexpr double startY = 0.0;
+    constexpr double startZ = 6.0;
+
+    // Store grid of pointers to bodies
+    Body* bodies[N][N];
+
+    // Create bodies in a grid
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            bool isPinned = (i == 0 && j == 0) || (i == 0 && j == N-1); // Pin two top corners
+            bodies[i][j] = builder.createBody()
+                .position(startX + i * spacing, startY + j * spacing, startZ)
+                .size(0.6, 0.6, 0.6)
+                .mass(1.0)
+                .fixed(isPinned)
+                .build();
+        }
+    }
+
+    // Add gravity to all bodies
+    auto grav = builder.createGravity().setGravity(0, 0, -9.81);
+    for (int i = 0; i < N; ++i)
+        for (int j = 0; j < N; ++j)
+            grav.addBody(bodies[i][j]);
+    grav.build();
+
+    // Only right and down neighbor constraints (no diagonals)
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
+            // Right neighbor
+            if (i + 1 < N)
+                builder.createDistanceConstraint()
+                    .withBodyA(bodies[i][j])
+                    .withBodyB(bodies[i+1][j])
+                    .withAutoDistance(true)
+                    .build();
+            // Down neighbor
+            if (j + 1 < N)
+                builder.createDistanceConstraint()
+                    .withBodyA(bodies[i][j])
+                    .withBodyB(bodies[i][j+1])
+                    .withAutoDistance(true)
+                    .build();
+        }
+    }
+}
+
