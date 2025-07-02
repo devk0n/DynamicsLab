@@ -461,7 +461,7 @@ void Primary::handleCameraMovement(const double dt) {
 void Primary::stressCarpet() {
     const DynamicsBuilder builder(m_system);
 
-    constexpr int N = 5;         // Grid width/height
+    constexpr int N = 3.0;         // Grid width/height
     constexpr double spacing = 1.0; // Distance between nodes
     constexpr double startX = 0.0;
     constexpr double startY = 0.0;
@@ -528,13 +528,14 @@ void Primary::stressCarpet() {
 void Primary::stressCarpetNoDiagonals() {
     const DynamicsBuilder builder(m_system);
 
-    constexpr int N = 5;         // Grid width/height
-    constexpr double spacing = 1.0; // Distance between nodes
+    constexpr int N = 5;            // Grid width/height
+    constexpr double spacing = 3.0; // Distance between nodes
+    constexpr double boxSize = 0.2; // Cube size (matching your .size call)
+    constexpr double halfBox = boxSize / 2.0;
     constexpr double startX = 0.0;
     constexpr double startY = 0.0;
     constexpr double startZ = 6.0;
 
-    // Store grid of pointers to bodies
     Body* bodies[N][N];
 
     // Create bodies in a grid
@@ -543,7 +544,7 @@ void Primary::stressCarpetNoDiagonals() {
             bool isPinned = (i == 0 && j == 0) || (i == 0 && j == N-1); // Pin two top corners
             bodies[i][j] = builder.createBody()
                 .position(startX + i * spacing, startY + j * spacing, startZ)
-                .size(0.6, 0.6, 0.6)
+                .size(boxSize, boxSize, boxSize)
                 .mass(1.0)
                 .fixed(isPinned)
                 .build();
@@ -557,22 +558,24 @@ void Primary::stressCarpetNoDiagonals() {
             grav.addBody(bodies[i][j]);
     grav.build();
 
-    // Only right and down neighbor constraints (no diagonals)
+    // Only right and down neighbor constraints, correct anchor points
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
-            // Right neighbor
+            // Right neighbor (+X direction)
             if (i + 1 < N)
                 builder.createDistanceConstraint()
                     .withBodyA(bodies[i][j])
                     .withBodyB(bodies[i+1][j])
-                    .withAutoDistance(true)
+                    .withLocalPointA(halfBox, 0, 0)   // +X face of A
+                    .withLocalPointB(-halfBox, 0, 0)  // -X face of B
                     .build();
-            // Down neighbor
+            // Down neighbor (+Y direction)
             if (j + 1 < N)
                 builder.createDistanceConstraint()
                     .withBodyA(bodies[i][j])
                     .withBodyB(bodies[i][j+1])
-                    .withAutoDistance(true)
+                    .withLocalPointA(0, halfBox, 0)   // +Y face of A
+                    .withLocalPointB(0, -halfBox, 0)  // -Y face of B
                     .build();
         }
     }
