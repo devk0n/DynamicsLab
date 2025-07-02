@@ -25,17 +25,7 @@ DynamicsLab simulates rigid body dynamics by solving the equations of motion wit
 
 ![Demo](assets/files/TriplePendulum.gif)
 
-To help users and contributors understand the dynamics and constraints, consider including the following visual media in the repository or documentation:
-
-- **Static Images:**  
-  - **Diagrams:** Create schematic diagrams that illustrate how each constraint (ball joint, distance, revolute, spherical, universal) connects two bodies.  
-  - **Screenshots:** Include high-resolution screenshots of the simulation setup showing rigid bodies with annotated constraint connections.
-
-- **Animated GIFs:**  
-  - **Constraint Demonstrations:** Produce GIFs showing the simulation in action, emphasizing how each joint restricts motion. For example, a GIF demonstrating a revolute joint could highlight the single-axis rotation.
-  - **Before/After Projections:** Animated comparisons that show constraint drift before and after the projection/stabilization steps.
-
-These visuals can be embedded directly in the README using Markdown image syntax and hosted in the repository’s assets or docs folder.
+![Demo](assets/files/carpetDemo.gif)
 
 ---
 
