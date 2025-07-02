@@ -23,9 +23,15 @@ DynamicsLab simulates rigid body dynamics by solving the equations of motion wit
 
 ## Visual Media
 
+### Triple Pendulum
 ![Demo](assets/files/TriplePendulum.gif)
 
+### Carpet Stress Test
 ![Demo](assets/files/carpetDemo.gif)
+
+### Movement Demo
+![Demo](assets/files/movementDemo.gif)
+
 
 ---
 
