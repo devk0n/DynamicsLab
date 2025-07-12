@@ -1,27 +1,28 @@
-<svg width="1200" height="250" viewBox="0 0 1200 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 2000 350" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
   <style>
-    .title { font-family: 'Montserrat', Arial, sans-serif; font-weight: 900; font-size: 110px; letter-spacing: 6px; }
-    .lab1 { fill: #19e2ff; }
-    .lab2 { fill: #4cb8ff; }
-    .lab3 { fill: #8487ff; }
-    .lab4 { fill: #d65eff; }
-    .slogan { font-family: 'Montserrat', Arial, sans-serif; font-size: 34px; letter-spacing: 22px; fill: #fff; }
+    .logo { font-family: 'Montserrat', Arial, sans-serif; font-weight: 900; font-size: 170px; letter-spacing: 14px; }
+    .c1 { fill: #19e2ff; }
+    .c2 { fill: #32b9ff; }
+    .c3 { fill: #6f7dff; }
+    .c4 { fill: #b74fff; }
+    .c5 { fill: #ff36b7; }
+    .slogan { font-family: 'Montserrat', Arial, sans-serif; font-size: 48px; letter-spacing: 16px; fill: #fff; }
   </style>
-  <rect width="1200" height="250" fill="#15181f"/>
-  <!-- DYNAMICS -->
-  <text x="55" y="120">
-    <tspan class="title lab1">D</tspan>
-    <tspan class="title lab1" dx="38">Y</tspan>
-    <tspan class="title lab2" dx="40">N</tspan>
-    <tspan class="title lab2" dx="44">A</tspan>
-    <tspan class="title lab3" dx="39">M</tspan>
-    <tspan class="title lab3" dx="47">I</tspan>
-    <tspan class="title lab4" dx="30">C</tspan>
-    <tspan class="title lab4" dx="30">S</tspan>
-    <tspan class="title lab4" dx="32">L</tspan>
-    <tspan class="title lab4" dx="34">A</tspan>
-    <tspan class="title lab4" dx="37">B</tspan>
+  <rect width="2000" height="350" fill="#15181f"/>
+  <!-- Centered Logo -->
+  <text x="1000" y="175" class="logo" text-anchor="middle">
+    <tspan class="c1">D</tspan>
+    <tspan class="c1">Y</tspan>
+    <tspan class="c2">N</tspan>
+    <tspan class="c2">A</tspan>
+    <tspan class="c3">M</tspan>
+    <tspan class="c3">I</tspan>
+    <tspan class="c4">C</tspan>
+    <tspan class="c4">S</tspan>
+    <tspan class="c5">L</tspan>
+    <tspan class="c5">A</tspan>
+    <tspan class="c5">B</tspan>
   </text>
-  <!-- SLOGAN -->
-  <text x="55" y="200" class="slogan">SIMULATE. ANALYZE. INNOVATE.</text>
+  <!-- Centered Slogan -->
+  <text x="1000" y="285" class="slogan" text-anchor="middle">SIMULATE. ANALYZE. INNOVATE.</text>
 </svg>
