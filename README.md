@@ -118,14 +118,15 @@ This project is licensed under the [MIT License](LICENSE).
 
 For questions, feedback, or further information, please open an issue [GitHub issues](https://github.com/devk0n/DynamicsLab/issues).
 
-## Support
+## Support DynamicsLab
 
-If you find DynamicsLab helpful, consider supporting development:
+If you find DynamicsLab useful or interesting, consider buying me a coffee—or helping keep the project going—with a small Bitcoin donation! Your support means a lot and helps me keep improving this project for everyone.
 
-**BTC:**  
+**BTC Address:**  
 `bc1q7tj9hmr703kq63hdjxz8vu4meqavduwp8suxts`
 
 Or scan the QR code:
 
 ![Bitcoin QR Code](https://www.bitcoinqrcodemaker.com/api/?style=bitcoin&address=bc1q7tj9hmr703kq63hdjxz8vu4meqavduwp8suxts)
 
+Thank you for supporting open-source software! 🙏
